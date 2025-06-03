@@ -1,18 +1,22 @@
 
 import React, { useState } from 'react';
-import { Menu, Sun, Moon, Globe, Clock, DollarSign } from 'lucide-react';
+import { Menu, Sun, Moon, Globe, Clock, DollarSign, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useAuth } from '@/hooks/useAuth';
+import { Link } from 'react-router-dom';
 
 interface HeaderProps {
-  onSidebarToggle: () => void;
+  sidebarOpen: boolean;
+  setSidebarOpen: (open: boolean) => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
+const Header: React.FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen }) => {
   const { theme, toggleTheme } = useTheme();
   const { language, setLanguage, t } = useLanguage();
+  const { user, signOut } = useAuth();
   const [currentTime, setCurrentTime] = useState(new Date());
 
   React.useEffect(() => {
@@ -31,12 +35,14 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
     { code: 'ja', name: '日本語', flag: '🇯🇵' }
   ];
 
-  const currencies = ['USD', 'EUR', 'GBP', 'JPY', 'CAD'];
+  const currencies = ['USD', 'EUR', 'GBP', 'JPY', 'CAD', 'SAR'];
 
   return (
-    <header className="glass border-b sticky top-0 z-50 w-full h-16 flex items-center justify-between px-6">
+    <header className="glass border-b sticky top-0 z-50 w-full h-16 flex items-center justify-between px-6" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       <div className="flex items-center gap-4">
-        <h1 className="text-2xl font-bold gradient-text">GPO Nexus</h1>
+        <Link to="/" className="text-2xl font-bold gradient-text">
+          GPO Nexus
+        </Link>
         <div className="hidden md:flex items-center gap-2 text-sm text-muted-foreground">
           <Clock className="w-4 h-4" />
           <span>{currentTime.toLocaleTimeString()}</span>
@@ -82,14 +88,39 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
           {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
         </Button>
 
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onSidebarToggle}
-          className="relative"
-        >
-          <Menu className="w-5 h-5" />
-        </Button>
+        {user ? (
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="relative"
+            >
+              <Menu className="w-5 h-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={signOut}
+              className="relative"
+            >
+              <User className="w-5 h-5" />
+            </Button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <Link to="/auth">
+              <Button variant="ghost" size="sm">
+                تسجيل الدخول
+              </Button>
+            </Link>
+            <Link to="/auth">
+              <Button size="sm">
+                إنشاء حساب
+              </Button>
+            </Link>
+          </div>
+        )}
       </div>
     </header>
   );

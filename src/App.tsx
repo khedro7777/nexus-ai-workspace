@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,6 +9,8 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import CreateGroup from "./pages/CreateGroup";
+import MyGroups from "./pages/MyGroups";
+import GroupDetails from "./pages/GroupDetails";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +27,8 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/create-group" element={<CreateGroup />} />
+            <Route path="/my-groups" element={<MyGroups />} />
+            <Route path="/group/:id" element={<GroupDetails />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

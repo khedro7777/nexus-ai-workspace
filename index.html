@@ -1,40 +1,98 @@
 
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="ar" dir="rtl">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GPO Unified Nexus - AI-Powered Workspace</title>
-    <meta name="description" content="AI-powered unified workspace for collaborative governance and operations" />
-    <meta name="author" content="GPO Nexus Team" />
-    <meta name="theme-color" content="#8b5cf6" />
-
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="/manifest.json" />
+    <title>GPO Nexus - منصة التعاقد الذكي</title>
+    <meta name="description" content="منصة التعاقد الذكي بين المشترين والموردين والمستقلين" />
     
-    <!-- Icons -->
-    <link rel="icon" href="/placeholder.svg" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="/placeholder.svg" />
-
+    <!-- PWA Configuration -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#2563eb" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="GPO Nexus" />
+    
+    <!-- Mobile optimization -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="GPO Nexus" />
+    
+    <!-- Arabic language support -->
+    <meta name="language" content="Arabic" />
+    <meta name="dir" content="rtl" />
+    
+    <!-- SEO Meta Tags -->
+    <meta name="keywords" content="تعاقد ذكي, شراء تعاوني, تسويق تعاوني, موردين, مستقلين, GPO" />
+    <meta name="author" content="GPO Nexus Team" />
+    
     <!-- Open Graph -->
-    <meta property="og:title" content="GPO Unified Nexus" />
-    <meta property="og:description" content="AI-powered unified workspace for collaborative governance and operations" />
+    <meta property="og:title" content="GPO Nexus - منصة التعاقد الذكي" />
+    <meta property="og:description" content="منصة التعاقد الذكي بين المشترين والموردين والمستقلين" />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-
-    <!-- Twitter -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@gpo_nexus" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta property="og:locale" content="ar_SA" />
+    
+    <!-- Preload critical resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   </head>
-
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- PWA Install Banner -->
+    <div id="install-banner" style="display: none; position: fixed; bottom: 20px; left: 20px; right: 20px; background: #2563eb; color: white; padding: 16px; border-radius: 8px; text-align: center; z-index: 1000;">
+      <p style="margin: 0 0 12px 0; font-size: 14px;">هل تريد تثبيت التطبيق على جهازك؟</p>
+      <button id="install-button" style="background: white; color: #2563eb; border: none; padding: 8px 16px; border-radius: 4px; margin-left: 8px; cursor: pointer;">تثبيت</button>
+      <button id="install-dismiss" style="background: transparent; color: white; border: 1px solid white; padding: 8px 16px; border-radius: 4px; cursor: pointer;">لاحقاً</button>
+    </div>
+    
+    <script>
+      // Register Service Worker
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+              console.log('SW registered: ', registration);
+            })
+            .catch((registrationError) => {
+              console.log('SW registration failed: ', registrationError);
+            });
+        });
+      }
+      
+      // PWA Install Prompt
+      let deferredPrompt;
+      const installBanner = document.getElementById('install-banner');
+      const installButton = document.getElementById('install-button');
+      const dismissButton = document.getElementById('install-dismiss');
+      
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        installBanner.style.display = 'block';
+      });
+      
+      installButton.addEventListener('click', async () => {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          const { outcome } = await deferredPrompt.userChoice;
+          console.log(`User response to the install prompt: ${outcome}`);
+          deferredPrompt = null;
+          installBanner.style.display = 'none';
+        }
+      });
+      
+      dismissButton.addEventListener('click', () => {
+        installBanner.style.display = 'none';
+        deferredPrompt = null;
+      });
+      
+      window.addEventListener('appinstalled', () => {
+        console.log('PWA was installed');
+        installBanner.style.display = 'none';
+      });
+    </script>
   </body>
 </html>

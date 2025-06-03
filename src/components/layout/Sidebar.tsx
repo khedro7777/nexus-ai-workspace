@@ -1,74 +1,91 @@
 
 import React from 'react';
-import { X, Users, FileText, Gavel, Building, MessageSquare, BarChart3, Settings, Bell } from 'lucide-react';
+import { X, Users, FileText, Gavel, Building, MessageSquare, BarChart3, Settings, Bell, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import { useAuth } from '@/hooks/useAuth';
+import { Link } from 'react-router-dom';
 
 interface SidebarProps {
-  isOpen: boolean;
-  onClose: () => void;
+  open: boolean;
+  setOpen: (open: boolean) => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
+const Sidebar: React.FC<SidebarProps> = ({ open, setOpen }) => {
+  const { user, signOut } = useAuth();
+
   const menuItems = [
-    { icon: Users, label: 'Active Groups', count: 12, color: 'bg-blue-500' },
-    { icon: FileText, label: 'Contracts', count: 8, color: 'bg-green-500' },
-    { icon: Gavel, label: 'Arbitration', count: 3, color: 'bg-red-500' },
-    { icon: Building, label: 'Companies', count: 5, color: 'bg-purple-500' },
-    { icon: MessageSquare, label: 'Negotiations', count: 15, color: 'bg-orange-500' },
-    { icon: BarChart3, label: 'Analytics', count: null, color: 'bg-teal-500' },
+    { icon: Users, label: 'مجموعاتي', count: 0, color: 'bg-blue-500', link: '/my-groups' },
+    { icon: FileText, label: 'العقود', count: 0, color: 'bg-green-500', link: '/contracts' },
+    { icon: Gavel, label: 'التحكيم', count: 0, color: 'bg-red-500', link: '/arbitration' },
+    { icon: Building, label: 'الموردين', count: 0, color: 'bg-purple-500', link: '/suppliers' },
+    { icon: MessageSquare, label: 'المفاوضات', count: 0, color: 'bg-orange-500', link: '/negotiations' },
+    { icon: BarChart3, label: 'التحليلات', count: null, color: 'bg-teal-500', link: '/analytics' },
   ];
 
   const notifications = [
-    { title: 'New group proposal', time: '2m ago', type: 'info' },
-    { title: 'Contract signed', time: '5m ago', type: 'success' },
-    { title: 'Arbitration request', time: '10m ago', type: 'warning' },
+    { title: 'اقتراح مجموعة جديدة', time: 'منذ دقيقتين', type: 'info' },
+    { title: 'تم توقيع عقد', time: 'منذ 5 دقائق', type: 'success' },
+    { title: 'طلب تحكيم', time: 'منذ 10 دقائق', type: 'warning' },
   ];
 
   return (
     <>
-      {isOpen && (
+      {open && (
         <div 
           className="fixed inset-0 bg-black/20 z-40 md:hidden"
-          onClick={onClose}
+          onClick={() => setOpen(false)}
         />
       )}
       
       <div className={`
         fixed right-0 top-0 h-full w-80 glass border-l z-50 transform transition-transform duration-300
-        ${isOpen ? 'translate-x-0' : 'translate-x-full'}
+        ${open ? 'translate-x-0' : 'translate-x-full'}
         animate-slide-in-right
-      `}>
+      `} dir="rtl">
         <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-lg font-semibold">Control Panel</h2>
-          <Button variant="ghost" size="icon" onClick={onClose}>
+          <h2 className="text-lg font-semibold">لوحة التحكم</h2>
+          <Button variant="ghost" size="icon" onClick={() => setOpen(false)}>
             <X className="w-5 h-5" />
           </Button>
         </div>
 
         <ScrollArea className="h-[calc(100vh-140px)]">
           <div className="p-4 space-y-6">
+            {/* User Profile */}
+            <div className="flex items-center gap-3 p-3 rounded-lg bg-card border">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <User className="w-5 h-5" />
+              </div>
+              <div className="flex-1">
+                <p className="font-medium text-sm">{user?.user_metadata?.full_name || 'مستخدم'}</p>
+                <p className="text-xs text-muted-foreground">{user?.email}</p>
+              </div>
+            </div>
+
             {/* Quick Stats */}
             <div>
               <h3 className="text-sm font-medium mb-3 flex items-center gap-2">
                 <BarChart3 className="w-4 h-4" />
-                Quick Stats
+                إحصائيات سريعة
               </h3>
               <div className="space-y-2">
                 {menuItems.map((item, index) => (
-                  <div key={index} className="flex items-center justify-between p-2 rounded-lg hover:bg-accent/50 transition-colors cursor-pointer">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-2 h-2 rounded-full ${item.color}`} />
-                      <span className="text-sm">{item.label}</span>
+                  <Link key={index} to={item.link}>
+                    <div className="flex items-center justify-between p-2 rounded-lg hover:bg-accent/50 transition-colors cursor-pointer">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-2 h-2 rounded-full ${item.color}`} />
+                        <span className="text-sm">{item.label}</span>
+                      </div>
+                      {item.count !== null && (
+                        <Badge variant="secondary" className="text-xs">
+                          {item.count}
+                        </Badge>
+                      )}
                     </div>
-                    {item.count && (
-                      <Badge variant="secondary" className="text-xs">
-                        {item.count}
-                      </Badge>
-                    )}
-                  </div>
+                  </Link>
                 ))}
               </div>
             </div>
@@ -79,7 +96,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             <div>
               <h3 className="text-sm font-medium mb-3 flex items-center gap-2">
                 <Bell className="w-4 h-4" />
-                Live Updates
+                التحديثات المباشرة
               </h3>
               <div className="space-y-3">
                 {notifications.map((notif, index) => (
@@ -101,11 +118,20 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
             <Separator />
 
-            {/* Settings */}
-            <div>
+            {/* Settings and Logout */}
+            <div className="space-y-2">
               <Button variant="ghost" className="w-full justify-start" size="sm">
-                <Settings className="w-4 h-4 mr-2" />
-                Settings
+                <Settings className="w-4 h-4 ml-2" />
+                الإعدادات
+              </Button>
+              <Button 
+                variant="ghost" 
+                className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50" 
+                size="sm"
+                onClick={signOut}
+              >
+                <LogOut className="w-4 h-4 ml-2" />
+                تسجيل الخروج
               </Button>
             </div>
           </div>

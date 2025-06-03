@@ -1,33 +1,43 @@
 
 {
-  "name": "GPO Unified Nexus",
+  "name": "GPO Smart Platform - منصة التعاقد الذكي",
   "short_name": "GPO Nexus",
-  "description": "AI-powered unified workspace for collaborative governance and operations",
+  "description": "منصة التعاقد الذكي بين المشترين والموردين والمستقلين",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#8b5cf6",
-  "orientation": "portrait-primary",
+  "theme_color": "#2563eb",
+  "orientation": "portrait",
+  "lang": "ar",
+  "dir": "rtl",
+  "categories": ["business", "productivity", "shopping"],
   "icons": [
     {
+      "src": "/favicon.ico",
+      "type": "image/x-icon",
+      "sizes": "16x16"
+    },
+    {
       "src": "/placeholder.svg",
-      "sizes": "192x192",
       "type": "image/svg+xml",
+      "sizes": "192x192",
       "purpose": "any maskable"
     },
     {
       "src": "/placeholder.svg",
-      "sizes": "512x512",
       "type": "image/svg+xml",
+      "sizes": "512x512",
       "purpose": "any maskable"
     }
   ],
-  "categories": ["business", "productivity", "collaboration"],
-  "lang": "en",
+  "screenshots": [
+    {
+      "src": "/placeholder.svg",
+      "type": "image/svg+xml",
+      "sizes": "540x720",
+      "form_factor": "narrow"
+    }
+  ],
   "scope": "/",
-  "permissions": [
-    "notifications",
-    "camera",
-    "microphone"
-  ]
+  "prefer_related_applications": false
 }
