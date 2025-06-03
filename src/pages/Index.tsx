@@ -1,142 +1,267 @@
 
-import React, { useState } from 'react';
-import { Users, FileText, Gavel, Building, MessageSquare, ShoppingCart, TrendingUp, Plus } from 'lucide-react';
-import Header from '@/components/layout/Header';
-import Sidebar from '@/components/layout/Sidebar';
-import MCPPanel from '@/components/layout/MCPPanel';
-import ServiceCard from '@/components/cards/ServiceCard';
-import { useLanguage } from '@/hooks/useLanguage';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ShoppingCart, Users, Briefcase, Building2, Search, Filter } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import Header from "@/components/layout/Header";
+import { useState } from "react";
 
 const Index = () => {
+  const { user } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { t } = useLanguage();
 
-  const services = [
+  // Mock data for demonstration
+  const featuredGroups = [
     {
-      title: 'Group Buying',
-      description: 'Collaborative purchasing power for better deals and bulk discounts',
-      icon: ShoppingCart,
-      status: 'active' as const,
-      members: 24,
-      progress: 75
+      id: 1,
+      name: "مجموعة استيراد أجهزة طبية",
+      type: "شراء تعاوني",
+      country: "السعودية",
+      members: "8/15",
+      status: "مفتوحة للانضمام",
+      date: "15 مايو 2025"
     },
     {
-      title: 'Marketing Hub',
-      description: 'Unified marketing campaigns and brand development services',
-      icon: TrendingUp,
-      status: 'pending' as const,
-      members: 18,
-      progress: 45
+      id: 2,
+      name: "حملة تسويق للمنتجات العضوية",
+      type: "تسويق تعاوني", 
+      country: "الإمارات",
+      members: "12/20",
+      status: "قيد التفاوض",
+      date: "20 مايو 2025"
     },
     {
-      title: 'Company Formation',
-      description: 'Legal entity creation and business structure development',
-      icon: Building,
-      status: 'new' as const,
-      members: 8,
-      progress: 20
-    },
-    {
-      title: 'Contract Management',
-      description: 'Smart contract templates and negotiation workflows',
-      icon: FileText,
-      status: 'active' as const,
-      members: 15,
-      progress: 90
-    },
-    {
-      title: 'Arbitration Services',
-      description: 'Dispute resolution and mediation for group conflicts',
-      icon: Gavel,
-      status: 'completed' as const,
-      members: 6,
-      progress: 100
-    },
-    {
-      title: 'DAO Governance',
-      description: 'Decentralized decision making and voting mechanisms',
-      icon: Users,
-      status: 'active' as const,
-      members: 32,
-      progress: 60
+      id: 3,
+      name: "طلب مطورين لمشروع تطبيق",
+      type: "طلب مستقلين",
+      country: "مصر",
+      members: "5/8",
+      status: "تلقي عروض",
+      date: "22 مايو 2025"
     }
   ];
 
-  const recentActivity = [
-    { action: 'New group formed', group: 'Tech Startup Collective', time: '2m ago' },
-    { action: 'Contract signed', group: 'Marketing Alliance', time: '5m ago' },
-    { action: 'Voting completed', group: 'Investment DAO', time: '12m ago' }
+  const services = [
+    {
+      title: "الشراء التعاوني",
+      description: "انضم إلى مجموعة لشراء منتجات أو خدمات بكميات",
+      icon: ShoppingCart,
+      color: "bg-blue-500"
+    },
+    {
+      title: "التسويق التعاوني", 
+      description: "تعاون مع آخرين لإنشاء حملات تسويقية ذكية",
+      icon: Users,
+      color: "bg-green-500"
+    },
+    {
+      title: "بوابة المستقلين",
+      description: "اعرض مهاراتك أو شارك في مهام تعاونية",
+      icon: Briefcase,
+      color: "bg-purple-500"
+    },
+    {
+      title: "بوابة الموردين",
+      description: "قدم عروضك للمجموعات الجاهزة للتفاوض",
+      icon: Building2,
+      color: "bg-orange-500"
+    }
   ];
 
   return (
-    <div className="min-h-screen flex flex-col w-full">
-      <Header onSidebarToggle={() => setSidebarOpen(!sidebarOpen)} />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50" dir="rtl">
+      <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
       
-      <main className="flex-1 px-6 py-8 pb-32 max-w-7xl mx-auto w-full">
-        {/* Hero Section */}
-        <div className="text-center mb-12 animate-fade-in">
-          <h1 className="text-4xl md:text-6xl font-bold mb-4 gradient-text">
-            {t('welcome')}
+      {/* Hero Section */}
+      <section className="py-20 px-4">
+        <div className="max-w-6xl mx-auto text-center">
+          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+            منصة التعاقد الذكي
+            <span className="block text-blue-600">بين المشترين والموردين والمستقلين</span>
           </h1>
-          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            {t('subtitle')}
+          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+            منصة متكاملة للشراء التعاوني والتسويق الجماعي وربط الموردين بالعملاء عبر نظام تفاوض ذكي وآمن
           </p>
           
-          <div className="flex flex-wrap justify-center gap-4 mb-8">
-            <Badge variant="outline" className="bg-green-500/10 text-green-700 border-green-500/20">
-              🟢 12 Active Groups
-            </Badge>
-            <Badge variant="outline" className="bg-blue-500/10 text-blue-700 border-blue-500/20">
-              📄 8 Contracts
-            </Badge>
-            <Badge variant="outline" className="bg-purple-500/10 text-purple-700 border-purple-500/20">
-              ⚖️ 3 Arbitrations
-            </Badge>
+          {!user ? (
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link to="/auth">
+                <Button size="lg" className="text-lg px-8 py-3">
+                  ابدأ الآن مجاناً
+                </Button>
+              </Link>
+              <Link to="/auth">
+                <Button size="lg" variant="outline" className="text-lg px-8 py-3">
+                  تسجيل الدخول
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <Link to="/dashboard">
+              <Button size="lg" className="text-lg px-8 py-3">
+                انتقل إلى لوحة التحكم
+              </Button>
+            </Link>
+          )}
+        </div>
+      </section>
+
+      {/* Services Section */}
+      <section className="py-16 bg-white">
+        <div className="max-w-6xl mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
+            البوابات الأساسية
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {services.map((service, index) => (
+              <Card key={index} className="hover:shadow-lg transition-shadow group cursor-pointer">
+                <CardHeader className="text-center">
+                  <div className={`w-16 h-16 rounded-full ${service.color} flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform`}>
+                    <service.icon className="w-8 h-8 text-white" />
+                  </div>
+                  <CardTitle className="text-xl">{service.title}</CardTitle>
+                </CardHeader>
+                <CardContent className="text-center">
+                  <CardDescription className="text-gray-600 mb-4">
+                    {service.description}
+                  </CardDescription>
+                  <Link to={user ? "/dashboard" : "/auth"}>
+                    <Button variant="outline" className="w-full">
+                      ابدأ
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Groups Section */}
+      <section className="py-16 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              العروض والمجموعات المفتوحة
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              تصفح المجموعات النشطة والفرص المتاحة للانضمام والمشاركة
+            </p>
           </div>
 
-          <Button className="animate-pulse-glow" size="lg">
-            <Plus className="w-5 h-5 mr-2" />
-            {t('newGroup')}
-          </Button>
-        </div>
+          {/* Search and Filter */}
+          <div className="flex flex-col md:flex-row gap-4 mb-8">
+            <div className="flex-1 relative">
+              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="ابحث في المجموعات..."
+                className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+            <Button variant="outline" className="flex items-center gap-2">
+              <Filter className="w-4 h-4" />
+              فلترة
+            </Button>
+          </div>
 
-        {/* Services Grid */}
-        <section className="mb-12">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold">{t('services')}</h2>
-            <Badge variant="secondary">6 Available</Badge>
+          {/* Groups Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {featuredGroups.map((group) => (
+              <Card key={group.id} className="hover:shadow-md transition-shadow">
+                <CardHeader>
+                  <div className="flex justify-between items-start mb-2">
+                    <span className="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                      {group.type}
+                    </span>
+                    <span className="text-sm text-gray-500">{group.date}</span>
+                  </div>
+                  <CardTitle className="text-lg leading-tight">{group.name}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">الدولة:</span>
+                      <span>{group.country}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">الأعضاء:</span>
+                      <span>{group.members}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">الحالة:</span>
+                      <span className="text-green-600">{group.status}</span>
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <Link to={user ? `/group/${group.id}` : "/auth"}>
+                      <Button variant="outline" size="sm" className="w-full">
+                        عرض التفاصيل
+                      </Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          <div className="text-center mt-8">
+            <Link to={user ? "/dashboard" : "/auth"}>
+              <Button variant="outline" size="lg">
+                عرض المزيد من المجموعات
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+              <h3 className="text-lg font-bold mb-4">GPO المنصة الموحدة</h3>
+              <p className="text-gray-400">
+                منصة التعاقد الذكي للشراء التعاوني والتسويق الجماعي
+              </p>
+            </div>
+            
+            <div>
+              <h4 className="font-semibold mb-4">الشركة</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li><a href="#" className="hover:text-white">من نحن</a></li>
+                <li><a href="#" className="hover:text-white">كيف تعمل المنصة</a></li>
+                <li><a href="#" className="hover:text-white">الدعم والمساعدة</a></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="font-semibold mb-4">الخدمات</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li><a href="#" className="hover:text-white">الشراء التعاوني</a></li>
+                <li><a href="#" className="hover:text-white">التسويق التعاوني</a></li>
+                <li><a href="#" className="hover:text-white">بوابة المستقلين</a></li>
+                <li><a href="#" className="hover:text-white">بوابة الموردين</a></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="font-semibold mb-4">قانوني</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li><a href="#" className="hover:text-white">سياسة الخصوصية</a></li>
+                <li><a href="#" className="hover:text-white">شروط الاستخدام</a></li>
+                <li><a href="#" className="hover:text-white">اتصل بنا</a></li>
+              </ul>
+            </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {services.map((service, index) => (
-              <div key={index} className="animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
-                <ServiceCard {...service} />
-              </div>
-            ))}
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+            <p>&copy; 2025 GPO المنصة الموحدة. جميع الحقوق محفوظة.</p>
           </div>
-        </section>
-
-        {/* Recent Activity */}
-        <section className="mb-8">
-          <h2 className="text-2xl font-bold mb-6">Recent Activity</h2>
-          <div className="space-y-4">
-            {recentActivity.map((activity, index) => (
-              <div key={index} className="glass p-4 rounded-lg flex items-center justify-between animate-fade-in">
-                <div>
-                  <p className="font-medium">{activity.action}</p>
-                  <p className="text-sm text-muted-foreground">{activity.group}</p>
-                </div>
-                <span className="text-sm text-muted-foreground">{activity.time}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-      </main>
-
-      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <MCPPanel />
+        </div>
+      </footer>
     </div>
   );
 };
