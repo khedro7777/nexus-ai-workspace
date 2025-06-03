@@ -1,7 +1,6 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ShoppingCart, Users, Briefcase, Building2, Search, Filter } from "lucide-react";
+import { ShoppingCart, Users, Briefcase, Building2, Search, Filter, Building, Gavel, Zap, Globe } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import Header from "@/components/layout/Header";
@@ -47,25 +46,43 @@ const Index = () => {
       title: "الشراء التعاوني",
       description: "انضم إلى مجموعة لشراء منتجات أو خدمات بكميات",
       icon: ShoppingCart,
-      color: "bg-blue-500"
+      color: "bg-blue-500",
+      link: "/dashboard"
     },
     {
       title: "التسويق التعاوني", 
       description: "تعاون مع آخرين لإنشاء حملات تسويقية ذكية",
       icon: Users,
-      color: "bg-green-500"
+      color: "bg-green-500",
+      link: "/dashboard"
     },
     {
       title: "بوابة المستقلين",
       description: "اعرض مهاراتك أو شارك في مهام تعاونية",
       icon: Briefcase,
-      color: "bg-purple-500"
+      color: "bg-purple-500",
+      link: "/dashboard"
     },
     {
       title: "بوابة الموردين",
       description: "قدم عروضك للمجموعات الجاهزة للتفاوض",
       icon: Building2,
-      color: "bg-orange-500"
+      color: "bg-orange-500",
+      link: "/dashboard"
+    },
+    {
+      title: "بوابة الشركات",
+      description: "تأسيس وإدارة الشركات بذكاء اصطناعي متقدم",
+      icon: Building,
+      color: "bg-indigo-500",
+      link: "/company-hub"
+    },
+    {
+      title: "بوابة التحكيم",
+      description: "منصة تحكيم ذكية لحل النزاعات التجارية",
+      icon: Gavel,
+      color: "bg-red-500",
+      link: "/arbitration-hub"
     }
   ];
 
@@ -76,10 +93,18 @@ const Index = () => {
       {/* Hero Section */}
       <section className="py-20 px-4">
         <div className="max-w-6xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-600 px-4 py-2 rounded-full text-sm mb-6">
+            <Zap className="w-4 h-4" />
+            مدعوم بالذكاء الاصطناعي المتقدم
+          </div>
+          
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
             منصة التعاقد الذكي
-            <span className="block text-blue-600">بين المشترين والموردين والمستقلين</span>
+            <span className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              بين المشترين والموردين والمستقلين
+            </span>
           </h1>
+          
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
             منصة متكاملة للشراء التعاوني والتسويق الجماعي وربط الموردين بالعملاء عبر نظام تفاوض ذكي وآمن
           </p>
@@ -87,20 +112,22 @@ const Index = () => {
           {!user ? (
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/auth">
-                <Button size="lg" className="text-lg px-8 py-3">
+                <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-lg px-8 py-3">
                   ابدأ الآن مجاناً
+                  <Zap className="w-5 h-5 mr-2" />
                 </Button>
               </Link>
               <Link to="/auth">
-                <Button size="lg" variant="outline" className="text-lg px-8 py-3">
+                <Button size="lg" variant="outline" className="text-lg px-8 py-3 border-2">
                   تسجيل الدخول
                 </Button>
               </Link>
             </div>
           ) : (
             <Link to="/dashboard">
-              <Button size="lg" className="text-lg px-8 py-3">
+              <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-lg px-8 py-3">
                 انتقل إلى لوحة التحكم
+                <Globe className="w-5 h-5 mr-2" />
               </Button>
             </Link>
           )}
@@ -111,12 +138,12 @@ const Index = () => {
       <section className="py-16 bg-white">
         <div className="max-w-6xl mx-auto px-4">
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
-            البوابات الأساسية
+            البوابات الذكية المتكاملة
           </h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {services.map((service, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow group cursor-pointer">
+              <Card key={index} className="hover:shadow-xl transition-all duration-300 group cursor-pointer border-0 bg-gradient-to-br from-white to-gray-50">
                 <CardHeader className="text-center">
                   <div className={`w-16 h-16 rounded-full ${service.color} flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform`}>
                     <service.icon className="w-8 h-8 text-white" />
@@ -127,8 +154,8 @@ const Index = () => {
                   <CardDescription className="text-gray-600 mb-4">
                     {service.description}
                   </CardDescription>
-                  <Link to={user ? "/dashboard" : "/auth"}>
-                    <Button variant="outline" className="w-full">
+                  <Link to={user ? service.link : "/auth"}>
+                    <Button variant="outline" className="w-full group-hover:bg-blue-50">
                       ابدأ
                     </Button>
                   </Link>

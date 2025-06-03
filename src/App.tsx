@@ -11,6 +11,8 @@ import Dashboard from "./pages/Dashboard";
 import CreateGroup from "./pages/CreateGroup";
 import MyGroups from "./pages/MyGroups";
 import GroupDetails from "./pages/GroupDetails";
+import CompanyHub from "./pages/CompanyHub";
+import ArbitrationHub from "./pages/ArbitrationHub";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +31,8 @@ const App = () => (
             <Route path="/create-group" element={<CreateGroup />} />
             <Route path="/my-groups" element={<MyGroups />} />
             <Route path="/group/:id" element={<GroupDetails />} />
+            <Route path="/company-hub" element={<CompanyHub />} />
+            <Route path="/arbitration-hub" element={<ArbitrationHub />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
