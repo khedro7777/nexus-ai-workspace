@@ -10,6 +10,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/Sidebar';
+import VotingSession from '@/components/voting/VotingSession';
+import CreateVotingSession from '@/components/voting/CreateVotingSession';
+import SupplierOffers from '@/components/offers/SupplierOffers';
+import CreateSupplierOffer from '@/components/offers/CreateSupplierOffer';
 
 interface GroupData {
   id: string;
@@ -46,6 +50,7 @@ const GroupDetails = () => {
   const [members, setMembers] = useState<GroupMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
     fetchGroupDetails();
@@ -132,6 +137,10 @@ const GroupDetails = () => {
     }
   };
 
+  const handleRefresh = () => {
+    setRefreshTrigger(prev => prev + 1);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50" dir="rtl">
@@ -211,11 +220,12 @@ const GroupDetails = () => {
         </Card>
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">نظرة عامة</TabsTrigger>
             <TabsTrigger value="members">الأعضاء</TabsTrigger>
             <TabsTrigger value="voting">التصويت</TabsTrigger>
             <TabsTrigger value="offers">العروض</TabsTrigger>
+            <TabsTrigger value="negotiations">المفاوضات</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
@@ -268,32 +278,34 @@ const GroupDetails = () => {
           </TabsContent>
 
           <TabsContent value="voting" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Vote className="w-5 h-5" />
-                  جلسات التصويت
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-8 text-gray-500">
-                  لا توجد جلسات تصويت نشطة حالياً
-                </div>
-              </CardContent>
-            </Card>
+            {isCreator && (
+              <CreateVotingSession 
+                groupId={group.id} 
+                onSessionCreated={handleRefresh}
+              />
+            )}
+            <VotingSession groupId={group.id} key={refreshTrigger} />
           </TabsContent>
 
           <TabsContent value="offers" className="space-y-4">
+            <CreateSupplierOffer 
+              groupId={group.id} 
+              onOfferCreated={handleRefresh}
+            />
+            <SupplierOffers groupId={group.id} key={refreshTrigger} />
+          </TabsContent>
+
+          <TabsContent value="negotiations" className="space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <FileText className="w-5 h-5" />
-                  العروض المقدمة
+                  <Gavel className="w-5 h-5" />
+                  جلسات المفاوضات
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-center py-8 text-gray-500">
-                  لا توجد عروض مقدمة حالياً
+                  ستتوفر جلسات المفاوضات قريباً
                 </div>
               </CardContent>
             </Card>
