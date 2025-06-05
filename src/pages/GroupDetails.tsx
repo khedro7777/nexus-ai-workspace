@@ -1,19 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, Calendar, MapPin, Building, ArrowLeft, Vote, FileText, Gavel } from 'lucide-react';
+import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/Sidebar';
-import VotingSession from '@/components/voting/VotingSession';
-import CreateVotingSession from '@/components/voting/CreateVotingSession';
-import SupplierOffers from '@/components/offers/SupplierOffers';
-import CreateSupplierOffer from '@/components/offers/CreateSupplierOffer';
+import GroupHeader from '@/components/group/GroupHeader';
+import GroupInfo from '@/components/group/GroupInfo';
+import GroupTabs from '@/components/group/GroupTabs';
 
 interface GroupData {
   id: string;
@@ -172,145 +166,22 @@ const GroupDetails = () => {
       <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
       
       <div className="max-w-6xl mx-auto p-6">
-        <div className="mb-6">
-          <Link to="/dashboard">
-            <Button variant="ghost" className="mb-4">
-              <ArrowLeft className="w-4 h-4 ml-2" />
-              العودة إلى لوحة التحكم
-            </Button>
-          </Link>
-        </div>
+        <GroupHeader />
+        
+        <GroupInfo 
+          group={group}
+          isCreator={isCreator}
+          isMember={isMember}
+          onJoinGroup={joinGroup}
+        />
 
-        <Card className="mb-6">
-          <CardHeader>
-            <div className="flex justify-between items-start">
-              <div>
-                <CardTitle className="text-2xl mb-2">{group.name}</CardTitle>
-                <CardDescription className="text-lg">
-                  {group.description}
-                </CardDescription>
-              </div>
-              <Badge variant={group.status === 'active' ? 'default' : 'secondary'}>
-                {group.status === 'active' ? 'نشطة' : 'قيد المراجعة'}
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-gray-500" />
-                <span>{group.country}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Building className="w-4 h-4 text-gray-500" />
-                <span>{group.sector}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Users className="w-4 h-4 text-gray-500" />
-                <span>{group.current_members} من أصل {group.max_members} عضو</span>
-              </div>
-            </div>
-
-            {!isMember && !isCreator && group.status === 'active' && (
-              <Button onClick={joinGroup} className="w-full md:w-auto">
-                انضم إلى المجموعة
-              </Button>
-            )}
-          </CardContent>
-        </Card>
-
-        <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="overview">نظرة عامة</TabsTrigger>
-            <TabsTrigger value="members">الأعضاء</TabsTrigger>
-            <TabsTrigger value="voting">التصويت</TabsTrigger>
-            <TabsTrigger value="offers">العروض</TabsTrigger>
-            <TabsTrigger value="negotiations">المفاوضات</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="overview" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>تفاصيل المجموعة</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <strong>النوع:</strong> {group.group_type}
-                  </div>
-                  <div>
-                    <strong>نوع العقد:</strong> {group.contract_type}
-                  </div>
-                  <div>
-                    <strong>المؤسس:</strong> {group.creator_profile?.full_name || 'غير معروف'}
-                  </div>
-                  <div>
-                    <strong>تاريخ الإنشاء:</strong> {new Date(group.created_at).toLocaleDateString('ar-SA')}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="members" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>أعضاء المجموعة ({members.length})</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {members.map((member) => (
-                    <div key={member.id} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div>
-                        <div className="font-medium">{member.profile?.full_name || 'عضو'}</div>
-                        <div className="text-sm text-gray-500">
-                          انضم في {new Date(member.joined_at).toLocaleDateString('ar-SA')}
-                        </div>
-                      </div>
-                      <Badge variant={member.role === 'creator' ? 'default' : 'secondary'}>
-                        {member.role === 'creator' ? 'مؤسس' : 'عضو'}
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="voting" className="space-y-4">
-            {isCreator && (
-              <CreateVotingSession 
-                groupId={group.id} 
-                onSessionCreated={handleRefresh}
-              />
-            )}
-            <VotingSession groupId={group.id} key={refreshTrigger} />
-          </TabsContent>
-
-          <TabsContent value="offers" className="space-y-4">
-            <CreateSupplierOffer 
-              groupId={group.id} 
-              onOfferCreated={handleRefresh}
-            />
-            <SupplierOffers groupId={group.id} key={refreshTrigger} />
-          </TabsContent>
-
-          <TabsContent value="negotiations" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Gavel className="w-5 h-5" />
-                  جلسات المفاوضات
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-8 text-gray-500">
-                  ستتوفر جلسات المفاوضات قريباً
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+        <GroupTabs
+          group={group}
+          members={members}
+          isCreator={isCreator}
+          refreshTrigger={refreshTrigger}
+          onRefresh={handleRefresh}
+        />
       </div>
     </div>
   );
