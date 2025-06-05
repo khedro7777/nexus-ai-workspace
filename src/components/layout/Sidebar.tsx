@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { X, Users, FileText, Gavel, Building, MessageSquare, BarChart3, Settings, Bell, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -19,7 +18,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setOpen }) => {
   const menuItems = [
     { icon: Users, label: 'مجموعاتي', count: 0, color: 'bg-blue-500', link: '/my-groups' },
     { icon: FileText, label: 'العقود', count: 0, color: 'bg-green-500', link: '/contracts' },
-    { icon: Gavel, label: 'التحكيم', count: 0, color: 'bg-red-500', link: '/arbitration' },
+    { icon: Gavel, label: 'التحكيم', count: 0, color: 'bg-red-500', link: '/arbitration-hub' },
     { icon: Building, label: 'الموردين', count: 0, color: 'bg-purple-500', link: '/suppliers' },
     { icon: MessageSquare, label: 'المفاوضات', count: 0, color: 'bg-orange-500', link: '/negotiations' },
     { icon: BarChart3, label: 'التحليلات', count: null, color: 'bg-teal-500', link: '/analytics' },
