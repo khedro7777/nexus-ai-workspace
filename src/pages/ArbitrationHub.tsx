@@ -14,70 +14,22 @@ import {
   AlertTriangle,
   User,
   Calendar,
-  Shield
+  Shield,
+  Plus,
+  Eye,
+  Edit
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/Sidebar';
+import { useArbitrationData } from '@/hooks/useArbitrationData';
+import CreateCaseModal from '@/components/arbitration/CreateCaseModal';
+import { useToast } from '@/hooks/use-toast';
 
 const ArbitrationHub = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  const arbitrationCases = [
-    {
-      id: 'ARB-001',
-      title: 'نزاع حول جودة المنتج',
-      parties: ['شركة الأحمد التجارية', 'مؤسسة البناء الحديث'],
-      status: 'جاري',
-      priority: 'عالي',
-      assignedTo: 'المحكم أحمد سالم',
-      createdAt: '2024-01-15',
-      deadline: '2024-02-15'
-    },
-    {
-      id: 'ARB-002',
-      title: 'خلاف في شروط التسليم',
-      parties: ['مصنع الكيماويات', 'شركة النقل السريع'],
-      status: 'معلق',
-      priority: 'متوسط',
-      assignedTo: 'المحكمة فاطمة النور',
-      createdAt: '2024-01-10',
-      deadline: '2024-02-10'
-    },
-    {
-      id: 'ARB-003',
-      title: 'نزاع مالي',
-      parties: ['البنك التجاري', 'شركة الاستثمار'],
-      status: 'مكتمل',
-      priority: 'عالي',
-      assignedTo: 'المحكم محمد عبدالله',
-      createdAt: '2024-01-05',
-      deadline: '2024-01-20'
-    }
-  ];
-
-  const arbitrators = [
-    {
-      name: 'المحكم أحمد سالم',
-      specialty: 'القانون التجاري',
-      experience: '15 سنة',
-      cases: 45,
-      rating: 4.9
-    },
-    {
-      name: 'المحكمة فاطمة النور',
-      specialty: 'قانون العقود',
-      experience: '12 سنة',
-      cases: 38,
-      rating: 4.8
-    },
-    {
-      name: 'المحكم محمد عبدالله',
-      specialty: 'القانون المصرفي',
-      experience: '20 سنة',
-      cases: 67,
-      rating: 4.9
-    }
-  ];
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const { cases, arbitrators, loading, createNewCase, updateCaseStatus, assignArbitrator } = useArbitrationData();
+  const { toast } = useToast();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -96,6 +48,38 @@ const ArbitrationHub = () => {
       default: return 'text-gray-600 bg-gray-100';
     }
   };
+
+  const handleStatusChange = (caseId: string, newStatus: any) => {
+    updateCaseStatus(caseId, newStatus);
+    toast({
+      title: "تم التحديث",
+      description: `تم تحديث حالة القضية إلى: ${newStatus}`
+    });
+  };
+
+  const handleAssignArbitrator = (caseId: string, arbitratorName: string) => {
+    assignArbitrator(caseId, arbitratorName);
+    toast({
+      title: "تم التعيين",
+      description: `تم تعيين المحكم: ${arbitratorName}`
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center" dir="rtl">
+        <div className="text-center">
+          <div className="animate-spin w-12 h-12 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p>جاري تحميل البيانات...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const activeCases = cases.filter(c => c.status === 'جاري').length;
+  const completedCases = cases.filter(c => c.status === 'مكتمل').length;
+  const availableArbitrators = arbitrators.filter(a => a.status === 'متاح').length;
+  const successRate = completedCases > 0 ? Math.round((completedCases / cases.length) * 100) : 0;
 
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">
@@ -124,7 +108,7 @@ const ArbitrationHub = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-600">القضايا النشطة</p>
-                      <p className="text-2xl font-bold text-gray-900">12</p>
+                      <p className="text-2xl font-bold text-gray-900">{activeCases}</p>
                     </div>
                     <Scale className="w-8 h-8 text-blue-500" />
                   </div>
@@ -136,7 +120,7 @@ const ArbitrationHub = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-600">القضايا المكتملة</p>
-                      <p className="text-2xl font-bold text-gray-900">148</p>
+                      <p className="text-2xl font-bold text-gray-900">{completedCases}</p>
                     </div>
                     <CheckCircle className="w-8 h-8 text-green-500" />
                   </div>
@@ -147,8 +131,8 @@ const ArbitrationHub = () => {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-600">المحكمين</p>
-                      <p className="text-2xl font-bold text-gray-900">8</p>
+                      <p className="text-sm text-gray-600">المحكمين المتاحين</p>
+                      <p className="text-2xl font-bold text-gray-900">{availableArbitrators}</p>
                     </div>
                     <User className="w-8 h-8 text-purple-500" />
                   </div>
@@ -160,7 +144,7 @@ const ArbitrationHub = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-600">معدل النجاح</p>
-                      <p className="text-2xl font-bold text-gray-900">94%</p>
+                      <p className="text-2xl font-bold text-gray-900">{successRate}%</p>
                     </div>
                     <Shield className="w-8 h-8 text-orange-500" />
                   </div>
@@ -177,8 +161,16 @@ const ArbitrationHub = () => {
               </TabsList>
 
               <TabsContent value="cases" className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-xl font-semibold">جميع القضايا</h2>
+                  <Button onClick={() => setCreateModalOpen(true)}>
+                    <Plus className="w-4 h-4 ml-2" />
+                    قضية جديدة
+                  </Button>
+                </div>
+                
                 <div className="grid gap-4">
-                  {arbitrationCases.map((case_item, index) => (
+                  {cases.map((case_item, index) => (
                     <Card key={index} className="hover:shadow-md transition-shadow">
                       <CardContent className="p-6">
                         <div className="flex items-start justify-between mb-4">
@@ -195,19 +187,41 @@ const ArbitrationHub = () => {
                             <p className="text-sm text-gray-600 mb-2">رقم القضية: {case_item.id}</p>
                             <div className="space-y-1 text-sm text-gray-600">
                               <p><strong>الأطراف:</strong> {case_item.parties.join(' ضد ')}</p>
-                              <p><strong>المحكم:</strong> {case_item.assignedTo}</p>
+                              <p><strong>المحكم:</strong> {case_item.assignedTo || 'لم يتم التعيين'}</p>
                               <p><strong>تاريخ الإنشاء:</strong> {case_item.createdAt}</p>
                               <p><strong>الموعد النهائي:</strong> {case_item.deadline}</p>
+                              {case_item.amount && <p><strong>قيمة النزاع:</strong> {case_item.amount.toLocaleString()} ريال</p>}
                             </div>
                           </div>
                           <div className="flex gap-2">
                             <Button variant="outline" size="sm">
-                              عرض التفاصيل
+                              <Eye className="w-4 h-4 ml-1" />
+                              عرض
                             </Button>
                             <Button size="sm">
+                              <Edit className="w-4 h-4 ml-1" />
                               إدارة
                             </Button>
                           </div>
+                        </div>
+                        
+                        {/* أزرار الإجراءات */}
+                        <div className="flex gap-2 pt-3 border-t">
+                          {case_item.status === 'معلق' && (
+                            <Button size="sm" variant="outline" onClick={() => handleStatusChange(case_item.id, 'جاري')}>
+                              بدء المراجعة
+                            </Button>
+                          )}
+                          {case_item.status === 'جاري' && (
+                            <Button size="sm" variant="outline" onClick={() => handleStatusChange(case_item.id, 'مكتمل')}>
+                              إكمال القضية
+                            </Button>
+                          )}
+                          {!case_item.assignedTo && (
+                            <Button size="sm" variant="secondary" onClick={() => handleAssignArbitrator(case_item.id, arbitrators[0]?.name || '')}>
+                              تعيين محكم
+                            </Button>
+                          )}
                         </div>
                       </CardContent>
                     </Card>
@@ -216,6 +230,7 @@ const ArbitrationHub = () => {
               </TabsContent>
 
               <TabsContent value="arbitrators" className="space-y-4">
+                <h2 className="text-xl font-semibold">المحكمين المعتمدين</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {arbitrators.map((arbitrator, index) => (
                     <Card key={index} className="hover:shadow-md transition-shadow">
@@ -226,7 +241,10 @@ const ArbitrationHub = () => {
                           </div>
                           <h3 className="text-lg font-semibold mb-2">{arbitrator.name}</h3>
                           <p className="text-gray-600 text-sm mb-2">{arbitrator.specialty}</p>
-                          <div className="space-y-1 text-sm text-gray-600 mb-4">
+                          <Badge className={arbitrator.status === 'متاح' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}>
+                            {arbitrator.status}
+                          </Badge>
+                          <div className="space-y-1 text-sm text-gray-600 mb-4 mt-3">
                             <p>الخبرة: {arbitrator.experience}</p>
                             <p>القضايا: {arbitrator.cases}</p>
                             <p>التقييم: {arbitrator.rating}/5</p>
@@ -250,8 +268,14 @@ const ArbitrationHub = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-center py-8 text-gray-500">
-                      ستتوفر نموذج إنشاء القضايا قريباً
+                    <div className="text-center py-8">
+                      <Gavel className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold mb-2">ابدأ قضية تحكيم جديدة</h3>
+                      <p className="text-gray-600 mb-6">املأ النموذج لإنشاء قضية تحكيم جديدة</p>
+                      <Button onClick={() => setCreateModalOpen(true)} size="lg">
+                        <Plus className="w-5 h-5 ml-2" />
+                        إنشاء قضية جديدة
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -261,13 +285,26 @@ const ArbitrationHub = () => {
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <FileText className="w-5 h-5" />
+                      <BarChart3 className="w-5 h-5" />
                       تقارير التحكيم
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-center py-8 text-gray-500">
-                      ستتوفر التقارير المفصلة قريباً
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="text-center p-4 border rounded-lg">
+                        <h4 className="font-semibold mb-2">معدل الحل</h4>
+                        <p className="text-3xl font-bold text-green-600">{successRate}%</p>
+                      </div>
+                      <div className="text-center p-4 border rounded-lg">
+                        <h4 className="font-semibold mb-2">متوسط الوقت</h4>
+                        <p className="text-3xl font-bold text-blue-600">15</p>
+                        <p className="text-sm text-gray-600">يوم</p>
+                      </div>
+                      <div className="text-center p-4 border rounded-lg">
+                        <h4 className="font-semibold mb-2">رضا العملاء</h4>
+                        <p className="text-3xl font-bold text-purple-600">4.8</p>
+                        <p className="text-sm text-gray-600">من 5</p>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -276,6 +313,12 @@ const ArbitrationHub = () => {
           </div>
         </main>
       </div>
+
+      <CreateCaseModal 
+        open={createModalOpen}
+        onOpenChange={setCreateModalOpen}
+        onCreateCase={createNewCase}
+      />
     </div>
   );
 };

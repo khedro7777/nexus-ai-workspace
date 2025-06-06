@@ -7,6 +7,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useAuth } from '@/hooks/useAuth';
 import { Link } from 'react-router-dom';
+import MobileMenu from './MobileMenu';
 
 interface HeaderProps {
   sidebarOpen: boolean;
@@ -52,41 +53,47 @@ const Header: React.FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen }) => {
       </div>
 
       <div className="flex items-center gap-3">
-        <Select value={language} onValueChange={setLanguage}>
-          <SelectTrigger className="w-32">
-            <Globe className="w-4 h-4 mr-2" />
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {languages.map(lang => (
-              <SelectItem key={lang.code} value={lang.code}>
-                <span className="mr-2">{lang.flag}</span>
-                {lang.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        {/* قائمة الهاتف */}
+        <MobileMenu />
+        
+        {/* الباقي للشاشات الكبيرة */}
+        <div className="hidden md:flex items-center gap-3">
+          <Select value={language} onValueChange={setLanguage}>
+            <SelectTrigger className="w-32">
+              <Globe className="w-4 h-4 mr-2" />
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {languages.map(lang => (
+                <SelectItem key={lang.code} value={lang.code}>
+                  <span className="mr-2">{lang.flag}</span>
+                  {lang.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-        <Select defaultValue="USD">
-          <SelectTrigger className="w-24">
-            <DollarSign className="w-4 h-4 mr-1" />
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {currencies.map(curr => (
-              <SelectItem key={curr} value={curr}>{curr}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          <Select defaultValue="USD">
+            <SelectTrigger className="w-24">
+              <DollarSign className="w-4 h-4 mr-1" />
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {currencies.map(curr => (
+                <SelectItem key={curr} value={curr}>{curr}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleTheme}
-          className="relative animate-pulse-glow"
-        >
-          {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-        </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleTheme}
+            className="relative animate-pulse-glow"
+          >
+            {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          </Button>
+        </div>
 
         {user ? (
           <div className="flex items-center gap-2">
@@ -94,7 +101,7 @@ const Header: React.FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen }) => {
               variant="ghost"
               size="icon"
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="relative"
+              className="relative hidden md:flex"
             >
               <Menu className="w-5 h-5" />
             </Button>

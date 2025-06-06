@@ -3,112 +3,72 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Progress } from '@/components/ui/progress';
 import { 
   FileText, 
   Plus, 
-  Search, 
-  Filter,
-  Calendar,
-  User,
-  Building,
-  CheckCircle,
-  Clock,
-  AlertTriangle,
+  Edit, 
+  Eye, 
   Download,
-  Edit,
-  Eye
+  Clock,
+  CheckCircle,
+  AlertTriangle,
+  DollarSign
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/Sidebar';
+import { useContractsData } from '@/hooks/useContractsData';
+import { useToast } from '@/hooks/use-toast';
 
 const Contracts = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-
-  const contracts = [
-    {
-      id: 'CNT-001',
-      title: 'عقد توريد مواد البناء',
-      parties: ['شركة البناء المتطور', 'مؤسسة التوريد الشامل'],
-      type: 'توريد',
-      status: 'نشط',
-      value: '500,000 ريال',
-      startDate: '2024-01-01',
-      endDate: '2024-12-31',
-      progress: 75
-    },
-    {
-      id: 'CNT-002',
-      title: 'اتفاقية خدمات تسويقية',
-      parties: ['شركة التقنية الذكية', 'وكالة الإبداع للتسويق'],
-      type: 'خدمات',
-      status: 'مسودة',
-      value: '200,000 ريال',
-      startDate: '2024-02-01',
-      endDate: '2024-08-01',
-      progress: 0
-    },
-    {
-      id: 'CNT-003',
-      title: 'عقد شراكة استراتيجية',
-      parties: ['مجموعة الاستثمار', 'شركة التطوير العقاري'],
-      type: 'شراكة',
-      status: 'منتهي',
-      value: '1,000,000 ريال',
-      startDate: '2023-06-01',
-      endDate: '2024-01-01',
-      progress: 100
-    }
-  ];
-
-  const contractTemplates = [
-    {
-      name: 'عقد توريد عام',
-      description: 'نموذج عقد توريد قياسي للمواد والمنتجات',
-      category: 'توريد',
-      downloads: 156
-    },
-    {
-      name: 'اتفاقية خدمات',
-      description: 'نموذج اتفاقية تقديم الخدمات المختلفة',
-      category: 'خدمات',
-      downloads: 89
-    },
-    {
-      name: 'عقد شراكة',
-      description: 'نموذج عقد شراكة تجارية واستراتيجية',
-      category: 'شراكة',
-      downloads: 67
-    },
-    {
-      name: 'اتفاقية سرية',
-      description: 'اتفاقية عدم إفشاء المعلومات السرية',
-      category: 'قانوني',
-      downloads: 234
-    }
-  ];
+  const { contracts, loading, updateContractStatus, updateProgress } = useContractsData();
+  const { toast } = useToast();
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'نشط': return 'bg-green-500';
-      case 'مسودة': return 'bg-yellow-500';
-      case 'منتهي': return 'bg-gray-500';
-      case 'معلق': return 'bg-red-500';
+      case 'مسودة': return 'bg-gray-500';
+      case 'قيد المراجعة': return 'bg-yellow-500';
+      case 'موقع': return 'bg-green-500';
+      case 'منتهي': return 'bg-red-500';
       default: return 'bg-gray-500';
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'نشط': return <CheckCircle className="w-4 h-4" />;
-      case 'مسودة': return <Edit className="w-4 h-4" />;
-      case 'منتهي': return <Clock className="w-4 h-4" />;
-      case 'معلق': return <AlertTriangle className="w-4 h-4" />;
-      default: return <Clock className="w-4 h-4" />;
+  const getTypeColor = (type: string) => {
+    switch (type) {
+      case 'شراء': return 'text-blue-600 bg-blue-100';
+      case 'بيع': return 'text-green-600 bg-green-100';
+      case 'خدمات': return 'text-purple-600 bg-purple-100';
+      case 'شراكة': return 'text-orange-600 bg-orange-100';
+      default: return 'text-gray-600 bg-gray-100';
     }
   };
+
+  const handleStatusUpdate = (contractId: string, newStatus: any) => {
+    updateContractStatus(contractId, newStatus);
+    toast({
+      title: "تم التحديث",
+      description: `تم تحديث حالة العقد إلى: ${newStatus}`
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center" dir="rtl">
+        <div className="text-center">
+          <div className="animate-spin w-12 h-12 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p>جاري تحميل العقود...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const draftContracts = contracts.filter(c => c.status === 'مسودة').length;
+  const activeContracts = contracts.filter(c => c.status === 'موقع').length;
+  const totalValue = contracts.reduce((sum, contract) => sum + contract.value, 0);
+  const avgProgress = Math.round(contracts.reduce((sum, contract) => sum + contract.progress, 0) / contracts.length);
 
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">
@@ -121,31 +81,35 @@ const Contracts = () => {
           <div className="max-w-7xl mx-auto">
             {/* Header */}
             <div className="mb-8">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
-                    <FileText className="w-8 h-8" />
-                    إدارة العقود
-                  </h1>
-                  <p className="text-gray-600">
-                    إدارة وتتبع العقود والاتفاقيات التجارية
-                  </p>
-                </div>
-                <Button className="flex items-center gap-2">
-                  <Plus className="w-4 h-4" />
-                  عقد جديد
-                </Button>
-              </div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
+                <FileText className="w-8 h-8" />
+                إدارة العقود
+              </h1>
+              <p className="text-gray-600">
+                إدارة شاملة لجميع العقود والاتفاقيات
+              </p>
             </div>
 
-            {/* Stats */}
+            {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
               <Card>
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
+                      <p className="text-sm text-gray-600">المسودات</p>
+                      <p className="text-2xl font-bold text-gray-900">{draftContracts}</p>
+                    </div>
+                    <Edit className="w-8 h-8 text-gray-500" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
                       <p className="text-sm text-gray-600">العقود النشطة</p>
-                      <p className="text-2xl font-bold text-gray-900">12</p>
+                      <p className="text-2xl font-bold text-gray-900">{activeContracts}</p>
                     </div>
                     <CheckCircle className="w-8 h-8 text-green-500" />
                   </div>
@@ -156,22 +120,11 @@ const Contracts = () => {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-600">المسودات</p>
-                      <p className="text-2xl font-bold text-gray-900">5</p>
-                    </div>
-                    <Edit className="w-8 h-8 text-yellow-500" />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
                       <p className="text-sm text-gray-600">القيمة الإجمالية</p>
-                      <p className="text-2xl font-bold text-gray-900">2.4م</p>
+                      <p className="text-2xl font-bold text-gray-900">{totalValue.toLocaleString()}</p>
+                      <p className="text-xs text-gray-500">ريال سعودي</p>
                     </div>
-                    <Building className="w-8 h-8 text-blue-500" />
+                    <DollarSign className="w-8 h-8 text-blue-500" />
                   </div>
                 </CardContent>
               </Card>
@@ -180,104 +133,144 @@ const Contracts = () => {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-600">التجديدات المطلوبة</p>
-                      <p className="text-2xl font-bold text-gray-900">3</p>
+                      <p className="text-sm text-gray-600">متوسط التقدم</p>
+                      <p className="text-2xl font-bold text-gray-900">{avgProgress}%</p>
                     </div>
-                    <AlertTriangle className="w-8 h-8 text-orange-500" />
+                    <Clock className="w-8 h-8 text-purple-500" />
                   </div>
                 </CardContent>
               </Card>
             </div>
 
-            <Tabs defaultValue="contracts" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="contracts">العقود</TabsTrigger>
-                <TabsTrigger value="templates">النماذج</TabsTrigger>
-                <TabsTrigger value="analytics">التحليلات</TabsTrigger>
+            <Tabs defaultValue="all" className="w-full">
+              <TabsList className="grid w-full grid-cols-5">
+                <TabsTrigger value="all">جميع العقود</TabsTrigger>
+                <TabsTrigger value="draft">المسودات</TabsTrigger>
+                <TabsTrigger value="active">النشطة</TabsTrigger>
+                <TabsTrigger value="templates">القوالب</TabsTrigger>
+                <TabsTrigger value="reports">التقارير</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="contracts" className="space-y-4">
-                {/* Search and Filter */}
-                <div className="flex gap-4 mb-6">
-                  <div className="relative flex-1">
-                    <Search className="absolute right-3 top-3 h-4 w-4 text-gray-400" />
-                    <Input
-                      placeholder="البحث في العقود..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pr-10"
-                    />
-                  </div>
-                  <Button variant="outline">
-                    <Filter className="w-4 h-4 ml-2" />
-                    تصفية
+              <TabsContent value="all" className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-xl font-semibold">جميع العقود</h2>
+                  <Button>
+                    <Plus className="w-4 h-4 ml-2" />
+                    عقد جديد
                   </Button>
                 </div>
-
-                {/* Contracts List */}
-                <div className="space-y-4">
+                
+                <div className="grid gap-4">
                   {contracts.map((contract, index) => (
                     <Card key={index} className="hover:shadow-md transition-shadow">
                       <CardContent className="p-6">
-                        <div className="flex items-start justify-between">
+                        <div className="flex items-start justify-between mb-4">
                           <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-3">
+                            <div className="flex items-center gap-2 mb-2">
                               <h3 className="text-lg font-semibold">{contract.title}</h3>
-                              <Badge className={`text-white ${getStatusColor(contract.status)} flex items-center gap-1`}>
-                                {getStatusIcon(contract.status)}
+                              <Badge className={`text-white ${getStatusColor(contract.status)}`}>
                                 {contract.status}
                               </Badge>
-                              <Badge variant="outline">{contract.type}</Badge>
+                              <Badge className={getTypeColor(contract.type)}>
+                                {contract.type}
+                              </Badge>
                             </div>
-                            
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600 mb-4">
-                              <div>
-                                <p><strong>رقم العقد:</strong> {contract.id}</p>
-                                <p><strong>القيمة:</strong> {contract.value}</p>
-                              </div>
-                              <div>
-                                <p><strong>تاريخ البداية:</strong> {contract.startDate}</p>
-                                <p><strong>تاريخ الانتهاء:</strong> {contract.endDate}</p>
-                              </div>
-                              <div>
-                                <p><strong>الأطراف:</strong></p>
-                                <ul className="text-xs mt-1">
-                                  {contract.parties.map((party, idx) => (
-                                    <li key={idx}>• {party}</li>
-                                  ))}
-                                </ul>
-                              </div>
-                            </div>
-
-                            {/* Progress Bar */}
-                            <div className="mb-4">
-                              <div className="flex justify-between text-sm mb-1">
-                                <span>تقدم العقد</span>
-                                <span>{contract.progress}%</span>
-                              </div>
-                              <div className="w-full bg-gray-200 rounded-full h-2">
-                                <div 
-                                  className="bg-blue-600 h-2 rounded-full" 
-                                  style={{ width: `${contract.progress}%` }}
-                                ></div>
-                              </div>
+                            <p className="text-sm text-gray-600 mb-2">رقم العقد: {contract.id}</p>
+                            <div className="space-y-1 text-sm text-gray-600">
+                              <p><strong>الأطراف:</strong> {contract.parties.join(' - ')}</p>
+                              <p><strong>القيمة:</strong> {contract.value.toLocaleString()} ريال سعودي</p>
+                              <p><strong>بداية العقد:</strong> {contract.startDate}</p>
+                              <p><strong>نهاية العقد:</strong> {contract.endDate}</p>
                             </div>
                           </div>
-
                           <div className="flex gap-2">
                             <Button variant="outline" size="sm">
                               <Eye className="w-4 h-4 ml-1" />
                               عرض
                             </Button>
-                            <Button variant="outline" size="sm">
-                              <Download className="w-4 h-4 ml-1" />
-                              تحميل
-                            </Button>
                             <Button size="sm">
                               <Edit className="w-4 h-4 ml-1" />
                               تحرير
                             </Button>
+                            <Button variant="outline" size="sm">
+                              <Download className="w-4 h-4 ml-1" />
+                              تحميل
+                            </Button>
                           </div>
+                        </div>
+                        
+                        {/* شريط التقدم */}
+                        <div className="mb-4">
+                          <div className="flex justify-between text-sm mb-1">
+                            <span>تقدم العقد</span>
+                            <span>{contract.progress}%</span>
+                          </div>
+                          <Progress value={contract.progress} className="h-2" />
+                        </div>
+
+                        {/* أزرار الإجراءات */}
+                        <div className="flex gap-2 pt-3 border-t">
+                          {contract.status === 'مسودة' && (
+                            <Button size="sm" variant="outline" onClick={() => handleStatusUpdate(contract.id, 'قيد المراجعة')}>
+                              إرسال للمراجعة
+                            </Button>
+                          )}
+                          {contract.status === 'قيد المراجعة' && (
+                            <Button size="sm" variant="outline" onClick={() => handleStatusUpdate(contract.id, 'موقع')}>
+                              اعتماد العقد
+                            </Button>
+                          )}
+                          {contract.status === 'موقع' && contract.progress < 100 && (
+                            <Button size="sm" variant="secondary" onClick={() => updateProgress(contract.id, Math.min(contract.progress + 10, 100))}>
+                              تحديث التقدم
+                            </Button>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="draft" className="space-y-4">
+                <h2 className="text-xl font-semibold">العقود المسودة</h2>
+                <div className="grid gap-4">
+                  {contracts.filter(c => c.status === 'مسودة').map((contract, index) => (
+                    <Card key={index} className="hover:shadow-md transition-shadow">
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <h3 className="font-semibold">{contract.title}</h3>
+                            <p className="text-sm text-gray-600">آخر تحديث: {contract.startDate}</p>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button size="sm" variant="outline">متابعة التحرير</Button>
+                            <Button size="sm">إرسال للمراجعة</Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="active" className="space-y-4">
+                <h2 className="text-xl font-semibold">العقود النشطة</h2>
+                <div className="grid gap-4">
+                  {contracts.filter(c => c.status === 'موقع').map((contract, index) => (
+                    <Card key={index} className="hover:shadow-md transition-shadow">
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-center mb-3">
+                          <div>
+                            <h3 className="font-semibold">{contract.title}</h3>
+                            <p className="text-sm text-gray-600">التقدم: {contract.progress}%</p>
+                          </div>
+                          <Badge className="bg-green-500 text-white">نشط</Badge>
+                        </div>
+                        <Progress value={contract.progress} className="mb-3" />
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline">عرض التفاصيل</Button>
+                          <Button size="sm">تحديث التقدم</Button>
                         </div>
                       </CardContent>
                     </Card>
@@ -286,44 +279,47 @@ const Contracts = () => {
               </TabsContent>
 
               <TabsContent value="templates" className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {contractTemplates.map((template, index) => (
-                    <Card key={index} className="hover:shadow-md transition-shadow">
-                      <CardContent className="p-6">
-                        <div className="text-center">
-                          <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                            <FileText className="w-6 h-6 text-blue-600" />
-                          </div>
-                          <h3 className="text-lg font-semibold mb-2">{template.name}</h3>
-                          <p className="text-gray-600 text-sm mb-3">{template.description}</p>
-                          <div className="flex items-center justify-center gap-2 text-sm text-gray-500 mb-4">
-                            <Badge variant="secondary">{template.category}</Badge>
-                            <span>•</span>
-                            <span>{template.downloads} تحميل</span>
-                          </div>
-                          <div className="flex gap-2">
-                            <Button variant="outline" size="sm" className="flex-1">
-                              معاينة
-                            </Button>
-                            <Button size="sm" className="flex-1">
-                              استخدام
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </TabsContent>
-
-              <TabsContent value="analytics" className="space-y-4">
                 <Card>
                   <CardHeader>
-                    <CardTitle>تحليلات العقود</CardTitle>
+                    <CardTitle>قوالب العقود</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-center py-8 text-gray-500">
-                      ستتوفر تحليلات العقود المفصلة قريباً
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {['عقد خدمات', 'عقد توريد', 'عقد شراكة', 'عقد استشارات'].map((template, index) => (
+                        <Card key={index} className="p-4 hover:shadow-md transition-shadow cursor-pointer">
+                          <div className="text-center">
+                            <FileText className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                            <h4 className="font-semibold mb-2">{template}</h4>
+                            <Button size="sm" className="w-full">استخدام القالب</Button>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="reports" className="space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>تقارير العقود</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="text-center p-4 border rounded-lg">
+                        <h4 className="font-semibold mb-2">إجمالي العقود</h4>
+                        <p className="text-3xl font-bold text-blue-600">{contracts.length}</p>
+                      </div>
+                      <div className="text-center p-4 border rounded-lg">
+                        <h4 className="font-semibold mb-2">القيمة الإجمالية</h4>
+                        <p className="text-3xl font-bold text-green-600">{totalValue.toLocaleString()}</p>
+                        <p className="text-sm text-gray-600">ريال</p>
+                      </div>
+                      <div className="text-center p-4 border rounded-lg">
+                        <h4 className="font-semibold mb-2">متوسط المدة</h4>
+                        <p className="text-3xl font-bold text-purple-600">8</p>
+                        <p className="text-sm text-gray-600">أشهر</p>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
