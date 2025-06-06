@@ -17,6 +17,7 @@ import Suppliers from "./pages/Suppliers";
 import Contracts from "./pages/Contracts";
 import Negotiations from "./pages/Negotiations";
 import Analytics from "./pages/Analytics";
+import Automation from "./pages/Automation";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -41,6 +42,7 @@ const App = () => (
             <Route path="/contracts" element={<Contracts />} />
             <Route path="/negotiations" element={<Negotiations />} />
             <Route path="/analytics" element={<Analytics />} />
+            <Route path="/automation" element={<Automation />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
