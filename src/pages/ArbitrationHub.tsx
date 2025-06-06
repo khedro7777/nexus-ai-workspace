@@ -17,7 +17,8 @@ import {
   Shield,
   Plus,
   Eye,
-  Edit
+  Edit,
+  BarChart3
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/Sidebar';
