@@ -1,13 +1,7 @@
 
-import React, { useState } from 'react';
-import { Menu, Sun, Moon, Globe, DollarSign, User } from 'lucide-react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useTheme } from '@/hooks/useTheme';
-import { useLanguage } from '@/hooks/useLanguage';
-import { useAuth } from '@/hooks/useAuth';
-import { Link } from 'react-router-dom';
-import MobileMenu from './MobileMenu';
+import { Menu, Bell, User, Settings } from 'lucide-react';
 import Logo from './Logo';
 import UserDateTime from './UserDateTime';
 
@@ -17,110 +11,45 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen }) => {
-  const { theme, toggleTheme } = useTheme();
-  const { language, setLanguage, t } = useLanguage();
-  const { user, signOut } = useAuth();
-
-  const languages = [
-    { code: 'en', name: 'English', flag: '🇺🇸' },
-    { code: 'ar', name: 'العربية', flag: '🇸🇦' },
-    { code: 'fr', name: 'Français', flag: '🇫🇷' },
-    { code: 'es', name: 'Español', flag: '🇪🇸' },
-    { code: 'zh', name: '中文', flag: '🇨🇳' },
-    { code: 'hi', name: 'हिन्दी', flag: '🇮🇳' },
-    { code: 'ko', name: '한국어', flag: '🇰🇷' },
-    { code: 'ja', name: '日本語', flag: '🇯🇵' }
-  ];
-
-  const currencies = ['USD', 'EUR', 'GBP', 'JPY', 'CAD', 'SAR'];
-
   return (
-    <header className="glass border-b sticky top-0 z-50 w-full h-16 flex items-center justify-between px-6" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-      <div className="flex items-center gap-4">
-        <Link to="/">
-          <Logo size="sm" />
-        </Link>
-        <div className="hidden lg:block">
-          <UserDateTime />
-        </div>
-      </div>
-
-      <div className="flex items-center gap-3">
-        {/* قائمة الهاتف */}
-        <MobileMenu />
-        
-        {/* الباقي للشاشات الكبيرة */}
-        <div className="hidden md:flex items-center gap-3">
-          <Select value={language} onValueChange={setLanguage}>
-            <SelectTrigger className="w-32">
-              <Globe className="w-4 h-4 mr-2" />
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {languages.map(lang => (
-                <SelectItem key={lang.code} value={lang.code}>
-                  <span className="mr-2">{lang.flag}</span>
-                  {lang.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select defaultValue="USD">
-            <SelectTrigger className="w-24">
-              <DollarSign className="w-4 h-4 mr-1" />
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {currencies.map(curr => (
-                <SelectItem key={curr} value={curr}>{curr}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
+    <header className="bg-white border-b border-gray-200 px-4 py-3 shadow-sm">
+      <div className="flex items-center justify-between">
+        {/* Right side - Logo and Menu */}
+        <div className="flex items-center gap-4">
           <Button
             variant="ghost"
             size="icon"
-            onClick={toggleTheme}
-            className="relative animate-pulse-glow"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="lg:hidden"
           >
-            {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            <Menu className="w-5 h-5" />
           </Button>
+          
+          <Logo size="sm" showText={true} />
         </div>
 
-        {user ? (
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="relative hidden md:flex"
-            >
-              <Menu className="w-5 h-5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={signOut}
-              className="relative"
-            >
-              <User className="w-5 h-5" />
-            </Button>
-          </div>
-        ) : (
-          <div className="flex items-center gap-2">
-            <Link to="/auth">
-              <Button variant="ghost" size="sm">
-                تسجيل الدخول
-              </Button>
-            </Link>
-            <Link to="/auth">
-              <Button size="sm">
-                إنشاء حساب
-              </Button>
-            </Link>
-          </div>
-        )}
+        {/* Center - Date and Time */}
+        <div className="hidden md:flex">
+          <UserDateTime />
+        </div>
+
+        {/* Left side - User actions */}
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon">
+            <Bell className="w-5 h-5" />
+          </Button>
+          <Button variant="ghost" size="icon">
+            <Settings className="w-5 h-5" />
+          </Button>
+          <Button variant="ghost" size="icon">
+            <User className="w-5 h-5" />
+          </Button>
+        </div>
+      </div>
+      
+      {/* Mobile date/time */}
+      <div className="md:hidden mt-2 flex justify-center">
+        <UserDateTime />
       </div>
     </header>
   );
