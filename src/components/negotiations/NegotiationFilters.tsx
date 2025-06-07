@@ -19,6 +19,7 @@ const NegotiationFilters: React.FC<NegotiationFiltersProps> = ({ onFilterChange,
     { value: 'active', label: 'نشطة' },
     { value: 'completed', label: 'مكتملة' },
     { value: 'paused', label: 'متوقفة' },
+    { value: 'pending', label: 'معلقة' },
     { value: 'cancelled', label: 'ملغية' }
   ];
 

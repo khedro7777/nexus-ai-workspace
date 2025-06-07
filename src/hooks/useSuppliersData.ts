@@ -20,6 +20,9 @@ export interface Supplier {
   priceRange: string;
   availability: 'available' | 'busy' | 'unavailable';
   lastActive: string;
+  status: 'verified' | 'pending' | 'unverified';
+  logo?: string;
+  createdAt: string;
 }
 
 export const useSuppliersData = () => {
@@ -50,7 +53,10 @@ export const useSuppliersData = () => {
           responseTime: '2 ساعة',
           priceRange: '5000 - 50000 ريال',
           availability: 'available',
-          lastActive: '2024-01-15'
+          lastActive: '2024-01-15',
+          status: 'verified',
+          logo: 'ت',
+          createdAt: '2024-01-15'
         },
         {
           id: 'SUP-002',
@@ -69,7 +75,10 @@ export const useSuppliersData = () => {
           responseTime: '4 ساعات',
           priceRange: '1000 - 20000 ريال',
           availability: 'busy',
-          lastActive: '2024-01-14'
+          lastActive: '2024-01-14',
+          status: 'verified',
+          logo: 'أ',
+          createdAt: '2024-01-14'
         },
         {
           id: 'SUP-003',
@@ -88,7 +97,10 @@ export const useSuppliersData = () => {
           responseTime: '1 يوم',
           priceRange: '500 - 15000 ريال',
           availability: 'available',
-          lastActive: '2024-01-13'
+          lastActive: '2024-01-13',
+          status: 'pending',
+          logo: 'ل',
+          createdAt: '2024-01-13'
         },
         {
           id: 'SUP-004',
@@ -108,7 +120,10 @@ export const useSuppliersData = () => {
           responseTime: '30 دقيقة',
           priceRange: '2000 - 30000 ريال',
           availability: 'available',
-          lastActive: '2024-01-15'
+          lastActive: '2024-01-15',
+          status: 'verified',
+          logo: 'ا',
+          createdAt: '2024-01-15'
         }
       ]);
       
@@ -145,7 +160,10 @@ export const useSuppliersData = () => {
       responseTime: 'غير محدد',
       priceRange: 'غير محدد',
       availability: 'available',
-      lastActive: new Date().toISOString().split('T')[0]
+      lastActive: new Date().toISOString().split('T')[0],
+      status: 'pending',
+      logo: supplierData.name?.charAt(0) || 'م',
+      createdAt: new Date().toISOString().split('T')[0]
     };
     setSuppliers(prev => [newSupplier, ...prev]);
     return newSupplier;

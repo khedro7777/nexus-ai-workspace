@@ -6,7 +6,7 @@ export interface Negotiation {
   title: string;
   groupName: string;
   supplierName: string;
-  status: 'active' | 'pending' | 'completed' | 'cancelled';
+  status: 'active' | 'pending' | 'completed' | 'cancelled' | 'paused';
   currentRound: number;
   maxRounds: number;
   startDate: string;
@@ -72,7 +72,7 @@ export const useNegotiationsData = () => {
           title: 'توريد أثاث مكتبي',
           groupName: 'مجموعة الأثاث المكتبي',
           supplierName: 'مصنع الأثاث الحديث',
-          status: 'pending',
+          status: 'paused',
           currentRound: 1,
           maxRounds: 2,
           startDate: '2024-01-12',
