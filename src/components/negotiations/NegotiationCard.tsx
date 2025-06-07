@@ -12,8 +12,7 @@ import {
   TrendingUp,
   AlertCircle,
   CheckCircle2,
-  Eye,
-  Pause
+  Eye
 } from 'lucide-react';
 
 interface NegotiationCardProps {
@@ -26,7 +25,7 @@ interface NegotiationCardProps {
     currentOffer: string;
     targetPrice: string;
     progress: number;
-    status: 'active' | 'completed' | 'paused' | 'cancelled' | 'pending';
+    status: 'active' | 'completed' | 'paused' | 'cancelled';
     participants: number;
     rounds: number;
     currentRound: number;
@@ -41,7 +40,6 @@ const NegotiationCard: React.FC<NegotiationCardProps> = ({ negotiation }) => {
       case 'active': return 'bg-blue-100 text-blue-800';
       case 'completed': return 'bg-green-100 text-green-800';
       case 'paused': return 'bg-yellow-100 text-yellow-800';
-      case 'pending': return 'bg-orange-100 text-orange-800';
       case 'cancelled': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
@@ -52,7 +50,6 @@ const NegotiationCard: React.FC<NegotiationCardProps> = ({ negotiation }) => {
       case 'active': return 'نشطة';
       case 'completed': return 'مكتملة';
       case 'paused': return 'متوقفة';
-      case 'pending': return 'معلقة';
       case 'cancelled': return 'ملغية';
       default: return 'غير محدد';
     }
@@ -62,9 +59,7 @@ const NegotiationCard: React.FC<NegotiationCardProps> = ({ negotiation }) => {
     switch (status) {
       case 'active': return <Clock className="w-4 h-4" />;
       case 'completed': return <CheckCircle2 className="w-4 h-4" />;
-      case 'paused': return <Pause className="w-4 h-4" />;
-      case 'pending': return <AlertCircle className="w-4 h-4" />;
-      case 'cancelled': return <AlertCircle className="w-4 h-4" />;
+      case 'paused': return <AlertCircle className="w-4 h-4" />;
       default: return <Clock className="w-4 h-4" />;
     }
   };
