@@ -80,6 +80,12 @@ export const useContractsData = () => {
     return newContract;
   };
 
+  const updateContract = (updatedContract: Contract) => {
+    setContracts(prev => prev.map(contract => 
+      contract.id === updatedContract.id ? updatedContract : contract
+    ));
+  };
+
   const updateContractStatus = (contractId: string, status: Contract['status']) => {
     setContracts(prev => prev.map(contract => 
       contract.id === contractId ? { ...contract, status } : contract
@@ -96,6 +102,7 @@ export const useContractsData = () => {
     contracts,
     loading,
     createContract,
+    updateContract,
     updateContractStatus,
     updateProgress
   };
