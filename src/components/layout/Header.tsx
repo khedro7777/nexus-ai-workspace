@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Menu, Sun, Moon, Globe, Clock, DollarSign, User } from 'lucide-react';
+import { Menu, Sun, Moon, Globe, DollarSign, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTheme } from '@/hooks/useTheme';
@@ -8,6 +8,8 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { useAuth } from '@/hooks/useAuth';
 import { Link } from 'react-router-dom';
 import MobileMenu from './MobileMenu';
+import Logo from './Logo';
+import UserDateTime from './UserDateTime';
 
 interface HeaderProps {
   sidebarOpen: boolean;
@@ -18,12 +20,6 @@ const Header: React.FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen }) => {
   const { theme, toggleTheme } = useTheme();
   const { language, setLanguage, t } = useLanguage();
   const { user, signOut } = useAuth();
-  const [currentTime, setCurrentTime] = useState(new Date());
-
-  React.useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
 
   const languages = [
     { code: 'en', name: 'English', flag: '🇺🇸' },
@@ -41,14 +37,11 @@ const Header: React.FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen }) => {
   return (
     <header className="glass border-b sticky top-0 z-50 w-full h-16 flex items-center justify-between px-6" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       <div className="flex items-center gap-4">
-        <Link to="/" className="text-2xl font-bold gradient-text">
-          GPO Nexus
+        <Link to="/">
+          <Logo size="sm" />
         </Link>
-        <div className="hidden md:flex items-center gap-2 text-sm text-muted-foreground">
-          <Clock className="w-4 h-4" />
-          <span>{currentTime.toLocaleTimeString()}</span>
-          <span className="mx-2">•</span>
-          <span>{currentTime.toLocaleDateString()}</span>
+        <div className="hidden lg:block">
+          <UserDateTime />
         </div>
       </div>
 

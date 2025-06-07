@@ -1,9 +1,11 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ShoppingCart, Users, Briefcase, Building2, Search, Filter, Building, Gavel, Zap, Globe } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import Header from "@/components/layout/Header";
+import Logo from "@/components/layout/Logo";
 import { useState } from "react";
 
 const Index = () => {
@@ -93,6 +95,10 @@ const Index = () => {
       {/* Hero Section */}
       <section className="py-20 px-4">
         <div className="max-w-6xl mx-auto text-center">
+          <div className="flex justify-center mb-8">
+            <Logo size="lg" />
+          </div>
+          
           <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-600 px-4 py-2 rounded-full text-sm mb-6">
             <Zap className="w-4 h-4" />
             مدعوم بالذكاء الاصطناعي المتقدم
@@ -249,7 +255,9 @@ const Index = () => {
         <div className="max-w-6xl mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
-              <h3 className="text-lg font-bold mb-4">GPO المنصة الموحدة</h3>
+              <div className="mb-4">
+                <Logo size="sm" />
+              </div>
               <p className="text-gray-400">
                 منصة التعاقد الذكي للشراء التعاوني والتسويق الجماعي
               </p>
@@ -285,7 +293,7 @@ const Index = () => {
           </div>
           
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2025 GPO المنصة الموحدة. جميع الحقوق محفوظة.</p>
+            <p>&copy; 2025 GPO SMART المنصة الموحدة. جميع الحقوق محفوظة.</p>
           </div>
         </div>
       </footer>

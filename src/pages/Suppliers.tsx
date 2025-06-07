@@ -9,10 +9,16 @@ import SupplierCard from '@/components/suppliers/SupplierCard';
 import SupplierFilters from '@/components/suppliers/SupplierFilters';
 import { useSuppliersData } from '@/hooks/useSuppliersData';
 
+interface FilterState {
+  search?: string;
+  sector?: string;
+  verified?: boolean;
+}
+
 const Suppliers = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [filters, setFilters] = useState({});
-  const { suppliers, loading, addSupplier, updateSupplier } = useSuppliersData();
+  const [filters, setFilters] = useState<FilterState>({});
+  const { suppliers, loading, addSupplier, updateSupplierStatus } = useSuppliersData();
 
   const stats = [
     {
@@ -23,7 +29,7 @@ const Suppliers = () => {
     },
     {
       title: 'موردين موثقين',
-      value: suppliers.filter(s => s.verified).length.toString(),
+      value: suppliers.filter(s => s.status === 'verified').length.toString(),
       icon: Award,
       color: 'bg-green-100 text-green-600'
     },
@@ -45,10 +51,10 @@ const Suppliers = () => {
     if (filters.search && !supplier.name.toLowerCase().includes(filters.search.toLowerCase())) {
       return false;
     }
-    if (filters.sector && filters.sector !== 'all' && !supplier.sector.includes(filters.sector)) {
+    if (filters.sector && filters.sector !== 'all' && !supplier.category.includes(filters.sector)) {
       return false;
     }
-    if (filters.verified && !supplier.verified) {
+    if (filters.verified && supplier.status !== 'verified') {
       return false;
     }
     return true;
@@ -82,8 +88,7 @@ const Suppliers = () => {
             className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600"
             onClick={() => addSupplier({
               name: 'مورد جديد',
-              description: 'وصف المورد',
-              sector: ['عام'],
+              category: 'عام',
               location: 'الرياض'
             })}
           >
@@ -123,7 +128,22 @@ const Suppliers = () => {
           {/* Suppliers List */}
           <div className="lg:col-span-3 space-y-6">
             {filteredSuppliers.map((supplier) => (
-              <SupplierCard key={supplier.id} supplier={supplier} />
+              <SupplierCard key={supplier.id} supplier={{
+                id: supplier.id,
+                name: supplier.name,
+                description: supplier.category,
+                logo: supplier.logo,
+                rating: supplier.rating,
+                reviewCount: Math.floor(Math.random() * 100) + 10,
+                location: supplier.location,
+                sector: [supplier.category],
+                verified: supplier.status === 'verified',
+                responseTime: '2 ساعات',
+                completedOrders: Math.floor(Math.random() * 500) + 50,
+                joinedDate: supplier.createdAt,
+                specialties: [supplier.category],
+                deliveryRadius: '50 كم'
+              }} />
             ))}
             {filteredSuppliers.length === 0 && (
               <div className="text-center py-8 text-gray-500">

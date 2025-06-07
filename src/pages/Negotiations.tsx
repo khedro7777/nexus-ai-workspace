@@ -9,9 +9,14 @@ import NegotiationCard from '@/components/negotiations/NegotiationCard';
 import NegotiationFilters from '@/components/negotiations/NegotiationFilters';
 import { useNegotiationsData } from '@/hooks/useNegotiationsData';
 
+interface FilterState {
+  search?: string;
+  status?: string;
+}
+
 const Negotiations = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [filters, setFilters] = useState({});
+  const [filters, setFilters] = useState<FilterState>({});
   const { negotiations, loading, updateNegotiationStatus, addMessage, submitOffer } = useNegotiationsData();
 
   const stats = [
@@ -23,7 +28,7 @@ const Negotiations = () => {
     },
     {
       title: 'في الانتظار',
-      value: negotiations.filter(n => n.status === 'pending').length.toString(),
+      value: negotiations.filter(n => n.status === 'paused').length.toString(),
       icon: Clock,
       color: 'bg-yellow-100 text-yellow-600'
     },
