@@ -18,15 +18,12 @@ import {
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/Sidebar';
-import EditContractModal from '@/components/contracts/EditContractModal';
-import { useContractsData, Contract } from '@/hooks/useContractsData';
+import { useContractsData } from '@/hooks/useContractsData';
 import { useToast } from '@/hooks/use-toast';
 
 const Contracts = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [selectedContract, setSelectedContract] = useState<Contract | null>(null);
-  const { contracts, loading, updateContract, updateContractStatus, updateProgress, createContract } = useContractsData();
+  const { contracts, loading, updateContractStatus, updateProgress } = useContractsData();
   const { toast } = useToast();
 
   const getStatusColor = (status: string) => {
@@ -54,38 +51,6 @@ const Contracts = () => {
     toast({
       title: "تم التحديث",
       description: `تم تحديث حالة العقد إلى: ${newStatus}`
-    });
-  };
-
-  const handleEditContract = (contract: Contract) => {
-    setSelectedContract(contract);
-    setEditModalOpen(true);
-  };
-
-  const handleCreateContract = () => {
-    setSelectedContract(null);
-    setEditModalOpen(true);
-  };
-
-  const handleSaveContract = (contract: Contract) => {
-    if (selectedContract) {
-      updateContract(contract);
-    } else {
-      createContract(contract);
-    }
-  };
-
-  const handleViewContract = (contract: Contract) => {
-    toast({
-      title: "عرض العقد",
-      description: `فتح عقد: ${contract.title}`
-    });
-  };
-
-  const handleDownloadContract = (contract: Contract) => {
-    toast({
-      title: "تحميل العقد",
-      description: `جاري تحميل: ${contract.title}`
     });
   };
 
@@ -189,7 +154,7 @@ const Contracts = () => {
               <TabsContent value="all" className="space-y-4">
                 <div className="flex justify-between items-center">
                   <h2 className="text-xl font-semibold">جميع العقود</h2>
-                  <Button onClick={handleCreateContract}>
+                  <Button>
                     <Plus className="w-4 h-4 ml-2" />
                     عقد جديد
                   </Button>
@@ -219,15 +184,15 @@ const Contracts = () => {
                             </div>
                           </div>
                           <div className="flex gap-2">
-                            <Button variant="outline" size="sm" onClick={() => handleViewContract(contract)}>
+                            <Button variant="outline" size="sm">
                               <Eye className="w-4 h-4 ml-1" />
                               عرض
                             </Button>
-                            <Button size="sm" onClick={() => handleEditContract(contract)}>
+                            <Button size="sm">
                               <Edit className="w-4 h-4 ml-1" />
                               تحرير
                             </Button>
-                            <Button variant="outline" size="sm" onClick={() => handleDownloadContract(contract)}>
+                            <Button variant="outline" size="sm">
                               <Download className="w-4 h-4 ml-1" />
                               تحميل
                             </Button>
@@ -360,14 +325,6 @@ const Contracts = () => {
                 </Card>
               </TabsContent>
             </Tabs>
-
-            {/* نافذة تحرير العقد */}
-            <EditContractModal
-              isOpen={editModalOpen}
-              onClose={() => setEditModalOpen(false)}
-              contract={selectedContract}
-              onSave={handleSaveContract}
-            />
           </div>
         </main>
       </div>
