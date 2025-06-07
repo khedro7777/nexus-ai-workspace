@@ -7,100 +7,64 @@ import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/Sidebar';
 import SupplierCard from '@/components/suppliers/SupplierCard';
 import SupplierFilters from '@/components/suppliers/SupplierFilters';
+import { useSuppliersData } from '@/hooks/useSuppliersData';
 
 const Suppliers = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [filters, setFilters] = useState({});
-
-  const suppliers = [
-    {
-      id: '1',
-      name: 'شركة الإمداد المتميز',
-      description: 'متخصصون في توريد الأجهزة التقنية والحلول الذكية للشركات والمؤسسات',
-      rating: 4.8,
-      reviewCount: 124,
-      location: 'الرياض',
-      sector: ['تكنولوجيا', 'أجهزة إلكترونية'],
-      verified: true,
-      responseTime: 'خلال ساعة',
-      completedOrders: 89,
-      joinedDate: '2020',
-      specialties: ['أجهزة كمبيوتر', 'شبكات', 'أنظمة أمان'],
-      deliveryRadius: '50 كم'
-    },
-    {
-      id: '2',
-      name: 'مجموعة التجارة الذكية',
-      description: 'رائدون في توريد مواد البناء والمقاولات مع خدمات لوجستية متكاملة',
-      rating: 4.6,
-      reviewCount: 89,
-      location: 'جدة',
-      sector: ['إنشاءات', 'مواد بناء'],
-      verified: true,
-      responseTime: 'خلال 30 دقيقة',
-      completedOrders: 156,
-      joinedDate: '2019',
-      specialties: ['أسمنت', 'حديد', 'مواد عازلة', 'أدوات كهربائية'],
-      deliveryRadius: '100 كم'
-    },
-    {
-      id: '3',
-      name: 'شركة الأغذية الطازجة',
-      description: 'متخصصون في توريد المواد الغذائية الطازجة والمنتجات العضوية للمطاعم',
-      rating: 4.9,
-      reviewCount: 201,
-      location: 'الدمام',
-      sector: ['أغذية', 'مشروبات'],
-      verified: true,
-      responseTime: 'خلال 15 دقيقة',
-      completedOrders: 234,
-      joinedDate: '2021',
-      specialties: ['خضروات طازجة', 'لحوم', 'منتجات ألبان', 'توابل'],
-      deliveryRadius: '30 كم'
-    },
-    {
-      id: '4',
-      name: 'مؤسسة الخدمات الطبية',
-      description: 'توريد المعدات والمستلزمات الطبية للمستشفيات والعيادات',
-      rating: 4.7,
-      reviewCount: 67,
-      location: 'الرياض',
-      sector: ['خدمات طبية', 'معدات طبية'],
-      verified: false,
-      responseTime: 'خلال ساعتين',
-      completedOrders: 45,
-      joinedDate: '2022',
-      specialties: ['أجهزة طبية', 'مستلزمات جراحية', 'أدوية'],
-      deliveryRadius: '40 كم'
-    }
-  ];
+  const { suppliers, loading, addSupplier, updateSupplier } = useSuppliersData();
 
   const stats = [
     {
       title: 'إجمالي الموردين',
-      value: '156',
+      value: suppliers.length.toString(),
       icon: Users,
       color: 'bg-blue-100 text-blue-600'
     },
     {
       title: 'موردين موثقين',
-      value: '89',
+      value: suppliers.filter(s => s.verified).length.toString(),
       icon: Award,
       color: 'bg-green-100 text-green-600'
     },
     {
       title: 'متوسط التقييم',
-      value: '4.7',
+      value: suppliers.length > 0 ? (suppliers.reduce((sum, s) => sum + s.rating, 0) / suppliers.length).toFixed(1) : '0',
       icon: Star,
       color: 'bg-yellow-100 text-yellow-600'
     },
     {
       title: 'مدن التغطية',
-      value: '15',
+      value: new Set(suppliers.map(s => s.location)).size.toString(),
       icon: MapPin,
       color: 'bg-purple-100 text-purple-600'
     }
   ];
+
+  const filteredSuppliers = suppliers.filter(supplier => {
+    if (filters.search && !supplier.name.toLowerCase().includes(filters.search.toLowerCase())) {
+      return false;
+    }
+    if (filters.sector && filters.sector !== 'all' && !supplier.sector.includes(filters.sector)) {
+      return false;
+    }
+    if (filters.verified && !supplier.verified) {
+      return false;
+    }
+    return true;
+  });
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50" dir="rtl">
+        <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+        <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">جاري التحميل...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50" dir="rtl">
@@ -114,7 +78,15 @@ const Suppliers = () => {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">دليل الموردين</h1>
             <p className="text-gray-600">اكتشف وتواصل مع أفضل الموردين المعتمدين</p>
           </div>
-          <Button className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600">
+          <Button 
+            className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600"
+            onClick={() => addSupplier({
+              name: 'مورد جديد',
+              description: 'وصف المورد',
+              sector: ['عام'],
+              location: 'الرياض'
+            })}
+          >
             <Plus className="w-4 h-4" />
             انضم كمورد
           </Button>
@@ -150,9 +122,14 @@ const Suppliers = () => {
 
           {/* Suppliers List */}
           <div className="lg:col-span-3 space-y-6">
-            {suppliers.map((supplier) => (
+            {filteredSuppliers.map((supplier) => (
               <SupplierCard key={supplier.id} supplier={supplier} />
             ))}
+            {filteredSuppliers.length === 0 && (
+              <div className="text-center py-8 text-gray-500">
+                لا توجد موردين متاحين حاليًا
+              </div>
+            )}
           </div>
         </div>
       </div>

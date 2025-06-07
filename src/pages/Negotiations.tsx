@@ -7,88 +7,66 @@ import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/Sidebar';
 import NegotiationCard from '@/components/negotiations/NegotiationCard';
 import NegotiationFilters from '@/components/negotiations/NegotiationFilters';
+import { useNegotiationsData } from '@/hooks/useNegotiationsData';
 
 const Negotiations = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [filters, setFilters] = useState({});
-
-  const negotiations = [
-    {
-      id: '1',
-      title: 'مفاوضة شراء أجهزة كمبيوتر',
-      description: 'مفاوضة جماعية لشراء 50 جهاز كمبيوتر مكتبي بأفضل سعر',
-      group: 'مجموعة التكنولوجيا',
-      supplier: 'شركة الإمداد المتميز',
-      currentOffer: '145,000 ر.س',
-      targetPrice: '130,000 ر.س',
-      progress: 75,
-      status: 'active' as const,
-      participants: 12,
-      rounds: 3,
-      currentRound: 2,
-      deadline: '2024-03-15',
-      lastActivity: 'منذ ساعتين'
-    },
-    {
-      id: '2',
-      title: 'مفاوضة توريد مواد البناء',
-      description: 'مفاوضة لتوريد مواد البناء الأساسية لمشاريع الأعضاء',
-      group: 'مجموعة المقاولين',
-      supplier: 'مجموعة التجارة الذكية',
-      currentOffer: '480,000 ر.س',
-      targetPrice: '450,000 ر.س',
-      progress: 50,
-      status: 'active' as const,
-      participants: 8,
-      rounds: 5,
-      currentRound: 3,
-      deadline: '2024-04-01',
-      lastActivity: 'منذ 30 دقيقة'
-    },
-    {
-      id: '3',
-      title: 'مفاوضة مواد غذائية',
-      description: 'مفاوضة شهرية للمواد الغذائية الطازجة',
-      group: 'مجموعة المطاعم',
-      supplier: 'شركة الأغذية الطازجة',
-      currentOffer: '72,000 ر.س',
-      targetPrice: '70,000 ر.س',
-      progress: 90,
-      status: 'completed' as const,
-      participants: 15,
-      rounds: 2,
-      currentRound: 2,
-      deadline: '2024-02-28',
-      lastActivity: 'أمس'
-    }
-  ];
+  const { negotiations, loading, updateNegotiationStatus, addMessage, submitOffer } = useNegotiationsData();
 
   const stats = [
     {
       title: 'المفاوضات النشطة',
-      value: '18',
+      value: negotiations.filter(n => n.status === 'active').length.toString(),
       icon: TrendingUp,
       color: 'bg-blue-100 text-blue-600'
     },
     {
       title: 'في الانتظار',
-      value: '6',
+      value: negotiations.filter(n => n.status === 'pending').length.toString(),
       icon: Clock,
       color: 'bg-yellow-100 text-yellow-600'
     },
     {
       title: 'المشاركون',
-      value: '156',
+      value: negotiations.reduce((sum, n) => sum + n.participants.length, 0).toString(),
       icon: Users,
       color: 'bg-green-100 text-green-600'
     },
     {
       title: 'القيمة المتفاوض عليها',
-      value: '2.8M ر.س',
+      value: `${(negotiations.reduce((sum, n) => sum + n.currentOffer, 0) / 1000).toFixed(1)}K ر.س`,
       icon: DollarSign,
       color: 'bg-purple-100 text-purple-600'
     }
   ];
+
+  const filteredNegotiations = negotiations.filter(negotiation => {
+    if (filters.search && !negotiation.title.toLowerCase().includes(filters.search.toLowerCase())) {
+      return false;
+    }
+    if (filters.status && filters.status !== 'all' && negotiation.status !== filters.status) {
+      return false;
+    }
+    return true;
+  });
+
+  const handleStartNewNegotiation = () => {
+    // In a real app, this would open a modal to create new negotiation
+    console.log('Starting new negotiation...');
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50" dir="rtl">
+        <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+        <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">جاري التحميل...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50" dir="rtl">
@@ -102,7 +80,10 @@ const Negotiations = () => {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">المفاوضات</h1>
             <p className="text-gray-600">إدارة ومتابعة جميع المفاوضات الجماعية</p>
           </div>
-          <Button className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600">
+          <Button 
+            className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600"
+            onClick={handleStartNewNegotiation}
+          >
             <Plus className="w-4 h-4" />
             بدء مفاوضة جديدة
           </Button>
@@ -138,9 +119,33 @@ const Negotiations = () => {
 
           {/* Negotiations List */}
           <div className="lg:col-span-3 space-y-6">
-            {negotiations.map((negotiation) => (
-              <NegotiationCard key={negotiation.id} negotiation={negotiation} />
+            {filteredNegotiations.map((negotiation) => (
+              <div key={negotiation.id}>
+                <NegotiationCard 
+                  negotiation={{
+                    id: negotiation.id,
+                    title: negotiation.title,
+                    description: negotiation.groupName,
+                    group: negotiation.groupName,
+                    supplier: negotiation.supplierName,
+                    currentOffer: `${negotiation.currentOffer.toLocaleString()} ر.س`,
+                    targetPrice: `${negotiation.targetPrice.toLocaleString()} ر.س`,
+                    progress: negotiation.progress,
+                    status: negotiation.status,
+                    participants: negotiation.participants.length,
+                    rounds: negotiation.maxRounds,
+                    currentRound: negotiation.currentRound,
+                    deadline: negotiation.deadline,
+                    lastActivity: 'منذ ساعة'
+                  }}
+                />
+              </div>
             ))}
+            {filteredNegotiations.length === 0 && (
+              <div className="text-center py-8 text-gray-500">
+                لا توجد مفاوضات متاحة حاليًا
+              </div>
+            )}
           </div>
         </div>
       </div>

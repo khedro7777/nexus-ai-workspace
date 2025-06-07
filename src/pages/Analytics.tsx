@@ -16,6 +16,7 @@ import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/Sidebar';
 import AnalyticsCard from '@/components/analytics/AnalyticsCard';
 import ChartContainer from '@/components/analytics/ChartContainer';
+import { useAnalyticsData } from '@/hooks/useAnalyticsData';
 import {
   LineChart,
   Line,
@@ -36,12 +37,24 @@ import {
 
 const Analytics = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [timeRange, setTimeRange] = useState('6months');
+  const { data, loading, timeRange, updateTimeRange, exportData } = useAnalyticsData();
+
+  if (loading || !data) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50" dir="rtl">
+        <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+        <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">جاري التحميل...</div>
+        </div>
+      </div>
+    );
+  }
 
   const kpiData = [
     {
       title: 'إجمالي المجموعات',
-      value: '124',
+      value: data.overview.totalGroups.toString(),
       change: '+12%',
       changeType: 'positive' as const,
       icon: Users,
@@ -49,7 +62,7 @@ const Analytics = () => {
     },
     {
       title: 'قيمة التوفير',
-      value: '2.8M ر.س',
+      value: `${(data.overview.totalSavings / 1000000).toFixed(1)}M ر.س`,
       change: '+24%',
       changeType: 'positive' as const,
       icon: DollarSign,
@@ -57,7 +70,7 @@ const Analytics = () => {
     },
     {
       title: 'المفاوضات النشطة',
-      value: '18',
+      value: data.overview.activeNegotiations.toString(),
       change: '+8%',
       changeType: 'positive' as const,
       icon: TrendingUp,
@@ -65,36 +78,12 @@ const Analytics = () => {
     },
     {
       title: 'معدل النجاح',
-      value: '87%',
+      value: `${data.performanceMetrics.successRate}%`,
       change: '+3%',
       changeType: 'positive' as const,
       icon: Target,
       description: 'نسبة المجموعات المكتملة بنجاح'
     }
-  ];
-
-  const monthlyData = [
-    { month: 'يناير', groups: 8, savings: 450000, negotiations: 12 },
-    { month: 'فبراير', groups: 12, savings: 620000, negotiations: 15 },
-    { month: 'مارس', groups: 15, savings: 780000, negotiations: 18 },
-    { month: 'أبريل', groups: 18, savings: 890000, negotiations: 22 },
-    { month: 'مايو', groups: 22, savings: 1100000, negotiations: 25 },
-    { month: 'يونيو', groups: 25, savings: 1250000, negotiations: 28 }
-  ];
-
-  const sectorData = [
-    { name: 'تكنولوجيا', value: 35, color: '#3B82F6' },
-    { name: 'إنشاءات', value: 25, color: '#10B981' },
-    { name: 'أغذية', value: 20, color: '#F59E0B' },
-    { name: 'صحة', value: 15, color: '#EF4444' },
-    { name: 'أخرى', value: 5, color: '#8B5CF6' }
-  ];
-
-  const performanceData = [
-    { metric: 'سرعة التكوين', current: 85, target: 90 },
-    { metric: 'رضا المستخدمين', current: 92, target: 95 },
-    { metric: 'معدل الإتمام', current: 87, target: 90 },
-    { metric: 'جودة المفاوضات', current: 91, target: 95 }
   ];
 
   return (
@@ -110,18 +99,21 @@ const Analytics = () => {
             <p className="text-gray-600">رؤى شاملة حول أداء المنصة والمجموعات</p>
           </div>
           <div className="flex items-center gap-4">
-            <Select value={timeRange} onValueChange={setTimeRange}>
+            <Select value={timeRange} onValueChange={updateTimeRange}>
               <SelectTrigger className="w-40">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="1month">شهر واحد</SelectItem>
-                <SelectItem value="3months">3 أشهر</SelectItem>
-                <SelectItem value="6months">6 أشهر</SelectItem>
-                <SelectItem value="1year">سنة واحدة</SelectItem>
+                <SelectItem value="week">أسبوع واحد</SelectItem>
+                <SelectItem value="month">شهر واحد</SelectItem>
+                <SelectItem value="quarter">3 أشهر</SelectItem>
+                <SelectItem value="year">سنة واحدة</SelectItem>
               </SelectContent>
             </Select>
-            <Button className="flex items-center gap-2">
+            <Button 
+              className="flex items-center gap-2"
+              onClick={() => exportData('pdf')}
+            >
               <Download className="w-4 h-4" />
               تصدير التقرير
             </Button>
@@ -143,7 +135,7 @@ const Analytics = () => {
             description="تطور المجموعات والتوفير عبر الأشهر"
           >
             <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={monthlyData}>
+              <AreaChart data={data.chartData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
                 <YAxis />
@@ -170,7 +162,7 @@ const Analytics = () => {
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
-                  data={sectorData}
+                  data={data.categoryData}
                   cx="50%"
                   cy="50%"
                   innerRadius={60}
@@ -178,8 +170,8 @@ const Analytics = () => {
                   paddingAngle={5}
                   dataKey="value"
                 >
-                  {sectorData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  {data.categoryData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={`hsl(${index * 45}, 70%, 50%)`} />
                   ))}
                 </Pie>
                 <Tooltip />
@@ -197,7 +189,7 @@ const Analytics = () => {
             description="إجمالي التوفير المحقق عبر الوقت"
           >
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={monthlyData}>
+              <LineChart data={data.chartData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
                 <YAxis />
@@ -221,7 +213,12 @@ const Analytics = () => {
             description="الأداء الحالي مقابل الأهداف المحددة"
           >
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={performanceData} layout="horizontal">
+              <BarChart data={[
+                { metric: 'سرعة التفاوض', current: data.performanceMetrics.avgNegotiationTime, target: 15 },
+                { metric: 'معدل النجاح', current: data.performanceMetrics.successRate, target: 90 },
+                { metric: 'رضا المستخدمين', current: data.performanceMetrics.userSatisfaction * 20, target: 100 },
+                { metric: 'تقليل التكلفة', current: data.performanceMetrics.costReduction, target: 30 }
+              ]} layout="horizontal">
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis type="number" domain={[0, 100]} />
                 <YAxis dataKey="metric" type="category" width={100} />
@@ -238,27 +235,19 @@ const Analytics = () => {
           title="ملخص النشاط الأخير"
           description="آخر الأحداث والإنجازات في المنصة"
         >
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="text-center p-6 bg-blue-50 rounded-lg">
-              <ShoppingCart className="w-8 h-8 text-blue-600 mx-auto mb-3" />
-              <h3 className="font-semibold text-lg mb-2">مجموعات جديدة</h3>
-              <p className="text-3xl font-bold text-blue-600">12</p>
-              <p className="text-sm text-gray-600">في آخر 30 يوماً</p>
-            </div>
-            
-            <div className="text-center p-6 bg-green-50 rounded-lg">
-              <FileText className="w-8 h-8 text-green-600 mx-auto mb-3" />
-              <h3 className="font-semibold text-lg mb-2">عقود مكتملة</h3>
-              <p className="text-3xl font-bold text-green-600">8</p>
-              <p className="text-sm text-gray-600">في آخر 30 يوماً</p>
-            </div>
-            
-            <div className="text-center p-6 bg-purple-50 rounded-lg">
-              <Clock className="w-8 h-8 text-purple-600 mx-auto mb-3" />
-              <h3 className="font-semibold text-lg mb-2">متوسط وقت التنفيذ</h3>
-              <p className="text-3xl font-bold text-purple-600">18</p>
-              <p className="text-sm text-gray-600">يوماً</p>
-            </div>
+          <div className="space-y-4">
+            {data.recentActivity.map((activity) => (
+              <div key={activity.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className={`w-3 h-3 rounded-full ${
+                    activity.type === 'deal_completed' ? 'bg-green-500' :
+                    activity.type === 'group_created' ? 'bg-blue-500' : 'bg-purple-500'
+                  }`} />
+                  <span className="text-sm font-medium">{activity.description}</span>
+                </div>
+                <span className="text-xs text-gray-500">{activity.timestamp}</span>
+              </div>
+            ))}
           </div>
         </ChartContainer>
       </div>
