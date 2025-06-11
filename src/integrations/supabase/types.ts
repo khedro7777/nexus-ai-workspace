@@ -60,6 +60,8 @@ export type Database = {
         Row: {
           additional_notes: string | null
           created_at: string | null
+          delivery_time: string | null
+          description: string | null
           freelancer_id: string | null
           group_id: string | null
           id: string
@@ -67,10 +69,13 @@ export type Database = {
           price: number | null
           status: string | null
           timeline_days: number | null
+          title: string | null
         }
         Insert: {
           additional_notes?: string | null
           created_at?: string | null
+          delivery_time?: string | null
+          description?: string | null
           freelancer_id?: string | null
           group_id?: string | null
           id?: string
@@ -78,10 +83,13 @@ export type Database = {
           price?: number | null
           status?: string | null
           timeline_days?: number | null
+          title?: string | null
         }
         Update: {
           additional_notes?: string | null
           created_at?: string | null
+          delivery_time?: string | null
+          description?: string | null
           freelancer_id?: string | null
           group_id?: string | null
           id?: string
@@ -89,6 +97,7 @@ export type Database = {
           price?: number | null
           status?: string | null
           timeline_days?: number | null
+          title?: string | null
         }
         Relationships: [
           {
@@ -194,29 +203,47 @@ export type Database = {
       }
       profiles: {
         Row: {
+          address: string | null
+          bio: string | null
+          company: string | null
           country: string | null
           created_at: string | null
           email: string | null
+          experience_years: number | null
           full_name: string
           id: string
+          phone: string | null
+          skills: string | null
           updated_at: string | null
           user_role: string | null
         }
         Insert: {
+          address?: string | null
+          bio?: string | null
+          company?: string | null
           country?: string | null
           created_at?: string | null
           email?: string | null
+          experience_years?: number | null
           full_name: string
           id: string
+          phone?: string | null
+          skills?: string | null
           updated_at?: string | null
           user_role?: string | null
         }
         Update: {
+          address?: string | null
+          bio?: string | null
+          company?: string | null
           country?: string | null
           created_at?: string | null
           email?: string | null
+          experience_years?: number | null
           full_name?: string
           id?: string
+          phone?: string | null
+          skills?: string | null
           updated_at?: string | null
           user_role?: string | null
         }
@@ -227,39 +254,54 @@ export type Database = {
           company_name: string | null
           created_at: string | null
           delivery_terms: string | null
+          delivery_time: string | null
+          description: string | null
           group_id: string | null
           id: string
           offer_description: string
           payment_terms: string | null
+          price: number | null
           price_details: Json | null
           status: string | null
           supplier_id: string | null
+          terms: string | null
+          title: string | null
           valid_until: string | null
         }
         Insert: {
           company_name?: string | null
           created_at?: string | null
           delivery_terms?: string | null
+          delivery_time?: string | null
+          description?: string | null
           group_id?: string | null
           id?: string
           offer_description: string
           payment_terms?: string | null
+          price?: number | null
           price_details?: Json | null
           status?: string | null
           supplier_id?: string | null
+          terms?: string | null
+          title?: string | null
           valid_until?: string | null
         }
         Update: {
           company_name?: string | null
           created_at?: string | null
           delivery_terms?: string | null
+          delivery_time?: string | null
+          description?: string | null
           group_id?: string | null
           id?: string
           offer_description?: string
           payment_terms?: string | null
+          price?: number | null
           price_details?: Json | null
           status?: string | null
           supplier_id?: string | null
+          terms?: string | null
+          title?: string | null
           valid_until?: string | null
         }
         Relationships: [

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -24,7 +23,7 @@ const AdminDashboard = () => {
   const { data: adminData, isLoading } = useQuery({
     queryKey: ['admin-dashboard'],
     queryFn: async () => {
-      const [usersResult, groupsResult, offersResult, paymentsResult] = await Promise.all([
+      const [usersResult, groupsResult, supplierOffersResult, freelancerOffersResult] = await Promise.all([
         supabase.from('profiles').select('*'),
         supabase.from('groups').select('*'),
         supabase.from('supplier_offers').select('*'),
@@ -33,16 +32,19 @@ const AdminDashboard = () => {
 
       const totalUsers = usersResult.data?.length || 0;
       const totalGroups = groupsResult.data?.length || 0;
-      const totalOffers = (offersResult.data?.length || 0) + (paymentsResult.data?.length || 0);
+      const totalOffers = (supplierOffersResult.data?.length || 0) + (freelancerOffersResult.data?.length || 0);
       const pendingOffers = [
-        ...(offersResult.data?.filter(o => o.status === 'pending') || []),
-        ...(paymentsResult.data?.filter(o => o.status === 'pending') || [])
+        ...(supplierOffersResult.data?.filter(o => o.status === 'pending') || []),
+        ...(freelancerOffersResult.data?.filter(o => o.status === 'pending') || [])
       ].length;
 
       const totalRevenue = [
-        ...(offersResult.data?.filter(o => o.status === 'completed') || []),
-        ...(paymentsResult.data?.filter(o => o.status === 'completed') || [])
-      ].reduce((sum, offer) => sum + (offer.price || 0), 0);
+        ...(supplierOffersResult.data?.filter(o => o.status === 'completed') || []),
+        ...(freelancerOffersResult.data?.filter(o => o.status === 'completed') || [])
+      ].reduce((sum, offer) => {
+        const price = 'price' in offer ? offer.price : 0;
+        return sum + (price || 0);
+      }, 0);
 
       return {
         totalUsers,
