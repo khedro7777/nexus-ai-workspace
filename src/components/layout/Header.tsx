@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Menu, Bell, User, Settings } from 'lucide-react';
+import { Menu, Bell, User, Settings, Gavel } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Logo from './Logo';
 import UserDateTime from './UserDateTime';
 
@@ -11,6 +12,8 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen }) => {
+  const navigate = useNavigate();
+
   return (
     <header className="bg-white border-b border-gray-200 px-4 py-3 shadow-sm">
       <div className="flex items-center justify-between">
@@ -38,11 +41,29 @@ const Header: React.FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen }) => {
           <Button variant="ghost" size="icon">
             <Bell className="w-5 h-5" />
           </Button>
-          <Button variant="ghost" size="icon">
-            <Settings className="w-5 h-5" />
+          <Button 
+            variant="ghost" 
+            size="icon"
+            onClick={() => navigate('/arbitration-hub')}
+            title="إدارة التحكيم"
+          >
+            <Gavel className="w-5 h-5" />
           </Button>
-          <Button variant="ghost" size="icon">
+          <Button 
+            variant="ghost" 
+            size="icon"
+            onClick={() => navigate('/profile')}
+            title="الصفحة الشخصية"
+          >
             <User className="w-5 h-5" />
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="icon"
+            onClick={() => navigate('/settings')}
+            title="الإعدادات"
+          >
+            <Settings className="w-5 h-5" />
           </Button>
         </div>
       </div>
