@@ -19,6 +19,10 @@ import Negotiations from "./pages/Negotiations";
 import Analytics from "./pages/Analytics";
 import Automation from "./pages/Automation";
 import NotFound from "./pages/NotFound";
+import SupplierDashboard from "./pages/SupplierDashboard";
+import FreelancerDashboard from "./pages/FreelancerDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
+import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +47,10 @@ const App = () => (
             <Route path="/negotiations" element={<Negotiations />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/automation" element={<Automation />} />
+            <Route path="/supplier-dashboard" element={<SupplierDashboard />} />
+            <Route path="/freelancer-dashboard" element={<FreelancerDashboard />} />
+            <Route path="/admin-dashboard" element={<AdminDashboard />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
