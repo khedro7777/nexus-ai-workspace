@@ -1,246 +1,244 @@
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { DollarSign, Package, TrendingUp, Users, Plus, Eye, Edit, Truck } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { 
+  Package, 
+  TrendingUp, 
+  Clock, 
+  DollarSign,
+  FileText,
+  Users,
+  Star,
+  Plus
+} from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/Sidebar';
-import { useSuppliersData } from '@/hooks/useSuppliersData';
 
 const SupplierDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { suppliers, loading } = useSuppliersData();
 
-  const supplierStats = {
-    totalEarnings: 125000,
-    activeOrders: 8,
-    completedOrders: 156,
-    pendingQuotes: 12
-  };
+  // Fetch supplier data
+  const { data: supplierData, isLoading } = useQuery({
+    queryKey: ['supplier-dashboard'],
+    queryFn: async () => {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) throw new Error('Not authenticated');
 
-  const recentOrders = [
+      const [offersResult, profileResult] = await Promise.all([
+        supabase
+          .from('supplier_offers')
+          .select(`
+            *,
+            groups (
+              name,
+              description
+            )
+          `)
+          .eq('supplier_id', user.user.id),
+        supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.user.id)
+          .single()
+      ]);
+
+      return {
+        offers: offersResult.data || [],
+        profile: profileResult.data,
+        totalEarnings: offersResult.data?.filter(o => o.status === 'completed').reduce((sum, o) => sum + (o.price || 0), 0) || 0,
+        activeOffers: offersResult.data?.filter(o => o.status === 'pending' || o.status === 'accepted').length || 0,
+        completedOffers: offersResult.data?.filter(o => o.status === 'completed').length || 0,
+        successRate: offersResult.data?.length ? Math.round((offersResult.data.filter(o => o.status === 'completed').length / offersResult.data.length) * 100) : 0
+      };
+    }
+  });
+
+  const stats = [
     {
-      id: 'ORD-001',
-      groupName: 'مجموعة تطوير الأنظمة',
-      amount: 35000,
-      status: 'active',
-      deadline: '2024-01-25'
+      title: 'إجمالي الأرباح',
+      value: `$${supplierData?.totalEarnings?.toFixed(2) || '0.00'}`,
+      icon: DollarSign,
+      color: 'bg-green-100 text-green-600',
+      currency: 'USD'
     },
     {
-      id: 'ORD-002',
-      groupName: 'مجموعة الأثاث المكتبي',
-      amount: 25000,
-      status: 'delivered',
-      deadline: '2024-01-20'
+      title: 'العروض النشطة',
+      value: supplierData?.activeOffers || 0,
+      icon: Package,
+      color: 'bg-blue-100 text-blue-600'
+    },
+    {
+      title: 'العروض المكتملة',
+      value: supplierData?.completedOffers || 0,
+      icon: FileText,
+      color: 'bg-purple-100 text-purple-600'
+    },
+    {
+      title: 'معدل النجاح',
+      value: `${supplierData?.successRate || 0}%`,
+      icon: TrendingUp,
+      color: 'bg-orange-100 text-orange-600'
     }
   ];
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active': return 'bg-blue-500';
-      case 'delivered': return 'bg-green-500';
-      case 'pending': return 'bg-yellow-500';
-      default: return 'bg-gray-500';
+  const quickActions = [
+    {
+      title: 'إنشاء عرض جديد',
+      description: 'قم بإنشاء عرض للمجموعات',
+      icon: Plus,
+      color: 'bg-blue-500',
+      href: '/create-offer'
+    },
+    {
+      title: 'عرض العروض',
+      description: 'إدارة العروض الحالية',
+      icon: Package,
+      color: 'bg-green-500',
+      href: '/my-offers'
+    },
+    {
+      title: 'المدفوعات',
+      description: 'عرض تاريخ المدفوعات',
+      icon: DollarSign,
+      color: 'bg-purple-500',
+      href: '/payments'
+    },
+    {
+      title: 'تقييم العملاء',
+      description: 'عرض تقييمات العملاء',
+      icon: Star,
+      color: 'bg-yellow-500',
+      href: '/reviews'
     }
-  };
+  ];
 
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50" dir="rtl">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50" dir="rtl">
         <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-        <div className="flex">
-          <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
-          <main className="flex-1 p-6">
-            <div className="max-w-6xl mx-auto">
-              <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                <p className="mt-4 text-gray-600">جارٍ تحميل لوحة التحكم...</p>
-              </div>
-            </div>
-          </main>
+        <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50" dir="rtl">
       <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+      <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
       
-      <div className="flex">
-        <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
-        
-        <main className="flex-1 p-6">
-          <div className="max-w-6xl mx-auto space-y-6">
-            {/* Page Header */}
-            <div className="flex justify-between items-center">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">لوحة تحكم المورد</h1>
-                <p className="text-gray-600 mt-2">إدارة طلباتك وعروضك والعملاء</p>
-              </div>
-              <Button>
-                <Plus className="w-4 h-4 ml-1" />
-                إضافة عرض جديد
-              </Button>
-            </div>
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            مرحباً، {supplierData?.profile?.full_name || 'المورد'}
+          </h1>
+          <p className="text-gray-600">إدارة عروضك ومبيعاتك</p>
+        </div>
 
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">إجمالي الأرباح</CardTitle>
-                  <DollarSign className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">${supplierStats.totalEarnings.toLocaleString()}</div>
-                  <p className="text-xs text-muted-foreground">+12% من الشهر الماضي</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">الطلبات النشطة</CardTitle>
-                  <Package className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{supplierStats.activeOrders}</div>
-                  <p className="text-xs text-muted-foreground">+2 طلبات جديدة</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">الطلبات المكتملة</CardTitle>
-                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{supplierStats.completedOrders}</div>
-                  <p className="text-xs text-muted-foreground">معدل نجاح 98%</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">عروض الأسعار المعلقة</CardTitle>
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{supplierStats.pendingQuotes}</div>
-                  <p className="text-xs text-muted-foreground">تحتاج مراجعة</p>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Main Content Tabs */}
-            <Tabs defaultValue="orders" className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="orders">الطلبات</TabsTrigger>
-                <TabsTrigger value="quotes">عروض الأسعار</TabsTrigger>
-                <TabsTrigger value="products">منتجاتي</TabsTrigger>
-                <TabsTrigger value="analytics">التحليلات</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="orders" className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>الطلبات الحديثة</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {recentOrders.map((order) => (
-                        <div key={order.id} className="flex items-center justify-between p-4 border rounded-lg">
-                          <div className="flex items-center space-x-4 space-x-reverse">
-                            <div>
-                              <p className="font-medium">{order.groupName}</p>
-                              <p className="text-sm text-gray-500">رقم الطلب: {order.id}</p>
-                            </div>
-                          </div>
-                          <div className="flex items-center space-x-4 space-x-reverse">
-                            <Badge className={`text-white ${getStatusColor(order.status)}`}>
-                              {order.status === 'active' ? 'نشط' : 'مُسلم'}
-                            </Badge>
-                            <span className="font-bold">${order.amount.toLocaleString()}</span>
-                            <div className="flex space-x-2 space-x-reverse">
-                              <Button variant="outline" size="sm">
-                                <Eye className="w-4 h-4" />
-                              </Button>
-                              <Button variant="outline" size="sm">
-                                <Truck className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="quotes" className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>عروض الأسعار المعلقة</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center py-8">
-                      <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">لا توجد عروض أسعار معلقة</h3>
-                      <p className="text-gray-600">ستظهر عروض الأسعار الجديدة هنا</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="products" className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>كتالوج المنتجات</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center py-8">
-                      <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">ابدأ بإضافة منتجاتك</h3>
-                      <p className="text-gray-600 mb-4">أضف منتجاتك وخدماتك لتسهيل العثور عليها</p>
-                      <Button>
-                        <Plus className="w-4 h-4 ml-1" />
-                        إضافة منتج
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="analytics" className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>أداء المبيعات</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-center py-8">
-                        <TrendingUp className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                        <p className="text-gray-600">ستظهر تحليلات المبيعات هنا</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>تقييمات العملاء</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-center py-8">
-                        <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                        <p className="text-gray-600">ستظهر تقييمات العملاء هنا</p>
-                      </div>
-                    </CardContent>
-                  </Card>
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          {stats.map((stat, index) => (
+            <Card key={index} className="hover:shadow-lg transition-all duration-300">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {stat.value}
+                      {stat.currency && <span className="text-sm text-gray-500 mr-1">{stat.currency}</span>}
+                    </p>
+                    <p className="text-gray-600 text-sm">{stat.title}</p>
+                  </div>
+                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${stat.color}`}>
+                    <stat.icon className="w-6 h-6" />
+                  </div>
                 </div>
-              </TabsContent>
-            </Tabs>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Quick Actions */}
+          <div className="lg:col-span-1">
+            <Card>
+              <CardHeader>
+                <CardTitle>الإجراءات السريعة</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {quickActions.map((action, index) => (
+                  <Button
+                    key={index}
+                    variant="outline"
+                    className="w-full justify-start h-auto p-4"
+                    onClick={() => window.location.href = action.href}
+                  >
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${action.color} text-white ml-4`}>
+                      <action.icon className="w-5 h-5" />
+                    </div>
+                    <div className="text-right">
+                      <h3 className="font-medium">{action.title}</h3>
+                      <p className="text-sm text-gray-500">{action.description}</p>
+                    </div>
+                  </Button>
+                ))}
+              </CardContent>
+            </Card>
           </div>
-        </main>
+
+          {/* Recent Offers */}
+          <div className="lg:col-span-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>العروض الأخيرة</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {supplierData?.offers?.slice(0, 5).map((offer: any) => (
+                    <div key={offer.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                      <div className="flex-1">
+                        <h3 className="font-medium text-gray-900">{offer.title}</h3>
+                        <p className="text-sm text-gray-500">{offer.groups?.name}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="outline" className="flex items-center gap-1">
+                            <DollarSign className="w-3 h-3" />
+                            ${offer.price} USD
+                          </Badge>
+                          <Badge variant="outline" className="flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {offer.delivery_time}
+                          </Badge>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <Badge variant={
+                          offer.status === 'completed' ? 'default' :
+                          offer.status === 'accepted' ? 'secondary' :
+                          offer.status === 'pending' ? 'outline' : 'destructive'
+                        }>
+                          {offer.status === 'pending' ? 'قيد الانتظار' :
+                           offer.status === 'accepted' ? 'مقبول' :
+                           offer.status === 'completed' ? 'مكتمل' : 'مرفوض'}
+                        </Badge>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {new Date(offer.created_at).toLocaleDateString('ar')}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                  {(!supplierData?.offers || supplierData.offers.length === 0) && (
+                    <p className="text-gray-500 text-center py-8">لا توجد عروض بعد</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
     </div>
   );

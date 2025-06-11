@@ -1,365 +1,254 @@
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   Users, 
-  ShoppingCart, 
+  FileText, 
   DollarSign, 
-  TrendingUp, 
-  Eye, 
-  Check, 
-  X, 
-  AlertTriangle,
-  Settings,
+  TrendingUp,
   Shield,
-  FileText,
-  Bell
+  Activity,
+  AlertTriangle,
+  CheckCircle
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/Sidebar';
 
 const AdminDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
 
-  const adminStats = {
-    totalUsers: 1247,
-    activeGroups: 58,
-    totalRevenue: 425000,
-    pendingApprovals: 12,
-    totalContracts: 189,
-    disputeCases: 3
-  };
+  // Fetch admin dashboard data
+  const { data: adminData, isLoading } = useQuery({
+    queryKey: ['admin-dashboard'],
+    queryFn: async () => {
+      const [usersResult, groupsResult, offersResult, paymentsResult] = await Promise.all([
+        supabase.from('profiles').select('*'),
+        supabase.from('groups').select('*'),
+        supabase.from('supplier_offers').select('*'),
+        supabase.from('freelancer_offers').select('*')
+      ]);
 
-  const pendingApprovals = [
+      const totalUsers = usersResult.data?.length || 0;
+      const totalGroups = groupsResult.data?.length || 0;
+      const totalOffers = (offersResult.data?.length || 0) + (paymentsResult.data?.length || 0);
+      const pendingOffers = [
+        ...(offersResult.data?.filter(o => o.status === 'pending') || []),
+        ...(paymentsResult.data?.filter(o => o.status === 'pending') || [])
+      ].length;
+
+      const totalRevenue = [
+        ...(offersResult.data?.filter(o => o.status === 'completed') || []),
+        ...(paymentsResult.data?.filter(o => o.status === 'completed') || [])
+      ].reduce((sum, offer) => sum + (offer.price || 0), 0);
+
+      return {
+        totalUsers,
+        totalGroups,
+        totalOffers,
+        pendingOffers,
+        totalRevenue,
+        activeGroups: groupsResult.data?.filter(g => g.status === 'active').length || 0,
+        recentUsers: usersResult.data?.slice(-5) || [],
+        recentGroups: groupsResult.data?.slice(-5) || [],
+        systemHealth: 95 // Mock data
+      };
+    }
+  });
+
+  const stats = [
     {
-      id: 'APP-001',
-      type: 'group',
-      title: 'مجموعة استيراد المعدات الطبية',
-      user: 'أحمد محمد',
-      date: '2024-01-20',
-      priority: 'high'
+      title: 'إجمالي المستخدمين',
+      value: adminData?.totalUsers || 0,
+      icon: Users,
+      color: 'bg-blue-100 text-blue-600',
+      trend: '+12%'
     },
     {
-      id: 'APP-002',
-      type: 'supplier',
-      title: 'شركة التكنولوجيا المتطورة',
-      user: 'فاطمة علي',
-      date: '2024-01-19',
-      priority: 'medium'
+      title: 'المجموعات النشطة',
+      value: adminData?.activeGroups || 0,
+      icon: Activity,
+      color: 'bg-green-100 text-green-600',
+      trend: '+8%'
+    },
+    {
+      title: 'إجمالي العوائد',
+      value: `$${adminData?.totalRevenue?.toFixed(2) || '0.00'}`,
+      icon: DollarSign,
+      color: 'bg-purple-100 text-purple-600',
+      trend: '+15%',
+      currency: 'USD'
+    },
+    {
+      title: 'العروض المعلقة',
+      value: adminData?.pendingOffers || 0,
+      icon: AlertTriangle,
+      color: 'bg-yellow-100 text-yellow-600',
+      trend: '-5%'
     }
   ];
 
-  const recentActivities = [
+  const systemMetrics = [
     {
-      id: 'ACT-001',
-      type: 'contract_signed',
-      description: 'تم توقيع عقد جديد',
-      user: 'مجموعة التطوير',
-      amount: 35000,
-      time: '2 ساعات'
+      title: 'صحة النظام',
+      value: `${adminData?.systemHealth || 0}%`,
+      icon: Shield,
+      status: 'excellent'
     },
     {
-      id: 'ACT-002',
-      type: 'dispute_opened',
-      description: 'فتح نزاع جديد',
-      user: 'خالد سالم',
-      time: '4 ساعات'
+      title: 'معدل النجاح',
+      value: '92%',
+      icon: CheckCircle,
+      status: 'good'
+    },
+    {
+      title: 'النمو الشهري',
+      value: '+18%',
+      icon: TrendingUp,
+      status: 'excellent'
     }
   ];
 
-  const systemAlerts = [
-    {
-      id: 'ALERT-001',
-      type: 'security',
-      message: 'محاولة دخول مشبوهة من IP: 192.168.1.100',
-      severity: 'high',
-      time: '30 دقيقة'
-    },
-    {
-      id: 'ALERT-002',
-      type: 'performance',
-      message: 'زمن استجابة قاعدة البيانات مرتفع',
-      severity: 'medium',
-      time: '1 ساعة'
-    }
-  ];
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'bg-red-500';
-      case 'medium': return 'bg-yellow-500';
-      case 'low': return 'bg-green-500';
-      default: return 'bg-gray-500';
-    }
-  };
-
-  const getSeverityColor = (severity: string) => {
-    switch (severity) {
-      case 'high': return 'text-red-600 bg-red-50';
-      case 'medium': return 'text-yellow-600 bg-yellow-50';
-      case 'low': return 'text-green-600 bg-green-50';
-      default: return 'text-gray-600 bg-gray-50';
-    }
-  };
-
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50" dir="rtl">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50" dir="rtl">
         <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-        <div className="flex">
-          <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
-          <main className="flex-1 p-6">
-            <div className="max-w-6xl mx-auto">
-              <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                <p className="mt-4 text-gray-600">جارٍ تحميل لوحة المشرف...</p>
-              </div>
-            </div>
-          </main>
+        <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50" dir="rtl">
       <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+      <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
       
-      <div className="flex">
-        <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
-        
-        <main className="flex-1 p-6">
-          <div className="max-w-6xl mx-auto space-y-6">
-            {/* Page Header */}
-            <div className="flex justify-between items-center">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">لوحة تحكم المشرف</h1>
-                <p className="text-gray-600 mt-2">إدارة ومراقبة جميع أنشطة المنصة</p>
-              </div>
-              <Button>
-                <Settings className="w-4 h-4 ml-1" />
-                إعدادات النظام
-              </Button>
-            </div>
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
+            <Shield className="w-8 h-8" />
+            لوحة تحكم المشرف
+          </h1>
+          <p className="text-gray-600">إدارة ومراقبة النظام بالكامل</p>
+        </div>
 
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">إجمالي المستخدمين</CardTitle>
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{adminStats.totalUsers.toLocaleString()}</div>
-                  <p className="text-xs text-muted-foreground">+12% من الشهر الماضي</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">المجموعات النشطة</CardTitle>
-                  <ShoppingCart className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{adminStats.activeGroups}</div>
-                  <p className="text-xs text-muted-foreground">+5 مجموعات جديدة</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">إجمالي الإيرادات</CardTitle>
-                  <DollarSign className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">${adminStats.totalRevenue.toLocaleString()}</div>
-                  <p className="text-xs text-muted-foreground">+8% من الشهر الماضي</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">موافقات معلقة</CardTitle>
-                  <AlertTriangle className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{adminStats.pendingApprovals}</div>
-                  <p className="text-xs text-muted-foreground">تحتاج مراجعة</p>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Main Content Tabs */}
-            <Tabs defaultValue="approvals" className="w-full">
-              <TabsList className="grid w-full grid-cols-5">
-                <TabsTrigger value="approvals">الموافقات</TabsTrigger>
-                <TabsTrigger value="users">المستخدمون</TabsTrigger>
-                <TabsTrigger value="disputes">النزاعات</TabsTrigger>
-                <TabsTrigger value="analytics">التحليلات</TabsTrigger>
-                <TabsTrigger value="system">النظام</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="approvals" className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>طلبات الموافقة المعلقة</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {pendingApprovals.map((approval) => (
-                        <div key={approval.id} className="flex items-center justify-between p-4 border rounded-lg">
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-2 space-x-reverse mb-2">
-                              <h3 className="font-medium">{approval.title}</h3>
-                              <Badge className={`text-white ${getPriorityColor(approval.priority)}`}>
-                                {approval.priority === 'high' ? 'عالي' : 'متوسط'}
-                              </Badge>
-                            </div>
-                            <p className="text-sm text-gray-500">بواسطة: {approval.user}</p>
-                            <p className="text-sm text-gray-500">التاريخ: {approval.date}</p>
-                          </div>
-                          <div className="flex space-x-2 space-x-reverse">
-                            <Button variant="outline" size="sm">
-                              <Eye className="w-4 h-4" />
-                            </Button>
-                            <Button variant="outline" size="sm" className="text-green-600">
-                              <Check className="w-4 h-4" />
-                            </Button>
-                            <Button variant="outline" size="sm" className="text-red-600">
-                              <X className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="users" className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>العملاء</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-3xl font-bold">890</div>
-                      <p className="text-sm text-gray-500">مستخدم نشط</p>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>المستقلون</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-3xl font-bold">247</div>
-                      <p className="text-sm text-gray-500">مستقل معتمد</p>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>الموردون</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-3xl font-bold">110</div>
-                      <p className="text-sm text-gray-500">مورد معتمد</p>
-                    </CardContent>
-                  </Card>
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          {stats.map((stat, index) => (
+            <Card key={index} className="hover:shadow-lg transition-all duration-300">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {stat.value}
+                      {stat.currency && <span className="text-sm text-gray-500 mr-1">{stat.currency}</span>}
+                    </p>
+                    <p className="text-gray-600 text-sm">{stat.title}</p>
+                    <Badge variant="outline" className="text-xs mt-1">
+                      {stat.trend}
+                    </Badge>
+                  </div>
+                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${stat.color}`}>
+                    <stat.icon className="w-6 h-6" />
+                  </div>
                 </div>
-              </TabsContent>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
 
-              <TabsContent value="disputes" className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>النزاعات النشطة</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center py-8">
-                      <Shield className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">لا توجد نزاعات نشطة</h3>
-                      <p className="text-gray-600">ستظهر النزاعات الجديدة هنا عند فتحها</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="analytics" className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>النشاط الحديث</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        {recentActivities.map((activity) => (
-                          <div key={activity.id} className="flex items-center space-x-3 space-x-reverse">
-                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                            <div className="flex-1">
-                              <p className="text-sm font-medium">{activity.description}</p>
-                              <p className="text-xs text-gray-500">{activity.user} • منذ {activity.time}</p>
-                            </div>
-                          </div>
-                        ))}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* System Metrics */}
+          <div className="lg:col-span-1">
+            <Card>
+              <CardHeader>
+                <CardTitle>مؤشرات النظام</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {systemMetrics.map((metric, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                        metric.status === 'excellent' ? 'bg-green-100 text-green-600' :
+                        metric.status === 'good' ? 'bg-blue-100 text-blue-600' :
+                        'bg-yellow-100 text-yellow-600'
+                      }`}>
+                        <metric.icon className="w-4 h-4" />
                       </div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>إحصائيات العقود</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        <div className="flex justify-between">
-                          <span>إجمالي العقود:</span>
-                          <span className="font-medium">{adminStats.totalContracts}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>العقود النشطة:</span>
-                          <span className="font-medium">67</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>العقود المكتملة:</span>
-                          <span className="font-medium">122</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>معدل النجاح:</span>
-                          <span className="font-medium">94%</span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="system" className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>تنبيهات النظام</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {systemAlerts.map((alert) => (
-                        <div key={alert.id} className={`p-4 rounded-lg border ${getSeverityColor(alert.severity)}`}>
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-2 space-x-reverse">
-                              <AlertTriangle className="w-5 h-5" />
-                              <span className="font-medium">{alert.message}</span>
-                            </div>
-                            <span className="text-xs">منذ {alert.time}</span>
-                          </div>
-                        </div>
-                      ))}
+                      <span className="text-sm font-medium">{metric.title}</span>
                     </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
+                    <span className="font-bold">{metric.value}</span>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
           </div>
-        </main>
+
+          {/* Recent Activity */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Recent Users */}
+            <Card>
+              <CardHeader>
+                <CardTitle>المستخدمون الجدد</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {adminData?.recentUsers?.map((user: any) => (
+                    <div key={user.id} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div>
+                        <h3 className="font-medium">{user.full_name || 'مستخدم جديد'}</h3>
+                        <p className="text-sm text-gray-500">{user.email}</p>
+                      </div>
+                      <div className="text-right">
+                        <Badge variant="outline">
+                          {new Date(user.created_at).toLocaleDateString('ar')}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                  {(!adminData?.recentUsers || adminData.recentUsers.length === 0) && (
+                    <p className="text-gray-500 text-center py-4">لا توجد مستخدمون جدد</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Recent Groups */}
+            <Card>
+              <CardHeader>
+                <CardTitle>المجموعات الحديثة</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {adminData?.recentGroups?.map((group: any) => (
+                    <div key={group.id} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div>
+                        <h3 className="font-medium">{group.name}</h3>
+                        <p className="text-sm text-gray-500">{group.description}</p>
+                      </div>
+                      <div className="text-right">
+                        <Badge variant={group.status === 'active' ? 'default' : 'secondary'}>
+                          {group.status === 'active' ? 'نشط' : 'غير نشط'}
+                        </Badge>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {new Date(group.created_at).toLocaleDateString('ar')}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                  {(!adminData?.recentGroups || adminData.recentGroups.length === 0) && (
+                    <p className="text-gray-500 text-center py-4">لا توجد مجموعات حديثة</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
     </div>
   );

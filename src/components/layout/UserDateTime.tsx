@@ -43,7 +43,7 @@ const UserDateTime: React.FC = () => {
       </div>
       <div className="flex items-center gap-2 text-green-600 text-xs font-medium">
         <DollarSign className="w-3 h-3" />
-        <span>USD/USDT</span>
+        <span>USD</span>
       </div>
     </div>
   );

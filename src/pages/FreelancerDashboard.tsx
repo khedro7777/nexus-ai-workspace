@@ -1,333 +1,303 @@
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { DollarSign, Briefcase, TrendingUp, Clock, Plus, Eye, Star, Award } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { 
+  Briefcase, 
+  TrendingUp, 
+  Clock, 
+  DollarSign,
+  Star,
+  Award,
+  Users,
+  Plus
+} from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/Sidebar';
 
 const FreelancerDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
 
-  const freelancerStats = {
-    totalEarnings: 45000,
-    activeProjects: 5,
-    completedProjects: 23,
-    completionRate: 96,
-    rating: 4.8,
-    pendingPayments: 3
-  };
-
+  // Mock skills data - in real app this would come from database
   const skills = [
-    { name: 'تطوير الويب', proficiency: 95, category: 'تقني' },
-    { name: 'تصميم UI/UX', proficiency: 87, category: 'إبداعي' },
-    { name: 'إدارة المشاريع', proficiency: 82, category: 'أعمال' },
-    { name: 'الكتابة التقنية', proficiency: 78, category: 'محتوى' }
+    { name: 'تطوير الويب', proficiency: 90 },
+    { name: 'التصميم الجرافيكي', proficiency: 85 },
+    { name: 'الترجمة', proficiency: 95 },
+    { name: 'التسويق الرقمي', proficiency: 80 }
   ];
 
-  const recentProjects = [
+  // Fetch freelancer data
+  const { data: freelancerData, isLoading } = useQuery({
+    queryKey: ['freelancer-dashboard'],
+    queryFn: async () => {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) throw new Error('Not authenticated');
+
+      const [offersResult, profileResult] = await Promise.all([
+        supabase
+          .from('freelancer_offers')
+          .select(`
+            *,
+            groups (
+              name,
+              description
+            )
+          `)
+          .eq('freelancer_id', user.user.id),
+        supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.user.id)
+          .single()
+      ]);
+
+      return {
+        offers: offersResult.data || [],
+        profile: profileResult.data,
+        totalEarnings: offersResult.data?.filter(o => o.status === 'completed').reduce((sum, o) => sum + (o.price || 0), 0) || 0,
+        activeProjects: offersResult.data?.filter(o => o.status === 'accepted').length || 0,
+        completedProjects: offersResult.data?.filter(o => o.status === 'completed').length || 0,
+        completionRate: offersResult.data?.length ? Math.round((offersResult.data.filter(o => o.status === 'completed').length / offersResult.data.length) * 100) : 0
+      };
+    }
+  });
+
+  const stats = [
     {
-      id: 'PROJ-001',
-      title: 'تطوير متجر إلكتروني',
-      client: 'مجموعة التجارة الرقمية',
-      amount: 8500,
-      status: 'active',
-      progress: 65,
-      deadline: '2024-02-15'
+      title: 'إجمالي الأرباح',
+      value: `$${freelancerData?.totalEarnings?.toFixed(2) || '0.00'}`,
+      icon: DollarSign,
+      color: 'bg-green-100 text-green-600',
+      currency: 'USD'
     },
     {
-      id: 'PROJ-002',
-      title: 'تصميم هوية بصرية',
-      client: 'شركة الإبداع المحدودة',
-      amount: 3200,
-      status: 'completed',
-      progress: 100,
-      deadline: '2024-01-20'
-    }
-  ];
-
-  const recentPayments = [
-    {
-      id: 'PAY-001',
-      project: 'تطوير نظام إدارة',
-      amount: 5500,
-      status: 'completed',
-      date: '2024-01-18'
+      title: 'المشاريع النشطة',
+      value: freelancerData?.activeProjects || 0,
+      icon: Briefcase,
+      color: 'bg-blue-100 text-blue-600'
     },
     {
-      id: 'PAY-002',
-      project: 'استشارة تقنية',
-      amount: 1200,
-      status: 'pending',
-      date: '2024-01-15'
+      title: 'معدل الإكمال',
+      value: `${freelancerData?.completionRate || 0}%`,
+      icon: TrendingUp,
+      color: 'bg-purple-100 text-purple-600'
+    },
+    {
+      title: 'المدفوعات المعلقة',
+      value: freelancerData?.offers?.filter((o: any) => o.status === 'pending').length || 0,
+      icon: Clock,
+      color: 'bg-yellow-100 text-yellow-600'
     }
   ];
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active': return 'bg-blue-500';
-      case 'completed': return 'bg-green-500';
-      case 'pending': return 'bg-yellow-500';
-      case 'paused': return 'bg-gray-500';
-      default: return 'bg-gray-500';
+  const quickActions = [
+    {
+      title: 'البحث عن مشاريع',
+      description: 'ابحث عن فرص عمل جديدة',
+      icon: Plus,
+      color: 'bg-blue-500',
+      href: '/find-projects'
+    },
+    {
+      title: 'تحديث المهارات',
+      description: 'إدارة مهاراتك ومستوى خبرتك',
+      icon: Award,
+      color: 'bg-green-500',
+      href: '/update-skills'
+    },
+    {
+      title: 'عرض المدفوعات',
+      description: 'تتبع تاريخ المدفوعات',
+      icon: DollarSign,
+      color: 'bg-purple-500',
+      href: '/payments'
+    },
+    {
+      title: 'تحديث الملف الشخصي',
+      description: 'إدارة معلوماتك الشخصية',
+      icon: Users,
+      color: 'bg-orange-500',
+      href: '/profile'
     }
-  };
+  ];
 
-  const getSkillColor = (proficiency: number) => {
-    if (proficiency >= 90) return 'bg-green-500';
-    if (proficiency >= 75) return 'bg-blue-500';
-    if (proficiency >= 60) return 'bg-yellow-500';
-    return 'bg-gray-500';
-  };
-
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50" dir="rtl">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50" dir="rtl">
         <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-        <div className="flex">
-          <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
-          <main className="flex-1 p-6">
-            <div className="max-w-6xl mx-auto">
-              <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                <p className="mt-4 text-gray-600">جارٍ تحميل لوحة التحكم...</p>
-              </div>
-            </div>
-          </main>
+        <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50" dir="rtl">
       <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+      <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
       
-      <div className="flex">
-        <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
-        
-        <main className="flex-1 p-6">
-          <div className="max-w-6xl mx-auto space-y-6">
-            {/* Page Header */}
-            <div className="flex justify-between items-center">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">لوحة تحكم المستقل</h1>
-                <p className="text-gray-600 mt-2">إدارة مشاريعك وأرباحك ومهاراتك</p>
-              </div>
-              <Button>
-                <Plus className="w-4 h-4 ml-1" />
-                البحث عن مشاريع
-              </Button>
-            </div>
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            مرحباً، {freelancerData?.profile?.full_name || 'المستقل'}
+          </h1>
+          <p className="text-gray-600">إدارة مشاريعك وأرباحك</p>
+        </div>
 
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">إجمالي الأرباح</CardTitle>
-                  <DollarSign className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">${freelancerStats.totalEarnings.toLocaleString()}</div>
-                  <p className="text-xs text-muted-foreground">+18% من الشهر الماضي</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">المشاريع النشطة</CardTitle>
-                  <Briefcase className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{freelancerStats.activeProjects}</div>
-                  <p className="text-xs text-muted-foreground">مشروع واحد جديد هذا الأسبوع</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">معدل الإنجاز</CardTitle>
-                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{freelancerStats.completionRate}%</div>
-                  <p className="text-xs text-muted-foreground">{freelancerStats.completedProjects} مشروع مكتمل</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">التقييم</CardTitle>
-                  <Star className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold flex items-center">
-                    {freelancerStats.rating}
-                    <Star className="w-5 h-5 fill-yellow-400 text-yellow-400 mr-1" />
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          {stats.map((stat, index) => (
+            <Card key={index} className="hover:shadow-lg transition-all duration-300">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {stat.value}
+                      {stat.currency && <span className="text-sm text-gray-500 mr-1">{stat.currency}</span>}
+                    </p>
+                    <p className="text-gray-600 text-sm">{stat.title}</p>
                   </div>
-                  <p className="text-xs text-muted-foreground">من 23 تقييم</p>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Main Content Tabs */}
-            <Tabs defaultValue="projects" className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="projects">المشاريع</TabsTrigger>
-                <TabsTrigger value="skills">المهارات</TabsTrigger>
-                <TabsTrigger value="payments">المدفوعات</TabsTrigger>
-                <TabsTrigger value="profile">الملف الشخصي</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="projects" className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>المشاريع الحديثة</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {recentProjects.map((project) => (
-                        <div key={project.id} className="flex items-center justify-between p-4 border rounded-lg">
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between mb-2">
-                              <h3 className="font-medium">{project.title}</h3>
-                              <Badge className={`text-white ${getStatusColor(project.status)}`}>
-                                {project.status === 'active' ? 'نشط' : 'مكتمل'}
-                              </Badge>
-                            </div>
-                            <p className="text-sm text-gray-500 mb-2">{project.client}</p>
-                            <div className="flex items-center space-x-4 space-x-reverse">
-                              <span className="text-sm">التقدم: {project.progress}%</span>
-                              <Progress value={project.progress} className="flex-1 max-w-[200px]" />
-                            </div>
-                          </div>
-                          <div className="flex items-center space-x-4 space-x-reverse mr-4">
-                            <span className="font-bold">${project.amount.toLocaleString()}</span>
-                            <Button variant="outline" size="sm">
-                              <Eye className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="skills" className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center justify-between">
-                      مهاراتي
-                      <Button variant="outline" size="sm">
-                        <Plus className="w-4 h-4 ml-1" />
-                        إضافة مهارة
-                      </Button>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {skills.map((skill, index) => (
-                        <div key={index} className="p-4 border rounded-lg">
-                          <div className="flex items-center justify-between mb-2">
-                            <h3 className="font-medium">{skill.name}</h3>
-                            <Badge variant="outline">{skill.category}</Badge>
-                          </div>
-                          <div className="flex items-center space-x-2 space-x-reverse">
-                            <Progress 
-                              value={skill.proficiency} 
-                              className="flex-1"
-                            />
-                            <span className="text-sm font-medium">{skill.proficiency}%</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="payments" className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>المدفوعات الحديثة</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {recentPayments.map((payment) => (
-                        <div key={payment.id} className="flex items-center justify-between p-4 border rounded-lg">
-                          <div>
-                            <p className="font-medium">{payment.project}</p>
-                            <p className="text-sm text-gray-500">تاريخ: {payment.date}</p>
-                          </div>
-                          <div className="flex items-center space-x-4 space-x-reverse">
-                            <Badge className={`text-white ${getStatusColor(payment.status)}`}>
-                              {payment.status === 'completed' ? 'مكتمل' : 'معلق'}
-                            </Badge>
-                            <span className="font-bold">${payment.amount.toLocaleString()}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="profile" className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>معلومات الملف الشخصي</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        <div className="flex items-center space-x-4 space-x-reverse">
-                          <Award className="w-16 h-16 text-blue-500" />
-                          <div>
-                            <h3 className="font-medium">مستقل محترف</h3>
-                            <p className="text-sm text-gray-500">عضو منذ يناير 2023</p>
-                          </div>
-                        </div>
-                        <Button className="w-full">
-                          تحديث الملف الشخصي
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>الإحصائيات</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        <div className="flex justify-between">
-                          <span>معدل الاستجابة:</span>
-                          <span className="font-medium">98%</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>متوسط وقت التسليم:</span>
-                          <span className="font-medium">2.3 يوم</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>مشاريع في الوقت المحدد:</span>
-                          <span className="font-medium">22/23</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>العملاء المتكررون:</span>
-                          <span className="font-medium">12</span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${stat.color}`}>
+                    <stat.icon className="w-6 h-6" />
+                  </div>
                 </div>
-              </TabsContent>
-            </Tabs>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Quick Actions */}
+          <div className="lg:col-span-1 space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>الإجراءات السريعة</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {quickActions.map((action, index) => (
+                  <Button
+                    key={index}
+                    variant="outline"
+                    className="w-full justify-start h-auto p-4"
+                    onClick={() => window.location.href = action.href}
+                  >
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${action.color} text-white ml-4`}>
+                      <action.icon className="w-5 h-5" />
+                    </div>
+                    <div className="text-right">
+                      <h3 className="font-medium">{action.title}</h3>
+                      <p className="text-sm text-gray-500">{action.description}</p>
+                    </div>
+                  </Button>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Skills Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Award className="w-5 h-5" />
+                  المهارات
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {skills.map((skill, index) => (
+                  <div key={index}>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-medium">{skill.name}</span>
+                      <span className="text-sm text-gray-500">{skill.proficiency}%</span>
+                    </div>
+                    <Progress value={skill.proficiency} className="h-2" />
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
           </div>
-        </main>
+
+          {/* Recent Activity */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Recent Projects */}
+            <Card>
+              <CardHeader>
+                <CardTitle>المشاريع الأخيرة</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {freelancerData?.offers?.slice(0, 5).map((offer: any) => (
+                    <div key={offer.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                      <div className="flex-1">
+                        <h3 className="font-medium text-gray-900">{offer.title}</h3>
+                        <p className="text-sm text-gray-500">{offer.groups?.name}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="outline" className="flex items-center gap-1">
+                            <DollarSign className="w-3 h-3" />
+                            ${offer.price} USD
+                          </Badge>
+                          <Badge variant="outline" className="flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {offer.delivery_time}
+                          </Badge>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <Badge variant={
+                          offer.status === 'completed' ? 'default' :
+                          offer.status === 'accepted' ? 'secondary' :
+                          offer.status === 'pending' ? 'outline' : 'destructive'
+                        }>
+                          {offer.status === 'pending' ? 'قيد الانتظار' :
+                           offer.status === 'accepted' ? 'مقبول' :
+                           offer.status === 'completed' ? 'مكتمل' : 'مرفوض'}
+                        </Badge>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {new Date(offer.created_at).toLocaleDateString('ar')}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                  {(!freelancerData?.offers || freelancerData.offers.length === 0) && (
+                    <p className="text-gray-500 text-center py-8">لا توجد مشاريع بعد</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Recent Payments */}
+            <Card>
+              <CardHeader>
+                <CardTitle>المدفوعات الأخيرة</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {freelancerData?.offers?.filter((o: any) => o.status === 'completed').slice(0, 3).map((payment: any) => (
+                    <div key={payment.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div>
+                        <h3 className="font-medium">{payment.title}</h3>
+                        <p className="text-sm text-gray-500">
+                          {new Date(payment.updated_at).toLocaleDateString('ar')}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-green-600">${payment.price} USD</p>
+                        <Badge variant="default" className="text-xs">مكتمل</Badge>
+                      </div>
+                    </div>
+                  ))}
+                  {(!freelancerData?.offers || freelancerData.offers.filter((o: any) => o.status === 'completed').length === 0) && (
+                    <p className="text-gray-500 text-center py-8">لا توجد مدفوعات بعد</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
     </div>
   );
