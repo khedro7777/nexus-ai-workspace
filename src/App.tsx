@@ -24,6 +24,11 @@ import FreelancerDashboard from "./pages/FreelancerDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
+import GroupRoom from "./pages/GroupRoom";
+import ContractPage from "./pages/ContractPage";
+import VotingPage from "./pages/VotingPage";
+import CompanyFormation from "./pages/CompanyFormation";
+import InvestmentPortal from "./pages/InvestmentPortal";
 
 const queryClient = new QueryClient();
 
@@ -53,6 +58,11 @@ const App = () => (
             <Route path="/admin-dashboard" element={<AdminDashboard />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/group-room/:id" element={<GroupRoom />} />
+            <Route path="/contract/:id" element={<ContractPage />} />
+            <Route path="/voting/:id" element={<VotingPage />} />
+            <Route path="/company-formation" element={<CompanyFormation />} />
+            <Route path="/investment-portal" element={<InvestmentPortal />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

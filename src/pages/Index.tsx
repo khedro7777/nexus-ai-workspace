@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ShoppingCart, Users, Briefcase, Building2, Search, Filter, Building, Gavel, Zap, Globe } from "lucide-react";
+import { ShoppingCart, Users, Briefcase, Building2, Search, Filter, Building, Gavel, Zap, Globe, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import Header from "@/components/layout/Header";
@@ -63,21 +63,28 @@ const Index = () => {
       description: "اعرض مهاراتك أو شارك في مهام تعاونية",
       icon: Briefcase,
       color: "bg-purple-500",
-      link: "/dashboard"
+      link: "/freelancer-dashboard"
     },
     {
       title: "بوابة الموردين",
       description: "قدم عروضك للمجموعات الجاهزة للتفاوض",
       icon: Building2,
       color: "bg-orange-500",
-      link: "/dashboard"
+      link: "/supplier-dashboard"
     },
     {
-      title: "بوابة الشركات",
-      description: "تأسيس وإدارة الشركات بذكاء اصطناعي متقدم",
+      title: "تأسيس الشركات",
+      description: "تأسيس الشركات الفردية والجماعية بطريقة ذكية",
       icon: Building,
       color: "bg-indigo-500",
-      link: "/company-hub"
+      link: "/company-formation"
+    },
+    {
+      title: "بوابة الاستثمار",
+      description: "استثمر في الشركات الناشئة والمشاريع المبتكرة",
+      icon: TrendingUp,
+      color: "bg-emerald-500",
+      link: "/investment-portal"
     },
     {
       title: "بوابة التحكيم",
@@ -147,7 +154,7 @@ const Index = () => {
             البوابات الذكية المتكاملة
           </h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {services.map((service, index) => (
               <Card key={index} className="hover:shadow-xl transition-all duration-300 group cursor-pointer border-0 bg-gradient-to-br from-white to-gray-50">
                 <CardHeader className="text-center">
@@ -279,6 +286,8 @@ const Index = () => {
                 <li><a href="#" className="hover:text-white">التسويق التعاوني</a></li>
                 <li><a href="#" className="hover:text-white">بوابة المستقلين</a></li>
                 <li><a href="#" className="hover:text-white">بوابة الموردين</a></li>
+                <li><a href="#" className="hover:text-white">تأسيس الشركات</a></li>
+                <li><a href="#" className="hover:text-white">بوابة الاستثمار</a></li>
               </ul>
             </div>
             
@@ -287,6 +296,7 @@ const Index = () => {
               <ul className="space-y-2 text-gray-400">
                 <li><a href="#" className="hover:text-white">سياسة الخصوصية</a></li>
                 <li><a href="#" className="hover:text-white">شروط الاستخدام</a></li>
+                <li><a href="#" className="hover:text-white">خريطة الموقع</a></li>
                 <li><a href="#" className="hover:text-white">اتصل بنا</a></li>
               </ul>
             </div>
