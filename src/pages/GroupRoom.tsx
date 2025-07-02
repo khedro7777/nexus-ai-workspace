@@ -17,10 +17,13 @@ import {
   Clock,
   DollarSign,
   MapPin,
-  Calendar
+  Calendar,
+  MessageSquare
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/Sidebar';
+import VotingSystem from '@/components/voting/VotingSystem';
+import DiscussionSystem from '@/components/discussions/DiscussionSystem';
 
 const GroupRoom = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -164,7 +167,7 @@ const GroupRoom = () => {
 
         {/* التبويبات الرئيسية */}
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <FileText className="w-4 h-4" />
               نظرة عامة
@@ -175,7 +178,11 @@ const GroupRoom = () => {
             </TabsTrigger>
             <TabsTrigger value="voting" className="flex items-center gap-2">
               <Vote className="w-4 h-4" />
-              التصويت
+              التصويت المتقدم
+            </TabsTrigger>
+            <TabsTrigger value="discussions" className="flex items-center gap-2">
+              <MessageSquare className="w-4 h-4" />
+              المناقشات
             </TabsTrigger>
             <TabsTrigger value="suppliers" className="flex items-center gap-2">
               <Building2 className="w-4 h-4" />
@@ -301,41 +308,14 @@ const GroupRoom = () => {
             </Card>
           </TabsContent>
 
-          {/* تبويب التصويت */}
+          {/* تبويب التصويت المتقدم */}
           <TabsContent value="voting" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <CardTitle>جلسات التصويت</CardTitle>
-                  <Button>إنشاء جلسة جديدة</Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {votingSessions?.map((session: any) => (
-                    <div key={session.id} className="p-4 border rounded-lg">
-                      <div className="flex justify-between items-start mb-2">
-                        <h4 className="font-medium">{session.title}</h4>
-                        <Badge className={getStatusColor(session.status)}>
-                          {session.status === 'active' ? 'نشط' : 'منتهي'}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-gray-600 mb-2">{session.description}</p>
-                      <div className="flex items-center gap-4 text-xs text-gray-500">
-                        <span className="flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          ينتهي: {new Date(session.deadline).toLocaleDateString('ar')}
-                        </span>
-                        <span>بواسطة: المشرف</span>
-                      </div>
-                    </div>
-                  ))}
-                  {(!votingSessions || votingSessions.length === 0) && (
-                    <p className="text-gray-500 text-center py-8">لا توجد جلسات تصويت</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+            <VotingSystem sessionId={id || 'default'} groupId={id || 'default'} />
+          </TabsContent>
+
+          {/* تبويب المناقشات */}
+          <TabsContent value="discussions" className="space-y-6">
+            <DiscussionSystem groupId={id || 'default'} />
           </TabsContent>
 
           {/* تبويب عروض الموردين */}
