@@ -6,13 +6,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 
 const Auth = () => {
-  const { signIn, signUp, sendOTP, verifyOTP, user } = useAuth();
+  const { signUp, sendOTP, verifyOTP, user } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
   
@@ -20,17 +21,10 @@ const Auth = () => {
   const [showOTP, setShowOTP] = useState(false);
   const [email, setEmail] = useState('');
   
-  // Sign in form
-  const [signInData, setSignInData] = useState({
-    email: '',
-    password: ''
-  });
-
   // Sign up form
   const [signUpData, setSignUpData] = useState({
     fullName: '',
     email: '',
-    password: '',
     country: '',
     userRole: 'client'
   });
@@ -43,34 +37,45 @@ const Auth = () => {
 
   useEffect(() => {
     if (user) {
-      navigate('/dashboard');
+      // التوجه حسب نوع المستخدم
+      const userRole = user.user_metadata?.user_role || 'client';
+      switch (userRole) {
+        case 'supplier':
+          navigate('/supplier-dashboard');
+          break;
+        case 'freelancer':
+          navigate('/freelancer-dashboard');
+          break;
+        case 'admin':
+          navigate('/admin-dashboard');
+          break;
+        default:
+          navigate('/dashboard');
+      }
     }
   }, [user, navigate]);
-
-  const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    
-    const { error } = await signIn(signInData.email, signInData.password);
-    
-    if (!error) {
-      navigate('/dashboard');
-    }
-    
-    setLoading(false);
-  };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     
+    // إنشاء كلمة مرور عشوائية لأن Supabase يتطلب كلمة مرور
+    const randomPassword = Math.random().toString(36).slice(-8);
+    
     const { error } = await signUp(
       signUpData.email,
-      signUpData.password,
+      randomPassword,
       signUpData.fullName,
       signUpData.country,
       signUpData.userRole
     );
+    
+    if (!error) {
+      // إرسال OTP بعد التسجيل مباشرة
+      await sendOTP(signUpData.email);
+      setEmail(signUpData.email);
+      setShowOTP(true);
+    }
     
     setLoading(false);
   };
@@ -96,7 +101,7 @@ const Auth = () => {
     const { error } = await verifyOTP(email, otpData.otp);
     
     if (!error) {
-      navigate('/dashboard');
+      // سيتم التوجه تلقائياً عبر useEffect أعلاه
     }
     
     setLoading(false);
@@ -111,7 +116,15 @@ const Auth = () => {
     { value: 'KW', label: 'الكويت' },
     { value: 'QA', label: 'قطر' },
     { value: 'BH', label: 'البحرين' },
-    { value: 'OM', label: 'عمان' }
+    { value: 'OM', label: 'عمان' },
+    { value: 'IQ', label: 'العراق' },
+    { value: 'SY', label: 'سوريا' },
+    { value: 'YE', label: 'اليمن' },
+    { value: 'MA', label: 'المغرب' },
+    { value: 'TN', label: 'تونس' },
+    { value: 'DZ', label: 'الجزائر' },
+    { value: 'LY', label: 'ليبيا' },
+    { value: 'SD', label: 'السودان' }
   ];
 
   return (
@@ -128,40 +141,69 @@ const Auth = () => {
         
         <CardContent>
           <Tabs defaultValue="signin" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="signin">تسجيل الدخول</TabsTrigger>
               <TabsTrigger value="signup">إنشاء حساب</TabsTrigger>
-              <TabsTrigger value="otp">رمز التحقق</TabsTrigger>
             </TabsList>
 
             <TabsContent value="signin" className="mt-4">
-              <form onSubmit={handleSignIn} className="space-y-4">
-                <div>
-                  <Label htmlFor="signin-email">البريد الإلكتروني</Label>
-                  <Input
-                    id="signin-email"
-                    type="email"
-                    value={signInData.email}
-                    onChange={(e) => setSignInData(prev => ({ ...prev, email: e.target.value }))}
-                    required
-                    className="text-right"
-                    dir="ltr"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="signin-password">كلمة المرور</Label>
-                  <Input
-                    id="signin-password"
-                    type="password"
-                    value={signInData.password}
-                    onChange={(e) => setSignInData(prev => ({ ...prev, password: e.target.value }))}
-                    required
-                  />
-                </div>
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? 'جارٍ تسجيل الدخول...' : 'تسجيل الدخول'}
-                </Button>
-              </form>
+              {!showOTP ? (
+                <form onSubmit={handleSendOTP} className="space-y-4">
+                  <div>
+                    <Label htmlFor="otp-email">البريد الإلكتروني</Label>
+                    <Input
+                      id="otp-email"
+                      type="email"
+                      value={otpData.email}
+                      onChange={(e) => setOtpData(prev => ({ ...prev, email: e.target.value }))}
+                      required
+                      className="text-right"
+                      dir="ltr"
+                      placeholder="أدخل بريدك الإلكتروني"
+                    />
+                  </div>
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? 'جارٍ الإرسال...' : 'إرسال رمز التحقق'}
+                  </Button>
+                </form>
+              ) : (
+                <form onSubmit={handleVerifyOTP} className="space-y-4">
+                  <div className="text-center text-sm text-gray-600 mb-4">
+                    تم إرسال رمز التحقق إلى: {email}
+                  </div>
+                  <div className="flex flex-col items-center space-y-4">
+                    <Label htmlFor="otp">رمز التحقق (6 أرقام)</Label>
+                    <InputOTP
+                      maxLength={6}
+                      value={otpData.otp}
+                      onChange={(value) => setOtpData(prev => ({ ...prev, otp: value }))}
+                    >
+                      <InputOTPGroup>
+                        <InputOTPSlot index={0} />
+                        <InputOTPSlot index={1} />
+                        <InputOTPSlot index={2} />
+                        <InputOTPSlot index={3} />
+                        <InputOTPSlot index={4} />
+                        <InputOTPSlot index={5} />
+                      </InputOTPGroup>
+                    </InputOTP>
+                  </div>
+                  <Button type="submit" className="w-full" disabled={loading || otpData.otp.length !== 6}>
+                    {loading ? 'جارٍ التحقق...' : 'تأكيد الدخول'}
+                  </Button>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => {
+                      setShowOTP(false);
+                      setOtpData(prev => ({ ...prev, otp: '' }));
+                    }}
+                  >
+                    إعادة إرسال الرمز
+                  </Button>
+                </form>
+              )}
             </TabsContent>
 
             <TabsContent value="signup" className="mt-4">
@@ -174,6 +216,7 @@ const Auth = () => {
                     onChange={(e) => setSignUpData(prev => ({ ...prev, fullName: e.target.value }))}
                     required
                     className="text-right"
+                    placeholder="أدخل اسمك الكامل"
                   />
                 </div>
                 <div>
@@ -186,16 +229,7 @@ const Auth = () => {
                     required
                     className="text-right"
                     dir="ltr"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="signup-password">كلمة المرور</Label>
-                  <Input
-                    id="signup-password"
-                    type="password"
-                    value={signUpData.password}
-                    onChange={(e) => setSignUpData(prev => ({ ...prev, password: e.target.value }))}
-                    required
+                    placeholder="أدخل بريدك الإلكتروني"
                   />
                 </div>
                 <div>
@@ -220,9 +254,10 @@ const Auth = () => {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="client">عميل</SelectItem>
-                      <SelectItem value="supplier">مورد</SelectItem>
-                      <SelectItem value="freelancer">مستقل</SelectItem>
+                      <SelectItem value="client">عميل - مشتري</SelectItem>
+                      <SelectItem value="supplier">مورد - بائع</SelectItem>
+                      <SelectItem value="freelancer">مستقل - خدمات</SelectItem>
+                      <SelectItem value="investor">مستثمر</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -230,57 +265,6 @@ const Auth = () => {
                   {loading ? 'جارٍ إنشاء الحساب...' : 'أنشئ حسابي الآن'}
                 </Button>
               </form>
-            </TabsContent>
-
-            <TabsContent value="otp" className="mt-4">
-              {!showOTP ? (
-                <form onSubmit={handleSendOTP} className="space-y-4">
-                  <div>
-                    <Label htmlFor="otp-email">البريد الإلكتروني</Label>
-                    <Input
-                      id="otp-email"
-                      type="email"
-                      value={otpData.email}
-                      onChange={(e) => setOtpData(prev => ({ ...prev, email: e.target.value }))}
-                      required
-                      className="text-right"
-                      dir="ltr"
-                    />
-                  </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? 'جارٍ الإرسال...' : 'أرسل رمز التحقق'}
-                  </Button>
-                </form>
-              ) : (
-                <form onSubmit={handleVerifyOTP} className="space-y-4">
-                  <div className="text-center text-sm text-gray-600 mb-4">
-                    تم إرسال رمز التحقق إلى: {email}
-                  </div>
-                  <div>
-                    <Label htmlFor="otp">رمز التحقق (6 أرقام)</Label>
-                    <Input
-                      id="otp"
-                      value={otpData.otp}
-                      onChange={(e) => setOtpData(prev => ({ ...prev, otp: e.target.value }))}
-                      required
-                      maxLength={6}
-                      className="text-center text-lg tracking-widest"
-                      dir="ltr"
-                    />
-                  </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? 'جارٍ التحقق...' : 'تأكيد الدخول'}
-                  </Button>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    className="w-full"
-                    onClick={() => setShowOTP(false)}
-                  >
-                    إعادة إرسال الرمز
-                  </Button>
-                </form>
-              )}
             </TabsContent>
           </Tabs>
         </CardContent>

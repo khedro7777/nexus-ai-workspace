@@ -8,8 +8,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, fullName: string, country: string, userRole: string) => Promise<{ error: any }>;
+  signUp: (email: string, fullName: string, country: string, userRole: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   sendOTP: (email: string) => Promise<{ error: any }>;
   verifyOTP: (email: string, token: string) => Promise<{ error: any }>;
@@ -24,7 +23,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Set up auth state listener
+    // إعداد مستمع تغيير حالة المصادقة
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log('Auth state changed:', event, session?.user?.email);
@@ -34,7 +33,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     );
 
-    // Check for existing session
+    // فحص الجلسة الحالية
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -44,103 +43,139 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, fullName: string, country: string, userRole: string) => {
-    const redirectUrl = `${window.location.origin}/`;
-    
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: {
-          full_name: fullName,
-          country,
-          user_role: userRole
+  const signUp = async (email: string, fullName: string, country: string, userRole: string) => {
+    try {
+      // إنشاء كلمة مرور عشوائية (مطلوبة من Supabase لكن لن تُستخدم)
+      const randomPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+      
+      const redirectUrl = `${window.location.origin}/`;
+      
+      const { error } = await supabase.auth.signUp({
+        email,
+        password: randomPassword,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            full_name: fullName,
+            country,
+            user_role: userRole
+          }
         }
-      }
-    });
+      });
 
-    if (error) {
+      if (error) {
+        toast({
+          title: "خطأ في التسجيل",
+          description: error.message,
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "تم التسجيل بنجاح",
+          description: "تم إرسال رابط التأكيد إلى بريدك الإلكتروني"
+        });
+      }
+
+      return { error };
+    } catch (error: any) {
       toast({
         title: "خطأ في التسجيل",
         description: error.message,
         variant: "destructive"
       });
-    } else {
-      toast({
-        title: "تم التسجيل بنجاح",
-        description: "تم إرسال رابط التأكيد إلى بريدك الإلكتروني"
-      });
+      return { error };
     }
-
-    return { error };
-  };
-
-  const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
-
-    if (error) {
-      toast({
-        title: "خطأ في تسجيل الدخول",
-        description: error.message,
-        variant: "destructive"
-      });
-    }
-
-    return { error };
   };
 
   const sendOTP = async (email: string) => {
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: `${window.location.origin}/`
-      }
-    });
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+          shouldCreateUser: false // لا ننشئ مستخدم جديد هنا
+        }
+      });
 
-    if (error) {
+      if (error) {
+        // إذا لم يكن المستخدم موجوداً، نحاول إنشاؤه
+        if (error.message.includes('User not found')) {
+          toast({
+            title: "المستخدم غير موجود",
+            description: "يرجى إنشاء حساب جديد أولاً",
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "خطأ في إرسال الرمز",
+            description: error.message,
+            variant: "destructive"
+          });
+        }
+      } else {
+        toast({
+          title: "تم الإرسال",
+          description: "تم إرسال رمز التحقق إلى بريدك الإلكتروني"
+        });
+      }
+
+      return { error };
+    } catch (error: any) {
       toast({
         title: "خطأ في إرسال الرمز",
         description: error.message,
         variant: "destructive"
       });
-    } else {
-      toast({
-        title: "تم الإرسال",
-        description: "تم إرسال رمز التحقق إلى بريدك الإلكتروني"
-      });
+      return { error };
     }
-
-    return { error };
   };
 
   const verifyOTP = async (email: string, token: string) => {
-    const { error } = await supabase.auth.verifyOtp({
-      email,
-      token,
-      type: 'email'
-    });
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        email,
+        token,
+        type: 'email'
+      });
 
-    if (error) {
+      if (error) {
+        toast({
+          title: "رمز غير صحيح",
+          description: "يرجى التحقق من الرمز والمحاولة مرة أخرى",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "تم تسجيل الدخول بنجاح",
+          description: "مرحباً بك في منصة GPO"
+        });
+      }
+
+      return { error };
+    } catch (error: any) {
       toast({
-        title: "رمز غير صحيح",
-        description: "يرجى التحقق من الرمز والمحاولة مرة أخرى",
+        title: "خطأ في التحقق",
+        description: error.message,
         variant: "destructive"
       });
+      return { error };
     }
-
-    return { error };
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    toast({
-      title: "تم تسجيل الخروج",
-      description: "تم تسجيل خروجك بنجاح"
-    });
+    try {
+      await supabase.auth.signOut();
+      toast({
+        title: "تم تسجيل الخروج",
+        description: "تم تسجيل خروجك بنجاح"
+      });
+    } catch (error: any) {
+      toast({
+        title: "خطأ في تسجيل الخروج",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -148,7 +183,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       user,
       session,
       loading,
-      signIn,
       signUp,
       signOut,
       sendOTP,

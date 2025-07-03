@@ -56,6 +56,71 @@ export type Database = {
           },
         ]
       }
+      company_formations: {
+        Row: {
+          additional_notes: string | null
+          business_activity: string
+          company_name: string
+          company_type: string
+          contact_email: string
+          contact_phone: string
+          created_at: string
+          estimated_capital: string | null
+          formation_type: string
+          group_id: string | null
+          id: string
+          jurisdiction: string
+          number_of_shareholders: number
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          additional_notes?: string | null
+          business_activity: string
+          company_name: string
+          company_type: string
+          contact_email: string
+          contact_phone: string
+          created_at?: string
+          estimated_capital?: string | null
+          formation_type?: string
+          group_id?: string | null
+          id?: string
+          jurisdiction: string
+          number_of_shareholders?: number
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          additional_notes?: string | null
+          business_activity?: string
+          company_name?: string
+          company_type?: string
+          contact_email?: string
+          contact_phone?: string
+          created_at?: string
+          estimated_capital?: string | null
+          formation_type?: string
+          group_id?: string | null
+          id?: string
+          jurisdiction?: string
+          number_of_shareholders?: number
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_formations_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       freelancer_offers: {
         Row: {
           additional_notes: string | null
@@ -201,6 +266,75 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_services: {
+        Row: {
+          created_at: string
+          description: string | null
+          features: Json | null
+          id: string
+          points_cost: number
+          service_name: string
+          service_type: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          features?: Json | null
+          id?: string
+          points_cost?: number
+          service_name: string
+          service_type: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          features?: Json | null
+          id?: string
+          points_cost?: number
+          service_name?: string
+          service_type?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      points_transactions: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          points_amount: number
+          reference_id: string | null
+          reference_type: string | null
+          status: string
+          transaction_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          points_amount: number
+          reference_id?: string | null
+          reference_type?: string | null
+          status?: string
+          transaction_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          points_amount?: number
+          reference_id?: string | null
+          reference_type?: string | null
+          status?: string
+          transaction_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           address: string | null
@@ -248,6 +382,57 @@ export type Database = {
           user_role?: string | null
         }
         Relationships: []
+      }
+      service_requests: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          group_id: string | null
+          id: string
+          points_paid: number
+          request_details: Json | null
+          service_id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          group_id?: string | null
+          id?: string
+          points_paid?: number
+          request_details?: Json | null
+          service_id: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          group_id?: string | null
+          id?: string
+          points_paid?: number
+          request_details?: Json | null
+          service_id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_requests_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_requests_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "platform_services"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       supplier_offers: {
         Row: {
@@ -313,6 +498,75 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_points: {
+        Row: {
+          available_points: number
+          earned_points: number
+          id: string
+          spent_points: number
+          total_points: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          available_points?: number
+          earned_points?: number
+          id?: string
+          spent_points?: number
+          total_points?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          available_points?: number
+          earned_points?: number
+          id?: string
+          spent_points?: number
+          total_points?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_subscriptions: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          monthly_points_allowance: number
+          paddle_subscription_id: string | null
+          points_balance: number
+          started_at: string
+          status: string
+          subscription_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          monthly_points_allowance?: number
+          paddle_subscription_id?: string | null
+          points_balance?: number
+          started_at?: string
+          status?: string
+          subscription_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          monthly_points_allowance?: number
+          paddle_subscription_id?: string | null
+          points_balance?: number
+          started_at?: string
+          status?: string
+          subscription_type?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       votes: {
         Row: {
