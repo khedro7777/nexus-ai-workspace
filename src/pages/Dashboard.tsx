@@ -144,7 +144,7 @@ const Dashboard = () => {
       <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
       
       <div className="flex">
-        <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+        <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
         
         <main className="flex-1 p-6 lg:mr-64">
           <div className="mb-8">

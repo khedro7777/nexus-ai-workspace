@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -64,7 +63,6 @@ const Auth = () => {
     
     const { error } = await signUp(
       signUpData.email,
-      randomPassword,
       signUpData.fullName,
       signUpData.country,
       signUpData.userRole
