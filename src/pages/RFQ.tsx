@@ -1,6 +1,6 @@
 
 import React from 'react';
-import RFQPage from '@/components/rfq/RFQCard';
+import RFQPage from './RFQPage';
 
 // This is a wrapper page for the RFQ functionality
 const RFQ = () => {
