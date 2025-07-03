@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Star, Shield, Users } from 'lucide-react';
+import { Clock, Star, Shield, Users, TrendingUp } from 'lucide-react';
 
 interface InvestmentOpportunity {
   id: number;
