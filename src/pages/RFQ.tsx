@@ -9,6 +9,7 @@ import { Plus, Search } from 'lucide-react';
 
 const RFQ = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeFilters, setActiveFilters] = useState({});
 
   // Mock RFQ data
   const mockRFQs = [
@@ -58,6 +59,10 @@ const RFQ = () => {
     console.log('Submitting proposal for RFQ:', id);
   };
 
+  const handleFilterChange = (newFilters: any) => {
+    setActiveFilters(newFilters);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50" dir="rtl">
       <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
@@ -78,7 +83,10 @@ const RFQ = () => {
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Filters Sidebar */}
           <div className="lg:w-80">
-            <RFQFilters />
+            <RFQFilters 
+              onFilterChange={handleFilterChange}
+              activeFilters={activeFilters}
+            />
           </div>
 
           {/* RFQ List */}
