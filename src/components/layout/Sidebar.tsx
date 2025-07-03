@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { X, Users, FileText, Gavel, Building, MessageSquare, BarChart3, Settings, Bell, User, LogOut } from 'lucide-react';
+import { X, Users, FileText, Gavel, Building, MessageSquare, BarChart3, Settings, Bell, User, LogOut, Search, Vote, Shield, Star, Gift, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -18,9 +19,14 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setOpen }) => {
   const menuItems = [
     { icon: Users, label: 'مجموعاتي', count: 0, color: 'bg-blue-500', link: '/my-groups' },
     { icon: FileText, label: 'العقود', count: 0, color: 'bg-green-500', link: '/contracts' },
+    { icon: Search, label: 'طلبات الخدمة', count: 0, color: 'bg-purple-500', link: '/rfq' },
+    { icon: Building, label: 'الموردين', count: 0, color: 'bg-orange-500', link: '/suppliers' },
     { icon: Gavel, label: 'التحكيم', count: 0, color: 'bg-red-500', link: '/arbitration-hub' },
-    { icon: Building, label: 'الموردين', count: 0, color: 'bg-purple-500', link: '/suppliers' },
-    { icon: MessageSquare, label: 'المفاوضات', count: 0, color: 'bg-orange-500', link: '/negotiations' },
+    { icon: MessageSquare, label: 'المفاوضات', count: 0, color: 'bg-indigo-500', link: '/negotiations' },
+    { icon: Vote, label: 'الحوكمة', count: null, color: 'bg-cyan-500', link: '/governance' },
+    { icon: BarChart3, label: 'المحفظة', count: null, color: 'bg-emerald-500', link: '/portfolio' },
+    { icon: Star, label: 'نظام النقاط', count: null, color: 'bg-yellow-500', link: '/points' },
+    { icon: UserPlus, label: 'إدارة الأطراف', count: null, color: 'bg-pink-500', link: '/parties' },
     { icon: BarChart3, label: 'التحليلات', count: null, color: 'bg-teal-500', link: '/analytics' },
   ];
 
@@ -28,6 +34,8 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setOpen }) => {
     { title: 'اقتراح مجموعة جديدة', time: 'منذ دقيقتين', type: 'info' },
     { title: 'تم توقيع عقد', time: 'منذ 5 دقائق', type: 'success' },
     { title: 'طلب تحكيم', time: 'منذ 10 دقائق', type: 'warning' },
+    { title: 'عرض جديد من مورد', time: 'منذ 15 دقيقة', type: 'info' },
+    { title: 'انتهاء موعد تصويت', time: 'منذ 30 دقيقة', type: 'warning' },
   ];
 
   return (
@@ -68,7 +76,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setOpen }) => {
             <div>
               <h3 className="text-sm font-medium mb-3 flex items-center gap-2">
                 <BarChart3 className="w-4 h-4" />
-                إحصائيات سريعة
+                الخدمات والأدوات
               </h3>
               <div className="space-y-2">
                 {menuItems.map((item, index) => (
@@ -112,6 +120,36 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setOpen }) => {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Quick Actions */}
+            <div>
+              <h3 className="text-sm font-medium mb-3 flex items-center gap-2">
+                <Shield className="w-4 h-4" />
+                إجراءات سريعة
+              </h3>
+              <div className="space-y-2">
+                <Button variant="ghost" className="w-full justify-start" size="sm" asChild>
+                  <Link to="/create-group">
+                    <Users className="w-4 h-4 ml-2" />
+                    إنشاء مجموعة
+                  </Link>
+                </Button>
+                <Button variant="ghost" className="w-full justify-start" size="sm" asChild>
+                  <Link to="/rfq">
+                    <Search className="w-4 h-4 ml-2" />
+                    طلب خدمة جديد
+                  </Link>
+                </Button>
+                <Button variant="ghost" className="w-full justify-start" size="sm" asChild>
+                  <Link to="/points">
+                    <Gift className="w-4 h-4 ml-2" />
+                    متجر النقاط
+                  </Link>
+                </Button>
               </div>
             </div>
 
