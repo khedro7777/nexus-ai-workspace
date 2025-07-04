@@ -29,6 +29,8 @@ interface Group {
   creator_id: string;
   member_count?: number;
   role?: string;
+  round_number?: number;
+  admins?: string[];
 }
 
 const MyGroups = () => {
@@ -73,15 +75,27 @@ const MyGroups = () => {
 
       if (memberError) throw memberError;
 
-      // Process created groups with member count
+      // Process created groups with member count and default values
       const processedCreatedGroups = createdGroups?.map(group => ({
         ...group,
+        current_phase: group.current_phase || 'initial',
+        visibility: group.visibility || 'private',
+        min_members: group.min_members || 5,
+        max_members: group.max_members || 20,
+        round_number: group.round_number || 1,
+        admins: group.admins || [],
         member_count: group.group_members?.length || 0
       })) || [];
 
       // Process joined groups with member count and user role
       const processedJoinedGroups = memberGroups?.map(m => ({
         ...m.groups,
+        current_phase: m.groups.current_phase || 'initial',
+        visibility: m.groups.visibility || 'private',
+        min_members: m.groups.min_members || 5,
+        max_members: m.groups.max_members || 20,
+        round_number: m.groups.round_number || 1,
+        admins: m.groups.admins || [],
         role: m.role,
         member_count: m.groups.group_members?.length || 0
       })) || [];

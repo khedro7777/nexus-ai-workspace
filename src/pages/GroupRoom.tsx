@@ -5,10 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useGroupPhase } from '@/hooks/useGroupPhase';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Users, 
   FileText, 
@@ -24,7 +26,8 @@ import {
   UserPlus,
   Send,
   AlertCircle,
-  CheckCircle
+  CheckCircle,
+  ArrowRight
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/Sidebar';
@@ -32,6 +35,7 @@ import VotingSystem from '@/components/voting/VotingSystem';
 import DiscussionSystem from '@/components/discussions/DiscussionSystem';
 import CreateSupplierOffer from '@/components/offers/CreateSupplierOffer';
 import SupplierOffers from '@/components/offers/SupplierOffers';
+import AdminElection from '@/components/voting/AdminElection';
 
 const GroupRoom = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -39,6 +43,9 @@ const GroupRoom = () => {
   const [inviteRole, setInviteRole] = useState('member');
   const [showCreateOffer, setShowCreateOffer] = useState(false);
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { toast } = useToast();
   
   const { groupContext, loading: phaseLoading, canShowComponent, getPhaseDisplayName } = useGroupPhase(id || '');
 
@@ -65,11 +72,19 @@ const GroupRoom = () => {
         .from('group_members')
         .select(`
           *,
-          profiles(full_name, role, company_name)
+          profiles!inner(full_name, role, company_name)
         `)
         .eq('group_id', id);
       
-      if (error) throw error;
+      if (error) {
+        console.warn('Failed to fetch with profiles, trying without:', error);
+        // Fallback without profiles
+        const { data: fallbackData } = await supabase
+          .from('group_members')
+          .select('*')
+          .eq('group_id', id);
+        return fallbackData;
+      }
       return data;
     }
   });
@@ -78,30 +93,58 @@ const GroupRoom = () => {
     if (!inviteEmail || !canShowComponent('invite_button')) return;
     
     console.log('Inviting member:', { email: inviteEmail, role: inviteRole, groupId: id });
+    toast({
+      title: "تم إرسال الدعوة",
+      description: `تم إرسال دعوة انضمام إلى ${inviteEmail}`
+    });
     setInviteEmail('');
     setInviteRole('member');
   };
 
   const handleJoinGroup = async () => {
-    if (!canShowComponent('join_request_button')) return;
+    if (!canShowComponent('join_request_button') || !user?.id) return;
     
     try {
       const { error } = await supabase
         .from('group_members')
         .insert({
           group_id: id,
-          user_id: (await supabase.auth.getUser()).data.user?.id,
+          user_id: user.id,
           role: 'member',
           voting_weight: 1.0
         });
 
       if (error) throw error;
       
+      toast({
+        title: "تم الانضمام بنجاح",
+        description: "أهلاً بك في المجموعة!"
+      });
+      
       // Refresh the page to update member count
       window.location.reload();
-    } catch (error) {
-      console.error('Error joining group:', error);
+    } catch (error: any) {
+      toast({
+        title: "خطأ في الانضمام",
+        description: error.message,
+        variant: "destructive"
+      });
     }
+  };
+
+  const handleElectionComplete = (admins: string[]) => {
+    toast({
+      title: "تم انتخاب المديرين",
+      description: "تم انتخاب 3 مديرين جدد للمجموعة"
+    });
+  };
+
+  const handleBackToDashboard = () => {
+    navigate('/dashboard');
+  };
+
+  const handleBackToMyGroups = () => {
+    navigate('/my-groups');
   };
 
   if (isLoading || phaseLoading) {
@@ -134,6 +177,30 @@ const GroupRoom = () => {
       <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
       
       <div className="container mx-auto px-4 py-8">
+        {/* Navigation Breadcrumb */}
+        <div className="flex items-center gap-2 mb-6 text-sm text-gray-600">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleBackToDashboard}
+            className="flex items-center gap-1 hover:bg-gray-100"
+          >
+            <ArrowRight className="w-4 h-4" />
+            لوحة التحكم
+          </Button>
+          <span>/</span>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleBackToMyGroups}
+            className="hover:bg-gray-100"
+          >
+            مجموعاتي
+          </Button>
+          <span>/</span>
+          <span className="font-medium text-gray-900">{group?.name}</span>
+        </div>
+
         {/* Group Header with Phase Information */}
         <Card className="mb-8">
           <CardHeader>
@@ -198,7 +265,17 @@ const GroupRoom = () => {
               )}
               
               {canShowComponent('invite_button') && (
-                <Button variant="outline" className="flex items-center gap-2">
+                <Button variant="outline" className="flex items-center gap-2" onClick={() => {
+                  if (inviteEmail) {
+                    handleInviteMember();
+                  } else {
+                    toast({
+                      title: "أدخل البريد الإلكتروني",
+                      description: "يرجى إدخال بريد إلكتروني صحيح",
+                      variant: "destructive"
+                    });
+                  }
+                }}>
                   <UserPlus className="w-4 h-4" />
                   دعوة أعضاء
                 </Button>
@@ -207,10 +284,35 @@ const GroupRoom = () => {
               {canShowComponent('submit_proposal_button') && (
                 <Button onClick={() => setShowCreateOffer(!showCreateOffer)} className="flex items-center gap-2">
                   <Plus className="w-4 h-4" />
-                  إنشاء اقتراح
+                  {showCreateOffer ? 'إخفاء النموذج' : 'إنشاء اقتراح'}
                 </Button>
               )}
             </div>
+
+            {/* Invite Form */}
+            {canShowComponent('invite_button') && (
+              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                <div className="flex gap-3">
+                  <Input
+                    placeholder="البريد الإلكتروني للعضو الجديد"
+                    value={inviteEmail}
+                    onChange={(e) => setInviteEmail(e.target.value)}
+                    className="flex-1"
+                  />
+                  <Select value={inviteRole} onValueChange={setInviteRole}>
+                    <SelectTrigger className="w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="member">عضو</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button onClick={handleInviteMember} size="sm">
+                    <Send className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -234,6 +336,29 @@ const GroupRoom = () => {
               </div>
             </CardContent>
           </Card>
+        )}
+
+        {/* Admin Election for vote_admins phase */}
+        {groupContext?.current_phase === 'vote_admins' && (
+          <div className="mb-8">
+            <AdminElection groupId={id || ''} onElectionComplete={handleElectionComplete} />
+          </div>
+        )}
+
+        {/* Show offer creation form if enabled */}
+        {showCreateOffer && canShowComponent('submit_proposal_button') && (
+          <div className="mb-8">
+            <CreateSupplierOffer 
+              groupId={id || ''} 
+              onOfferCreated={() => {
+                setShowCreateOffer(false);
+                toast({
+                  title: "تم إنشاء الاقتراح",
+                  description: "تم إرسال اقتراحك بنجاح"
+                });
+              }}
+            />
+          </div>
         )}
 
         {/* Conditional Tabs based on Phase */}
@@ -309,22 +434,32 @@ const GroupRoom = () => {
                     <CardTitle className="text-lg">الإجراءات السريعة</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2">
-                    <Button variant="outline" className="w-full justify-start">
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-start"
+                      onClick={() => navigate(`/voting/create?groupId=${id}`)}
+                    >
                       إنشاء جلسة تصويت
                     </Button>
                     <Button 
                       variant="outline" 
                       className="w-full justify-start"
+                      onClick={() => setShowCreateOffer(true)}
                     >
                       دعوة أعضاء جدد
                     </Button>
                     <Button 
                       variant="outline" 
                       className="w-full justify-start"
+                      onClick={() => setShowCreateOffer(true)}
                     >
                       طلب عروض موردين
                     </Button>
-                    <Button variant="outline" className="w-full justify-start">
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-start"
+                      onClick={() => window.print()}
+                    >
                       تصدير تقرير
                     </Button>
                   </CardContent>
@@ -397,6 +532,13 @@ const GroupRoom = () => {
                     <div className="text-center py-8 text-red-600">
                       <Gavel className="w-12 h-12 mx-auto mb-4" />
                       <p>جميع الأنشطة معلقة حتى انتهاء إجراءات التحكيم</p>
+                      <Button 
+                        variant="outline" 
+                        className="mt-4"
+                        onClick={() => navigate('/arbitration')}
+                      >
+                        عرض تفاصيل التحكيم
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>

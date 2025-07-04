@@ -29,7 +29,7 @@ export const useGroupPhase = (groupId: string) => {
 
     const fetchGroupContext = async () => {
       try {
-        // Get group info
+        // Get group info with all required fields
         const { data: group } = await supabase
           .from('groups')
           .select('*')
@@ -48,13 +48,14 @@ export const useGroupPhase = (groupId: string) => {
         const memberCount = members?.length || 0;
 
         // Check if group should be activated
-        if (group.status === 'pending_members' && memberCount >= group.min_members) {
+        const minMembers = group.min_members || 5;
+        if (group.status === 'pending_members' && memberCount >= minMembers) {
           await activateGroup(groupId);
         }
 
         setGroupContext({
           id: groupId,
-          current_phase: group.current_phase || 'initial',
+          current_phase: (group.current_phase as GroupPhase) || 'initial',
           status: group.status || 'pending_members',
           visibility: group.visibility || 'private',
           min_members: group.min_members || 5,
@@ -62,7 +63,7 @@ export const useGroupPhase = (groupId: string) => {
           member_count: memberCount,
           user_role: userMember?.role,
           is_member: !!userMember,
-          admins: [], // Will be populated from voting results
+          admins: group.admins || [],
           round_number: group.round_number || 1
         });
 
@@ -96,7 +97,7 @@ export const useGroupPhase = (groupId: string) => {
           description: 'اختر 3 أعضاء ليكونوا مديري هذه الجولة',
           options: JSON.stringify(['admin_election']),
           created_by: user?.id,
-          deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+          deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
           status: 'active'
         });
 

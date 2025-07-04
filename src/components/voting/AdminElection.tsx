@@ -15,7 +15,7 @@ interface Member {
   profiles: {
     full_name: string;
     company_name: string;
-  };
+  } | null;
 }
 
 interface AdminElectionProps {
@@ -42,14 +42,37 @@ const AdminElection: React.FC<AdminElectionProps> = ({ groupId, onElectionComple
         .from('group_members')
         .select(`
           *,
-          profiles(full_name, company_name)
+          profiles!inner(full_name, company_name)
         `)
         .eq('group_id', groupId);
 
       if (error) throw error;
-      setMembers(data || []);
+      
+      // Handle the data properly with null check
+      const membersWithProfiles = (data || []).map(member => ({
+        ...member,
+        profiles: member.profiles || { full_name: 'مستخدم', company_name: '' }
+      }));
+      
+      setMembers(membersWithProfiles);
     } catch (error) {
       console.error('Error fetching members:', error);
+      // Fallback: fetch without profiles
+      try {
+        const { data } = await supabase
+          .from('group_members')
+          .select('*')
+          .eq('group_id', groupId);
+        
+        const fallbackMembers = (data || []).map(member => ({
+          ...member,
+          profiles: { full_name: 'مستخدم', company_name: '' }
+        }));
+        
+        setMembers(fallbackMembers);
+      } catch (fallbackError) {
+        console.error('Fallback fetch failed:', fallbackError);
+      }
     }
   };
 

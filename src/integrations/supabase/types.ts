@@ -1054,46 +1054,64 @@ export type Database = {
       }
       groups: {
         Row: {
+          admins: string[] | null
           business_objective: string | null
           created_at: string | null
           creator_id: string | null
+          current_phase: string | null
           description: string | null
           id: string
           jurisdiction: string | null
           legal_framework: string | null
+          max_members: number | null
+          min_members: number | null
           name: string
+          round_number: number | null
           service_gateway: string
           status: string | null
           type: string
           updated_at: string | null
+          visibility: string | null
         }
         Insert: {
+          admins?: string[] | null
           business_objective?: string | null
           created_at?: string | null
           creator_id?: string | null
+          current_phase?: string | null
           description?: string | null
           id?: string
           jurisdiction?: string | null
           legal_framework?: string | null
+          max_members?: number | null
+          min_members?: number | null
           name: string
+          round_number?: number | null
           service_gateway: string
           status?: string | null
           type: string
           updated_at?: string | null
+          visibility?: string | null
         }
         Update: {
+          admins?: string[] | null
           business_objective?: string | null
           created_at?: string | null
           creator_id?: string | null
+          current_phase?: string | null
           description?: string | null
           id?: string
           jurisdiction?: string | null
           legal_framework?: string | null
+          max_members?: number | null
+          min_members?: number | null
           name?: string
+          round_number?: number | null
           service_gateway?: string
           status?: string | null
           type?: string
           updated_at?: string | null
+          visibility?: string | null
         }
         Relationships: []
       }
@@ -1120,30 +1138,45 @@ export type Database = {
       }
       profiles: {
         Row: {
+          address: string | null
+          bio: string | null
           company_name: string | null
           created_at: string | null
+          experience_years: number | null
           full_name: string | null
           id: string
           kyc_status: string | null
+          phone: string | null
           role: string | null
+          skills: string[] | null
           updated_at: string | null
         }
         Insert: {
+          address?: string | null
+          bio?: string | null
           company_name?: string | null
           created_at?: string | null
+          experience_years?: number | null
           full_name?: string | null
           id: string
           kyc_status?: string | null
+          phone?: string | null
           role?: string | null
+          skills?: string[] | null
           updated_at?: string | null
         }
         Update: {
+          address?: string | null
+          bio?: string | null
           company_name?: string | null
           created_at?: string | null
+          experience_years?: number | null
           full_name?: string | null
           id?: string
           kyc_status?: string | null
+          phone?: string | null
           role?: string | null
+          skills?: string[] | null
           updated_at?: string | null
         }
         Relationships: []
