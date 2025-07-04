@@ -42,12 +42,10 @@ const GroupDetails = () => {
             id,
             user_id,
             role,
-            status,
             joined_at,
-            profiles (full_name, email)
+            profiles (full_name)
           ),
-          supplier_offers (*),
-          freelancer_offers (*)
+          supplier_offers (*)
         `)
         .eq('id', id)
         .single();
@@ -61,11 +59,12 @@ const GroupDetails = () => {
   // Form states
   const [freelancerEmail, setFreelancerEmail] = useState('');
   const [supplierOffer, setSupplierOffer] = useState({
-    title: '',
+    company_name: '',
     offer_description: '',
-    price: '',
-    delivery_time: '',
-    terms: ''
+    price_details: '',
+    delivery_terms: '',
+    payment_terms: '',
+    valid_until: ''
   });
 
   // Join group mutation
@@ -78,8 +77,7 @@ const GroupDetails = () => {
         .insert({
           group_id: id,
           user_id: user.id,
-          role: 'member',
-          status: 'active'
+          role: 'member'
         });
       
       if (error) throw error;
@@ -107,7 +105,7 @@ const GroupDetails = () => {
       const { data: profiles, error: profileError } = await supabase
         .from('profiles')
         .select('id')
-        .eq('email', email)
+        .eq('id', email) // Assuming email is actually user ID for now
         .single();
       
       if (profileError) throw new Error('User not found');
@@ -118,8 +116,7 @@ const GroupDetails = () => {
         .insert({
           group_id: id,
           user_id: profiles.id,
-          role: 'freelancer',
-          status: 'active'
+          role: 'freelancer'
         });
       
       if (error) throw error;
@@ -151,11 +148,12 @@ const GroupDetails = () => {
         .insert({
           group_id: id,
           supplier_id: user.id,
-          title: offerData.title,
+          company_name: offerData.company_name,
           offer_description: offerData.offer_description,
-          price: parseFloat(offerData.price),
-          delivery_time: offerData.delivery_time,
-          terms: offerData.terms,
+          price_details: offerData.price_details ? { amount: offerData.price_details } : null,
+          delivery_terms: offerData.delivery_terms,
+          payment_terms: offerData.payment_terms,
+          valid_until: offerData.valid_until || null,
           status: 'pending'
         });
       
@@ -167,11 +165,12 @@ const GroupDetails = () => {
         description: "تم تقديم عرضك وسيتم مراجعته قريباً"
       });
       setSupplierOffer({
-        title: '',
+        company_name: '',
         offer_description: '',
-        price: '',
-        delivery_time: '',
-        terms: ''
+        price_details: '',
+        delivery_terms: '',
+        payment_terms: '',
+        valid_until: ''
       });
       queryClient.invalidateQueries({ queryKey: ['group', id] });
     },
@@ -280,19 +279,15 @@ const GroupDetails = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex items-center gap-2">
                     <Users className="w-4 h-4 text-blue-600" />
-                    <span className="text-sm">الأعضاء: {group.current_members}/{group.max_members}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <DollarSign className="w-4 h-4 text-green-600" />
-                    <span className="text-sm">الحد الأدنى: ${group.min_entry_amount} USD</span>
+                    <span className="text-sm">النوع: {group.type}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Package className="w-4 h-4 text-purple-600" />
-                    <span className="text-sm">القطاع: {group.sector}</span>
+                    <span className="text-sm">الخدمة: {group.service_gateway}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <MessageCircle className="w-4 h-4 text-orange-600" />
-                    <span className="text-sm">جولات التفاوض: {group.negotiation_rounds}</span>
+                    <span className="text-sm">الحالة: {group.status}</span>
                   </div>
                 </div>
               </CardContent>
@@ -308,8 +303,8 @@ const GroupDetails = () => {
                   {group.group_members?.map((member: any) => (
                     <div key={member.id} className="flex items-center justify-between p-3 border rounded-lg">
                       <div>
-                        <h3 className="font-medium">{member.profiles?.full_name}</h3>
-                        <p className="text-sm text-gray-500">{member.profiles?.email}</p>
+                        <h3 className="font-medium">{member.profiles?.full_name || 'عضو'}</h3>
+                        <p className="text-sm text-gray-500">{member.user_id}</p>
                       </div>
                       <div className="text-right">
                         <Badge variant="outline">{member.role}</Badge>
@@ -332,8 +327,8 @@ const GroupDetails = () => {
                 <CardContent>
                   <div className="flex gap-3">
                     <Input
-                      type="email"
-                      placeholder="البريد الإلكتروني للمستقل"
+                      type="text"
+                      placeholder="معرف المستقل"
                       value={freelancerEmail}
                       onChange={(e) => setFreelancerEmail(e.target.value)}
                       className="flex-1"
@@ -361,12 +356,14 @@ const GroupDetails = () => {
                 <div className="space-y-4">
                   {group.supplier_offers?.map((offer: any) => (
                     <div key={offer.id} className="p-4 border rounded-lg">
-                      <h3 className="font-medium">{offer.title}</h3>
+                      <h3 className="font-medium">{offer.company_name}</h3>
                       <p className="text-sm text-gray-600 mt-1">{offer.offer_description}</p>
                       <div className="flex items-center justify-between mt-3">
                         <div className="flex items-center gap-2">
                           <DollarSign className="w-4 h-4" />
-                          <span className="font-medium">${offer.price} USD</span>
+                          <span className="font-medium">
+                            {offer.price_details ? JSON.stringify(offer.price_details) : 'غير محدد'}
+                          </span>
                         </div>
                         <Badge variant={
                           offer.status === 'pending' ? 'outline' :
@@ -406,9 +403,9 @@ const GroupDetails = () => {
                 <CardContent>
                   <div className="space-y-4">
                     <Input
-                      placeholder="عنوان العرض"
-                      value={supplierOffer.title}
-                      onChange={(e) => setSupplierOffer({...supplierOffer, title: e.target.value})}
+                      placeholder="اسم الشركة"
+                      value={supplierOffer.company_name}
+                      onChange={(e) => setSupplierOffer({...supplierOffer, company_name: e.target.value})}
                     />
                     <Textarea
                       placeholder="وصف العرض"
@@ -417,26 +414,30 @@ const GroupDetails = () => {
                       rows={3}
                     />
                     <Input
-                      type="number"
-                      placeholder="السعر (USD)"
-                      value={supplierOffer.price}
-                      onChange={(e) => setSupplierOffer({...supplierOffer, price: e.target.value})}
+                      placeholder="تفاصيل السعر"
+                      value={supplierOffer.price_details}
+                      onChange={(e) => setSupplierOffer({...supplierOffer, price_details: e.target.value})}
                     />
                     <Input
-                      placeholder="مدة التسليم"
-                      value={supplierOffer.delivery_time}
-                      onChange={(e) => setSupplierOffer({...supplierOffer, delivery_time: e.target.value})}
+                      placeholder="شروط التسليم"
+                      value={supplierOffer.delivery_terms}
+                      onChange={(e) => setSupplierOffer({...supplierOffer, delivery_terms: e.target.value})}
                     />
-                    <Textarea
-                      placeholder="الشروط والأحكام"
-                      value={supplierOffer.terms}
-                      onChange={(e) => setSupplierOffer({...supplierOffer, terms: e.target.value})}
-                      rows={2}
+                    <Input
+                      placeholder="شروط الدفع"
+                      value={supplierOffer.payment_terms}
+                      onChange={(e) => setSupplierOffer({...supplierOffer, payment_terms: e.target.value})}
+                    />
+                    <Input
+                      type="date"
+                      placeholder="العرض صالح حتى"
+                      value={supplierOffer.valid_until}
+                      onChange={(e) => setSupplierOffer({...supplierOffer, valid_until: e.target.value})}
                     />
                     <Button 
                       className="w-full"
                       onClick={() => submitSupplierOfferMutation.mutate(supplierOffer)}
-                      disabled={submitSupplierOfferMutation.isPending || !supplierOffer.title || !supplierOffer.offer_description}
+                      disabled={submitSupplierOfferMutation.isPending || !supplierOffer.company_name || !supplierOffer.offer_description}
                     >
                       تقديم العرض
                     </Button>

@@ -860,6 +860,56 @@ export type Database = {
           },
         ]
       }
+      freelancer_offers: {
+        Row: {
+          created_at: string
+          delivery_time: string
+          description: string
+          freelancer_id: string
+          group_id: string | null
+          id: string
+          price: number
+          skills_required: string[] | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          delivery_time: string
+          description: string
+          freelancer_id: string
+          group_id?: string | null
+          id?: string
+          price: number
+          skills_required?: string[] | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          delivery_time?: string
+          description?: string
+          freelancer_id?: string
+          group_id?: string | null
+          id?: string
+          price?: number
+          skills_required?: string[] | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "freelancer_offers_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       freelancers: {
         Row: {
           assessment_score: number | null

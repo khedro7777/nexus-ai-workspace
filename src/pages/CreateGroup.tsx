@@ -1,34 +1,40 @@
 
-import { useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/hooks/useAuth';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/Sidebar';
-import CreateGroupFormFields from '@/components/create-group/CreateGroupFormFields';
-import { useCreateGroupForm } from '@/hooks/useCreateGroupForm';
-import { getGroupTypeTitle } from '@/utils/createGroupUtils';
 
 const CreateGroup = () => {
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { formData, updateFormData } = useCreateGroupForm();
 
-  const groupType = searchParams.get('type') || 'group_buying';
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    type: '',
+    service_gateway: '',
+    business_objective: '',
+    legal_framework: '',
+    jurisdiction: ''
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!user) {
       toast({
-        title: "خطأ",
+        title: "خطأ في المصادقة",
         description: "يجب تسجيل الدخول أولاً",
         variant: "destructive"
       });
@@ -43,44 +49,29 @@ const CreateGroup = () => {
         .insert({
           name: formData.name,
           description: formData.description,
-          country: formData.country,
-          sector: formData.sector,
-          group_type: groupType,
-          contract_type: formData.contractType,
+          type: formData.type,
+          service_gateway: formData.service_gateway,
+          business_objective: formData.business_objective,
+          legal_framework: formData.legal_framework,
+          jurisdiction: formData.jurisdiction,
           creator_id: user.id,
-          max_members: formData.maxMembers,
-          negotiation_rounds: formData.negotiationRounds,
-          min_entry_amount: formData.minEntryAmount,
-          requires_suppliers: formData.requiresSuppliers,
-          status: 'pending'
+          status: 'active'
         })
         .select()
         .single();
 
       if (error) throw error;
 
-      // Add creator as first member
-      await supabase
-        .from('group_members')
-        .insert({
-          group_id: data.id,
-          user_id: user.id,
-          role: 'creator',
-          status: 'active'
-        });
-
       toast({
-        title: "تم الإرسال بنجاح",
-        description: "تم إرسال الطلب إلى الإدارة لمراجعته. سيتم الرد عليك خلال 24 ساعة."
+        title: "تم إنشاء المجموعة بنجاح",
+        description: "تم إنشاء مجموعتك الجديدة"
       });
 
-      navigate('/my-groups');
-
+      navigate(`/group/${data.id}`);
     } catch (error: any) {
-      console.error('Error creating group:', error);
       toast({
-        title: "خطأ في الإرسال",
-        description: error.message || "حدث خطأ أثناء إنشاء المجموعة",
+        title: "خطأ في إنشاء المجموعة",
+        description: error.message,
         variant: "destructive"
       });
     } finally {
@@ -88,40 +79,112 @@ const CreateGroup = () => {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50" dir="rtl">
-      <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-      
-      <div className="flex">
-        <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
-        
-        <main className="flex-1 p-6">
-          <div className="max-w-2xl mx-auto">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl">{getGroupTypeTitle(groupType)}</CardTitle>
-              </CardHeader>
-              
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <CreateGroupFormFields 
-                    formData={formData}
-                    updateFormData={updateFormData}
-                  />
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
 
-                  <div className="flex gap-4">
-                    <Button type="submit" className="flex-1" disabled={loading}>
-                      {loading ? 'جارٍ الإرسال...' : 'أنشئ مجموعتي الآن'}
-                    </Button>
-                    <Button type="button" variant="outline" onClick={() => navigate('/dashboard')}>
-                      إلغاء
-                    </Button>
-                  </div>
-                </form>
-              </CardContent>
-            </Card>
-          </div>
-        </main>
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50" dir="rtl">
+      <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+      <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
+      
+      <div className="container mx-auto px-4 py-8">
+        <Card className="max-w-2xl mx-auto">
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold text-center">إنشاء مجموعة جديدة</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <Label htmlFor="name">اسم المجموعة</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="description">الوصف</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  rows={3}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="type">نوع المجموعة</Label>
+                <Select value={formData.type} onValueChange={(value) => handleInputChange('type', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="اختر نوع المجموعة" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="procurement">مشتريات</SelectItem>
+                    <SelectItem value="services">خدمات</SelectItem>
+                    <SelectItem value="investment">استثمار</SelectItem>
+                    <SelectItem value="partnership">شراكة</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="service_gateway">بوابة الخدمة</Label>
+                <Select value={formData.service_gateway} onValueChange={(value) => handleInputChange('service_gateway', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="اختر بوابة الخدمة" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="online">عبر الإنترنت</SelectItem>
+                    <SelectItem value="hybrid">مختلط</SelectItem>
+                    <SelectItem value="offline">خارج الإنترنت</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="business_objective">الهدف التجاري</Label>
+                <Textarea
+                  id="business_objective"
+                  value={formData.business_objective}
+                  onChange={(e) => handleInputChange('business_objective', e.target.value)}
+                  rows={2}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="legal_framework">الإطار القانوني</Label>
+                <Input
+                  id="legal_framework"
+                  value={formData.legal_framework}
+                  onChange={(e) => handleInputChange('legal_framework', e.target.value)}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="jurisdiction">الاختصاص القضائي</Label>
+                <Input
+                  id="jurisdiction"
+                  value={formData.jurisdiction}
+                  onChange={(e) => handleInputChange('jurisdiction', e.target.value)}
+                />
+              </div>
+
+              <Button 
+                type="submit" 
+                className="w-full"
+                disabled={loading || !formData.name || !formData.type || !formData.service_gateway}
+              >
+                {loading ? 'جاري الإنشاء...' : 'إنشاء المجموعة'}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
