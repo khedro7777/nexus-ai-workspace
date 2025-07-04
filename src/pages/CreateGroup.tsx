@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -27,7 +26,9 @@ const CreateGroup = () => {
     service_gateway: '',
     business_objective: '',
     legal_framework: '',
-    jurisdiction: ''
+    jurisdiction: '',
+    min_members: 5,
+    max_members: 20
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -44,7 +45,8 @@ const CreateGroup = () => {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase
+      // Create the group with initial phase
+      const { data: groupData, error: groupError } = await supabase
         .from('groups')
         .insert({
           name: formData.name,
@@ -55,19 +57,35 @@ const CreateGroup = () => {
           legal_framework: formData.legal_framework,
           jurisdiction: formData.jurisdiction,
           creator_id: user.id,
-          status: 'active'
+          status: 'pending_members', // Initial phase
+          current_phase: 'initial',
+          visibility: 'private', // Private until activated
+          min_members: formData.min_members,
+          max_members: formData.max_members
         })
         .select()
         .single();
 
-      if (error) throw error;
+      if (groupError) throw groupError;
+
+      // Add creator as regular member (not admin)
+      const { error: memberError } = await supabase
+        .from('group_members')
+        .insert({
+          group_id: groupData.id,
+          user_id: user.id,
+          role: 'member', // Creator is just a member
+          voting_weight: 1.0
+        });
+
+      if (memberError) throw memberError;
 
       toast({
         title: "تم إنشاء المجموعة بنجاح",
-        description: "تم إنشاء مجموعتك الجديدة"
+        description: "تم إنشاء مجموعتك الجديدة كعضو عادي. ستنتظر المجموعة اكتمال الأعضاء للتفعيل"
       });
 
-      navigate(`/group/${data.id}`);
+      navigate(`/group/${groupData.id}`);
     } catch (error: any) {
       toast({
         title: "خطأ في إنشاء المجموعة",
@@ -79,7 +97,7 @@ const CreateGroup = () => {
     }
   };
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string | number) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -95,6 +113,7 @@ const CreateGroup = () => {
         <Card className="max-w-2xl mx-auto">
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-center">إنشاء مجموعة جديدة</CardTitle>
+            <p className="text-center text-gray-600">ستكون عضواً عادياً في المجموعة - لا امتيازات إدارية تلقائية</p>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -116,6 +135,33 @@ const CreateGroup = () => {
                   onChange={(e) => handleInputChange('description', e.target.value)}
                   rows={3}
                 />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="min_members">الحد الأدنى للأعضاء</Label>
+                  <Input
+                    id="min_members"
+                    type="number"
+                    min="3"
+                    max="50"
+                    value={formData.min_members}
+                    onChange={(e) => handleInputChange('min_members', parseInt(e.target.value))}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="max_members">الحد الأقصى للأعضاء</Label>
+                  <Input
+                    id="max_members"
+                    type="number"
+                    min="5"
+                    max="100"
+                    value={formData.max_members}
+                    onChange={(e) => handleInputChange('max_members', parseInt(e.target.value))}
+                    required
+                  />
+                </div>
               </div>
 
               <div>
@@ -180,7 +226,7 @@ const CreateGroup = () => {
                 className="w-full"
                 disabled={loading || !formData.name || !formData.type || !formData.service_gateway}
               >
-                {loading ? 'جاري الإنشاء...' : 'إنشاء المجموعة'}
+                {loading ? 'جاري الإنشاء...' : 'إنشاء المجموعة (كعضو عادي)'}
               </Button>
             </form>
           </CardContent>
