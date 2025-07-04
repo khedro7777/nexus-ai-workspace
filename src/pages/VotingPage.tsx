@@ -1,3 +1,4 @@
+
 // صفحة التصويت - إدارة وعرض جلسات التصويت الجماعي للمجموعات
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -91,7 +92,7 @@ const VotingPage = () => {
         .insert({
           voting_session_id: id,
           user_id: user.id,
-          option_selected: option
+          choice: option
         });
       
       if (error) throw error;
@@ -155,7 +156,7 @@ const VotingPage = () => {
   const options = votingSession.options as string[];
   const totalVotes = votes?.length || 0;
   const voteResults = options.map(option => {
-    const count = votes?.filter(vote => vote.option_selected === option).length || 0;
+    const count = votes?.filter(vote => vote.choice === option).length || 0;
     const percentage = totalVotes > 0 ? (count / totalVotes) * 100 : 0;
     return { option, count, percentage };
   });
@@ -288,10 +289,10 @@ const VotingPage = () => {
                 <CardContent>
                   <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                     <p className="text-green-800">
-                      لقد صوتت بـ: <strong>{userVote.option_selected}</strong>
+                      لقد صوتت بـ: <strong>{userVote.choice}</strong>
                     </p>
                     <p className="text-sm text-green-600 mt-1">
-                      تاريخ التصويت: {new Date(userVote.voted_at).toLocaleString('ar')}
+                      تاريخ التصويت: {new Date(userVote.created_at).toLocaleString('ar')}
                     </p>
                   </div>
                 </CardContent>

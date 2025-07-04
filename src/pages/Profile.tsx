@@ -13,11 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { 
   User, 
   Mail, 
-  Phone, 
-  MapPin, 
   Building, 
-  Star,
-  Award,
   Calendar
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
@@ -31,12 +27,8 @@ const Profile = () => {
 
   const [profileData, setProfileData] = useState({
     full_name: '',
-    phone: '',
-    address: '',
-    company: '',
-    bio: '',
-    skills: '',
-    experience_years: 0
+    company_name: '',
+    role: 'user'
   });
 
   // Fetch profile data
@@ -53,15 +45,11 @@ const Profile = () => {
       
       if (error) throw error;
       
-      // Update form data
+      // Update form data with available fields
       setProfileData({
         full_name: data.full_name || '',
-        phone: data.phone || '',
-        address: data.address || '',
-        company: data.company || '',
-        bio: data.bio || '',
-        skills: data.skills || '',
-        experience_years: data.experience_years || 0
+        company_name: data.company_name || '',
+        role: data.role || 'user'
       });
       
       return data;
@@ -152,22 +140,10 @@ const Profile = () => {
                     <Mail className="w-4 h-4" />
                     <span>{user?.email}</span>
                   </div>
-                  {profile?.phone && (
-                    <div className="flex items-center gap-3 text-sm text-gray-600">
-                      <Phone className="w-4 h-4" />
-                      <span>{profile.phone}</span>
-                    </div>
-                  )}
-                  {profile?.address && (
-                    <div className="flex items-center gap-3 text-sm text-gray-600">
-                      <MapPin className="w-4 h-4" />
-                      <span>{profile.address}</span>
-                    </div>
-                  )}
-                  {profile?.company && (
+                  {profile?.company_name && (
                     <div className="flex items-center gap-3 text-sm text-gray-600">
                       <Building className="w-4 h-4" />
-                      <span>{profile.company}</span>
+                      <span>{profile.company_name}</span>
                     </div>
                   )}
                   <div className="flex items-center gap-3 text-sm text-gray-600">
@@ -176,31 +152,12 @@ const Profile = () => {
                   </div>
                 </div>
 
-                {profile?.experience_years && (
-                  <div className="pt-4 border-t">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Award className="w-4 h-4 text-yellow-600" />
-                      <span className="text-sm font-medium">سنوات الخبرة</span>
-                    </div>
-                    <Badge variant="outline">{profile.experience_years} سنة</Badge>
+                <div className="pt-4 border-t">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-sm font-medium">الدور</span>
                   </div>
-                )}
-
-                {profile?.skills && (
-                  <div className="pt-4 border-t">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Star className="w-4 h-4 text-blue-600" />
-                      <span className="text-sm font-medium">المهارات</span>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {profile.skills.split(',').map((skill: string, index: number) => (
-                        <Badge key={index} variant="outline" className="text-xs">
-                          {skill.trim()}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                  <Badge variant="outline">{profile?.role === 'user' ? 'مستخدم' : profile?.role}</Badge>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -224,68 +181,14 @@ const Profile = () => {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="phone">رقم الهاتف</Label>
+                      <Label htmlFor="company_name">اسم الشركة</Label>
                       <Input
-                        id="phone"
-                        value={profileData.phone}
-                        onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
-                        placeholder="أدخل رقم هاتفك"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="company">الشركة</Label>
-                      <Input
-                        id="company"
-                        value={profileData.company}
-                        onChange={(e) => setProfileData({...profileData, company: e.target.value})}
+                        id="company_name"
+                        value={profileData.company_name}
+                        onChange={(e) => setProfileData({...profileData, company_name: e.target.value})}
                         placeholder="أدخل اسم شركتك"
                       />
                     </div>
-                    <div>
-                      <Label htmlFor="experience_years">سنوات الخبرة</Label>
-                      <Input
-                        id="experience_years"
-                        type="number"
-                        value={profileData.experience_years}
-                        onChange={(e) => setProfileData({...profileData, experience_years: parseInt(e.target.value) || 0})}
-                        placeholder="0"
-                        min="0"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="address">العنوان</Label>
-                    <Input
-                      id="address"
-                      value={profileData.address}
-                      onChange={(e) => setProfileData({...profileData, address: e.target.value})}
-                      placeholder="أدخل عنوانك"
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="skills">المهارات</Label>
-                    <Input
-                      id="skills"
-                      value={profileData.skills}
-                      onChange={(e) => setProfileData({...profileData, skills: e.target.value})}
-                      placeholder="مثال: تطوير الويب، تصميم، ترجمة (مفصولة بفواصل)"
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="bio">نبذة شخصية</Label>
-                    <Textarea
-                      id="bio"
-                      value={profileData.bio}
-                      onChange={(e) => setProfileData({...profileData, bio: e.target.value})}
-                      placeholder="اكتب نبذة قصيرة عن نفسك وخبراتك"
-                      rows={4}
-                    />
                   </div>
 
                   <div className="flex gap-4">
@@ -301,12 +204,8 @@ const Profile = () => {
                       variant="outline"
                       onClick={() => setProfileData({
                         full_name: profile?.full_name || '',
-                        phone: profile?.phone || '',
-                        address: profile?.address || '',
-                        company: profile?.company || '',
-                        bio: profile?.bio || '',
-                        skills: profile?.skills || '',
-                        experience_years: profile?.experience_years || 0
+                        company_name: profile?.company_name || '',
+                        role: profile?.role || 'user'
                       })}
                       className="flex-1"
                     >

@@ -46,13 +46,22 @@ const SupplierDashboard = () => {
           .single()
       ]);
 
+      const offers = offersResult.data || [];
+      
+      // Calculate earnings from price_details JSON field
+      const totalEarnings = offers.filter(o => o.status === 'completed').reduce((sum, o) => {
+        const priceDetails = o.price_details as any;
+        const amount = priceDetails?.amount || 0;
+        return sum + Number(amount);
+      }, 0);
+
       return {
-        offers: offersResult.data || [],
+        offers,
         profile: profileResult.data,
-        totalEarnings: offersResult.data?.filter(o => o.status === 'completed').reduce((sum, o) => sum + (o.price || 0), 0) || 0,
-        activeOffers: offersResult.data?.filter(o => o.status === 'pending' || o.status === 'accepted').length || 0,
-        completedOffers: offersResult.data?.filter(o => o.status === 'completed').length || 0,
-        successRate: offersResult.data?.length ? Math.round((offersResult.data.filter(o => o.status === 'completed').length / offersResult.data.length) * 100) : 0
+        totalEarnings,
+        activeOffers: offers.filter(o => o.status === 'pending' || o.status === 'accepted').length,
+        completedOffers: offers.filter(o => o.status === 'completed').length,
+        successRate: offers.length ? Math.round((offers.filter(o => o.status === 'completed').length / offers.length) * 100) : 0
       };
     }
   });
@@ -199,38 +208,43 @@ const SupplierDashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {supplierData?.offers?.slice(0, 5).map((offer: any) => (
-                    <div key={offer.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
-                      <div className="flex-1">
-                        <h3 className="font-medium text-gray-900">{offer.title}</h3>
-                        <p className="text-sm text-gray-500">{offer.groups?.name}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Badge variant="outline" className="flex items-center gap-1">
-                            <DollarSign className="w-3 h-3" />
-                            ${offer.price} USD
+                  {supplierData?.offers?.slice(0, 5).map((offer: any) => {
+                    const priceDetails = offer.price_details as any;
+                    const amount = priceDetails?.amount || 0;
+                    
+                    return (
+                      <div key={offer.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                        <div className="flex-1">
+                          <h3 className="font-medium text-gray-900">{offer.company_name}</h3>
+                          <p className="text-sm text-gray-500">{offer.groups?.name}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Badge variant="outline" className="flex items-center gap-1">
+                              <DollarSign className="w-3 h-3" />
+                              ${Number(amount).toFixed(2)} USD
+                            </Badge>
+                            <Badge variant="outline" className="flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {offer.delivery_terms || 'غير محدد'}
+                            </Badge>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <Badge variant={
+                            offer.status === 'completed' ? 'default' :
+                            offer.status === 'accepted' ? 'secondary' :
+                            offer.status === 'pending' ? 'outline' : 'destructive'
+                          }>
+                            {offer.status === 'pending' ? 'قيد الانتظار' :
+                             offer.status === 'accepted' ? 'مقبول' :
+                             offer.status === 'completed' ? 'مكتمل' : 'مرفوض'}
                           </Badge>
-                          <Badge variant="outline" className="flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {offer.delivery_time}
-                          </Badge>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {new Date(offer.created_at).toLocaleDateString('ar')}
+                          </p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <Badge variant={
-                          offer.status === 'completed' ? 'default' :
-                          offer.status === 'accepted' ? 'secondary' :
-                          offer.status === 'pending' ? 'outline' : 'destructive'
-                        }>
-                          {offer.status === 'pending' ? 'قيد الانتظار' :
-                           offer.status === 'accepted' ? 'مقبول' :
-                           offer.status === 'completed' ? 'مكتمل' : 'مرفوض'}
-                        </Badge>
-                        <p className="text-xs text-gray-500 mt-1">
-                          {new Date(offer.created_at).toLocaleDateString('ar')}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                   {(!supplierData?.offers || supplierData.offers.length === 0) && (
                     <p className="text-gray-500 text-center py-8">لا توجد عروض بعد</p>
                   )}

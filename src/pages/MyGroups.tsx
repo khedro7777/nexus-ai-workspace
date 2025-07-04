@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,12 +15,11 @@ interface Group {
   id: string;
   name: string;
   description: string;
-  country: string;
-  sector: string;
-  group_type: string;
-  contract_type: string;
-  max_members: number;
-  current_members: number;
+  type: string;
+  service_gateway: string;
+  business_objective: string;
+  legal_framework: string;
+  jurisdiction: string;
   status: string;
   created_at: string;
   creator_id: string;
@@ -56,12 +54,10 @@ const MyGroups = () => {
       const { data: memberGroups, error: memberError } = await supabase
         .from('group_members')
         .select(`
-          group_id,
           role,
           groups (*)
         `)
         .eq('user_id', user?.id)
-        .eq('status', 'active')
         .neq('role', 'creator');
 
       if (memberError) throw memberError;
@@ -107,10 +103,10 @@ const MyGroups = () => {
 
   const getGroupTypeText = (type: string) => {
     switch (type) {
-      case 'group_buying': return 'شراء تعاوني';
-      case 'marketing': return 'تسويق تعاوني';
-      case 'freelance_request': return 'طلب مستقلين';
-      case 'supplier_request': return 'طلب موردين';
+      case 'procurement': return 'مشتريات';
+      case 'services': return 'خدمات';
+      case 'investment': return 'استثمار';
+      case 'partnership': return 'شراكة';
       default: return type;
     }
   };
@@ -128,7 +124,7 @@ const MyGroups = () => {
         </div>
         <CardTitle className="text-lg leading-tight">{group.name}</CardTitle>
         <Badge variant="outline" className="w-fit">
-          {getGroupTypeText(group.group_type)}
+          {getGroupTypeText(group.type)}
         </Badge>
       </CardHeader>
       <CardContent>
@@ -138,11 +134,11 @@ const MyGroups = () => {
           <div className="grid grid-cols-2 gap-2 text-sm">
             <div className="flex items-center gap-1">
               <MapPin className="w-4 h-4 text-gray-400" />
-              <span>{group.country}</span>
+              <span>{group.jurisdiction || 'غير محدد'}</span>
             </div>
             <div className="flex items-center gap-1">
               <Users className="w-4 h-4 text-gray-400" />
-              <span>{group.current_members}/{group.max_members}</span>
+              <span>مجموعة {group.type}</span>
             </div>
           </div>
 
