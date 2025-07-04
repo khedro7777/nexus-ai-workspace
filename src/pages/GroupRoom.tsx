@@ -32,6 +32,8 @@ import VotingSystem from '@/components/voting/VotingSystem';
 import DiscussionSystem from '@/components/discussions/DiscussionSystem';
 import RFQCard from '@/components/rfq/RFQCard';
 import RFQFilters from '@/components/rfq/RFQFilters';
+import CreateSupplierOffer from '@/components/offers/CreateSupplierOffer';
+import SupplierOffers from '@/components/offers/SupplierOffers';
 
 const GroupRoom = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -39,6 +41,7 @@ const GroupRoom = () => {
   const [inviteRole, setInviteRole] = useState('member');
   const [showRFQSection, setShowRFQSection] = useState(false);
   const [showInviteSection, setShowInviteSection] = useState(false);
+  const [showCreateOffer, setShowCreateOffer] = useState(false);
   const [activeFilters, setActiveFilters] = useState({});
   const { id } = useParams();
 
@@ -105,36 +108,8 @@ const GroupRoom = () => {
         .from('group_members')
         .select(`
           *,
-          profiles(full_name, email, user_role)
+          profiles(full_name, role, company_name)
         `)
-        .eq('group_id', id);
-      
-      if (error) throw error;
-      return data;
-    }
-  });
-
-  // جلب عروض الموردين
-  const { data: supplierOffers } = useQuery({
-    queryKey: ['supplier-offers', id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('supplier_offers')
-        .select('*')
-        .eq('group_id', id);
-      
-      if (error) throw error;
-      return data;
-    }
-  });
-
-  // جلب عروض المستقلين
-  const { data: freelancerOffers } = useQuery({
-    queryKey: ['freelancer-offers', id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('freelancer_offers')
-        .select('*')
         .eq('group_id', id);
       
       if (error) throw error;
@@ -174,6 +149,11 @@ const GroupRoom = () => {
       setInviteEmail('');
       setInviteRole('member');
     }
+  };
+
+  const handleOfferCreated = () => {
+    setShowCreateOffer(false);
+    // Refresh offers data if needed
   };
 
   if (isLoading) {
@@ -220,15 +200,15 @@ const GroupRoom = () => {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-gray-500" />
-                <span className="text-sm">{group?.country}</span>
+                <span className="text-sm">{group?.jurisdiction}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4 text-gray-500" />
-                <span className="text-sm">{group?.current_members}/{group?.max_members} أعضاء</span>
+                <span className="text-sm">{members?.length || 0} أعضاء</span>
               </div>
               <div className="flex items-center gap-2">
-                <DollarSign className="w-4 h-4 text-gray-500" />
-                <span className="text-sm">الحد الأدنى: ${group?.min_entry_amount || 0} USD</span>
+                <Building2 className="w-4 h-4 text-gray-500" />
+                <span className="text-sm">{group?.type}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-gray-500" />
@@ -253,9 +233,27 @@ const GroupRoom = () => {
                 <UserPlus className="w-4 h-4" />
                 دعوة أعضاء
               </Button>
+              <Button 
+                onClick={() => setShowCreateOffer(!showCreateOffer)}
+                className="flex items-center gap-2"
+                variant="outline"
+              >
+                <Plus className="w-4 h-4" />
+                إنشاء عرض مورد
+              </Button>
             </div>
           </CardContent>
         </Card>
+
+        {/* قسم إنشاء عرض مورد */}
+        {showCreateOffer && (
+          <div className="mb-8">
+            <CreateSupplierOffer 
+              groupId={id || ''} 
+              onOfferCreated={handleOfferCreated}
+            />
+          </div>
+        )}
 
         {/* قسم طلب عروض الموردين */}
         {showRFQSection && (
@@ -372,19 +370,19 @@ const GroupRoom = () => {
                 <CardContent className="space-y-3">
                   <div>
                     <span className="font-medium">نوع المجموعة:</span>
-                    <span className="mr-2">{group?.group_type}</span>
+                    <span className="mr-2">{group?.type}</span>
                   </div>
                   <div>
-                    <span className="font-medium">القطاع:</span>
-                    <span className="mr-2">{group?.sector}</span>
+                    <span className="font-medium">بوابة الخدمة:</span>
+                    <span className="mr-2">{group?.service_gateway}</span>
                   </div>
                   <div>
-                    <span className="font-medium">نوع العقد:</span>
-                    <span className="mr-2">{group?.contract_type}</span>
+                    <span className="font-medium">الإطار القانوني:</span>
+                    <span className="mr-2">{group?.legal_framework}</span>
                   </div>
                   <div>
-                    <span className="font-medium">جولات التفاوض:</span>
-                    <span className="mr-2">{group?.negotiation_rounds}</span>
+                    <span className="font-medium">الولاية القضائية:</span>
+                    <span className="mr-2">{group?.jurisdiction}</span>
                   </div>
                 </CardContent>
               </Card>
@@ -395,12 +393,8 @@ const GroupRoom = () => {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex justify-between">
-                    <span>عروض الموردين:</span>
-                    <Badge variant="outline">{supplierOffers?.length || 0}</Badge>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>عروض المستقلين:</span>
-                    <Badge variant="outline">{freelancerOffers?.length || 0}</Badge>
+                    <span>الأعضاء:</span>
+                    <Badge variant="outline">{members?.length || 0}</Badge>
                   </div>
                   <div className="flex justify-between">
                     <span>جلسات التصويت:</span>
@@ -408,7 +402,7 @@ const GroupRoom = () => {
                   </div>
                   <div className="flex justify-between">
                     <span>الأعضاء النشطون:</span>
-                    <Badge variant="outline">{members?.filter(m => m.status === 'active').length || 0}</Badge>
+                    <Badge variant="outline">{members?.filter(m => m.role === 'admin' || m.role === 'member').length || 0}</Badge>
                   </div>
                 </CardContent>
               </Card>
@@ -443,7 +437,7 @@ const GroupRoom = () => {
             </div>
           </TabsContent>
 
-          {/* باقي التبويبات تبقى كما هي */}
+          {/* باقي التبويبات */}
           <TabsContent value="members" className="space-y-6">
             <Card>
               <CardHeader>
@@ -459,7 +453,7 @@ const GroupRoom = () => {
                         </div>
                         <div>
                           <h4 className="font-medium">{member.profiles?.full_name || 'مستخدم'}</h4>
-                          <p className="text-sm text-gray-500">{member.profiles?.email}</p>
+                          <p className="text-sm text-gray-500">{member.profiles?.company_name || 'لا يوجد اسم شركة'}</p>
                         </div>
                       </div>
                       <div className="text-right">
@@ -489,34 +483,7 @@ const GroupRoom = () => {
           </TabsContent>
 
           <TabsContent value="suppliers" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>عروض الموردين</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {supplierOffers?.map((offer: any) => (
-                    <div key={offer.id} className="p-4 border rounded-lg">
-                      <div className="flex justify-between items-start mb-2">
-                        <h4 className="font-medium">{offer.title || offer.offer_description}</h4>
-                        <Badge className={getStatusColor(offer.status)}>
-                          {offer.status === 'pending' ? 'معلق' : offer.status === 'accepted' ? 'مقبول' : 'مرفوض'}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-gray-600 mb-2">{offer.description}</p>
-                      <div className="flex items-center gap-4 text-sm">
-                        <span className="font-medium text-green-600">${offer.price} USD</span>
-                        <span className="text-gray-500">مدة التسليم: {offer.delivery_time}</span>
-                        <span className="text-gray-500">الشركة: {offer.company_name}</span>
-                      </div>
-                    </div>
-                  ))}
-                  {(!supplierOffers || supplierOffers.length === 0) && (
-                    <p className="text-gray-500 text-center py-8">لا توجد عروض من الموردين</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+            <SupplierOffers groupId={id || 'default'} />
           </TabsContent>
 
           <TabsContent value="freelancers" className="space-y-6">
@@ -525,29 +492,9 @@ const GroupRoom = () => {
                 <CardTitle>عروض المستقلين</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {freelancerOffers?.map((offer: any) => (
-                    <div key={offer.id} className="p-4 border rounded-lg">
-                      <div className="flex justify-between items-start mb-2">
-                        <h4 className="font-medium">{offer.title || offer.offer_description}</h4>
-                        <Badge className={getStatusColor(offer.status)}>
-                          {offer.status === 'pending' ? 'معلق' : offer.status === 'accepted' ? 'مقبول' : 'مرفوض'}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-gray-600 mb-2">{offer.description}</p>
-                      <div className="flex items-center gap-4 text-sm">
-                        <span className="font-medium text-green-600">${offer.price} USD</span>
-                        <span className="text-gray-500">المدة: {offer.timeline_days} أيام</span>
-                        <span className="text-gray-500">التسليم: {offer.delivery_time}</span>
-                      </div>
-                      {offer.additional_notes && (
-                        <p className="text-xs text-gray-500 mt-2">ملاحظات: {offer.additional_notes}</p>
-                      )}
-                    </div>
-                  ))}
-                  {(!freelancerOffers || freelancerOffers.length === 0) && (
-                    <p className="text-gray-500 text-center py-8">لا توجد عروض من المستقلين</p>
-                  )}
+                <div className="text-center py-8 text-gray-500">
+                  <UserCheck className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                  <p>لا توجد عروض من المستقلين حالياً</p>
                 </div>
               </CardContent>
             </Card>

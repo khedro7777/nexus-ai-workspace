@@ -27,7 +27,7 @@ interface VotingSession {
 
 interface VoteData {
   id: string;
-  option_selected: string;
+  choice: string;
   user_id: string;
 }
 
@@ -70,7 +70,7 @@ const VotingSession: React.FC<VotingSessionProps> = ({ groupId }) => {
         .insert({
           voting_session_id: sessionId,
           user_id: user.id,
-          option_selected: option
+          choice: option
         });
 
       if (error) throw error;
@@ -99,7 +99,7 @@ const VotingSession: React.FC<VotingSessionProps> = ({ groupId }) => {
 
   const calculateVotePercentage = (session: VotingSession, option: string) => {
     const totalVotes = session.votes.length;
-    const optionVotes = session.votes.filter(vote => vote.option_selected === option).length;
+    const optionVotes = session.votes.filter(vote => vote.choice === option).length;
     return totalVotes > 0 ? (optionVotes / totalVotes) * 100 : 0;
   };
 
@@ -159,7 +159,7 @@ const VotingSession: React.FC<VotingSessionProps> = ({ groupId }) => {
                       const percentage = calculateVotePercentage(session, option);
                       const userVoted = hasUserVoted(session);
                       const userVotedThis = session.votes.some(
-                        vote => vote.user_id === user?.id && vote.option_selected === option
+                        vote => vote.user_id === user?.id && vote.choice === option
                       );
 
                       return (
