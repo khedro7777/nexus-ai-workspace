@@ -11,6 +11,7 @@ export interface NegotiationPhase {
   startDate?: Date;
   endDate?: Date;
   requirements: string[];
+  progress: number;
 }
 
 export const useNegotiationLogic = (groupId: string) => {
@@ -22,79 +23,111 @@ export const useNegotiationLogic = (groupId: string) => {
     {
       id: 'preparation',
       name: 'مرحلة التحضير',
-      description: 'تحديد المتطلبات والشروط الأساسية',
+      description: 'تحديد المتطلبات والشروط الأساسية للمشروع',
       status: 'pending',
-      requirements: ['تحديد المنتجات', 'وضع الميزانية', 'اختيار الموردين']
+      requirements: ['تحديد المنتجات والخدمات', 'وضع الميزانية المبدئية', 'اختيار الموردين المحتملين'],
+      progress: 0
     },
     {
-      id: 'proposal',
-      name: 'مرحلة الاقتراحات',
-      description: 'استقبال ومراجعة عروض الموردين',
+      id: 'rfq',
+      name: 'مرحلة طلب العروض',
+      description: 'إرسال طلبات عروض للموردين المختارين',
       status: 'pending',
-      requirements: ['استلام العروض', 'تقييم المقترحات', 'مقارنة الأسعار']
+      requirements: ['إعداد مستند طلب العروض', 'إرسال للموردين', 'تحديد مواعيد التسليم'],
+      progress: 0
+    },
+    {
+      id: 'evaluation',
+      name: 'مرحلة تقييم العروض',
+      description: 'تقييم ومقارنة العروض المستلمة',
+      status: 'pending',
+      requirements: ['مراجعة العروض الفنية', 'مقارنة الأسعار', 'تقييم الموردين'],
+      progress: 0
     },
     {
       id: 'negotiation',
-      name: 'مرحلة التفاوض',
-      description: 'التفاوض مع الموردين المختارين',
+      name: 'مرحلة التفاوض النشط',
+      description: 'التفاوض المباشر مع الموردين المختارين',
       status: 'pending',
-      requirements: ['تفاوض الأسعار', 'تحديد الشروط', 'الاتفاق على التسليم']
+      requirements: ['تفاوض الأسعار والشروط', 'مناقشة التفاصيل التقنية', 'الاتفاق على التسليم'],
+      progress: 0
     },
     {
       id: 'voting',
       name: 'مرحلة التصويت',
-      description: 'تصويت أعضاء المجموعة على الاتفاق النهائي',
+      description: 'تصويت أعضاء المجموعة على العرض النهائي',
       status: 'pending',
-      requirements: ['عرض الاتفاق', 'تصويت الأعضاء', 'موافقة الأغلبية']
+      requirements: ['عرض الاتفاق على الأعضاء', 'إجراء التصويت', 'الحصول على موافقة الأغلبية'],
+      progress: 0
     },
     {
       id: 'contracting',
       name: 'مرحلة التعاقد',
-      description: 'إبرام العقود وتوقيعها',
+      description: 'إبرام العقود النهائية وتوقيعها',
       status: 'pending',
-      requirements: ['صياغة العقود', 'مراجعة قانونية', 'التوقيع النهائي']
+      requirements: ['صياغة العقود النهائية', 'المراجعة القانونية', 'التوقيع والتنفيذ'],
+      progress: 0
     }
   ];
 
   const startNegotiations = useCallback(async () => {
+    if (!groupId) return;
+    
     setLoading(true);
     try {
+      // التحقق من جاهزية المجموعة للتفاوض
+      const readinessCheck = await checkGroupReadiness();
+      if (!readinessCheck.ready) {
+        toast({
+          title: "المجموعة غير جاهزة",
+          description: readinessCheck.reason,
+          variant: "destructive"
+        });
+        return;
+      }
+
       // تحديث حالة المجموعة إلى مرحلة التفاوض
       const { error: updateError } = await supabase
         .from('groups')
         .update({
           current_phase: 'negotiation',
-          status: 'active'
+          status: 'active',
+          visibility: 'public'
         })
         .eq('id', groupId);
 
       if (updateError) throw updateError;
 
-      // إنشاء جلسة تفاوض جديدة
-      const { error: sessionError } = await supabase
+      // إنشاء سجل لبداية التفاوضات
+      const { error: logError } = await supabase
         .from('group_discussions')
         .insert({
           group_id: groupId,
           user_id: (await supabase.auth.getUser()).data.user?.id,
-          message: 'تم بدء مرحلة التفاوض الرسمية',
+          message: 'تم بدء مرحلة التفاوض الرسمية - المجموعة جاهزة لاستقبال العروض',
           message_type: 'system_announcement'
         });
 
-      if (sessionError) throw sessionError;
+      if (logError) throw logError;
+
+      // إنشاء جلسة تصويت لانتخاب المديرين إذا لم تكن موجودة
+      await createAdminElectionIfNeeded();
 
       // تحديث المرحلة الحالية
       setCurrentPhase({
         ...negotiationPhases[0],
         status: 'active',
-        startDate: new Date()
+        startDate: new Date(),
+        progress: 10
       });
 
       toast({
-        title: "تم بدء التفاوضات",
-        description: "تم تفعيل مرحلة التفاوض بنجاح"
+        title: "تم بدء التفاوضات بنجاح",
+        description: "المجموعة الآن جاهزة لاستقبال العروض من الموردين"
       });
 
     } catch (error: any) {
+      console.error('Error starting negotiations:', error);
       toast({
         title: "خطأ في بدء التفاوضات",
         description: error.message,
@@ -106,6 +139,8 @@ export const useNegotiationLogic = (groupId: string) => {
   }, [groupId, toast]);
 
   const moveToNextPhase = useCallback(async (currentPhaseId: string) => {
+    if (!groupId) return;
+    
     setLoading(true);
     try {
       const currentIndex = negotiationPhases.findIndex(p => p.id === currentPhaseId);
@@ -125,11 +160,22 @@ export const useNegotiationLogic = (groupId: string) => {
 
       if (error) throw error;
 
+      // إضافة سجل للانتقال
+      await supabase
+        .from('group_discussions')
+        .insert({
+          group_id: groupId,
+          user_id: (await supabase.auth.getUser()).data.user?.id,
+          message: `تم الانتقال إلى ${nextPhase.name}`,
+          message_type: 'phase_transition'
+        });
+
       // تحديث المرحلة الحالية محلياً
       setCurrentPhase({
         ...nextPhase,
         status: 'active',
-        startDate: new Date()
+        startDate: new Date(),
+        progress: Math.round(((currentIndex + 1) / negotiationPhases.length) * 100)
       });
 
       toast({
@@ -148,28 +194,81 @@ export const useNegotiationLogic = (groupId: string) => {
     }
   }, [groupId, toast]);
 
-  const canStartNegotiations = useCallback(async (): Promise<boolean> => {
+  const checkGroupReadiness = useCallback(async () => {
     try {
       // التحقق من وجود الحد الأدنى من الأعضاء
       const { data: members } = await supabase
         .from('group_members')
-        .select('id')
+        .select('id, role')
         .eq('group_id', groupId);
 
       const { data: group } = await supabase
         .from('groups')
-        .select('min_members, current_phase')
+        .select('min_members, current_phase, status')
         .eq('id', groupId)
         .single();
 
-      if (!group || !members) return false;
+      if (!group || !members) {
+        return { ready: false, reason: 'لا يمكن الوصول لبيانات المجموعة' };
+      }
 
-      return members.length >= (group.min_members || 5) && 
-             group.current_phase !== 'negotiation';
+      if (members.length < (group.min_members || 5)) {
+        return { 
+          ready: false, 
+          reason: `المجموعة تحتاج إلى ${(group.min_members || 5) - members.length} عضو إضافي على الأقل`
+        };
+      }
+
+      if (group.current_phase === 'negotiation') {
+        return { ready: false, reason: 'المجموعة في مرحلة التفاوض بالفعل' };
+      }
+
+      return { ready: true, reason: '' };
+
     } catch (error) {
-      return false;
+      return { ready: false, reason: 'خطأ في التحقق من جاهزية المجموعة' };
     }
   }, [groupId]);
+
+  const createAdminElectionIfNeeded = useCallback(async () => {
+    try {
+      // التحقق من وجود انتخابات مديرين نشطة
+      const { data: existingElection } = await supabase
+        .from('admin_elections')
+        .select('id')
+        .eq('group_id', groupId)
+        .eq('status', 'active')
+        .single();
+
+      if (existingElection) return; // توجد انتخابات نشطة بالفعل
+
+      // إنشاء انتخابات جديدة للمديرين
+      const { error } = await supabase
+        .from('admin_elections')
+        .insert({
+          group_id: groupId,
+          title: 'انتخاب مديري مرحلة التفاوض',
+          phase: 'negotiation',
+          candidates: [], // سيتم ملؤها لاحقاً من قائمة الأعضاء
+          status: 'active'
+        });
+
+      if (error) throw error;
+
+    } catch (error) {
+      console.error('Error creating admin election:', error);
+    }
+  }, [groupId]);
+
+  const canStartNegotiations = useCallback(async (): Promise<boolean> => {
+    const readiness = await checkGroupReadiness();
+    return readiness.ready;
+  }, [checkGroupReadiness]);
+
+  const getPhaseProgress = useCallback((phaseId: string) => {
+    const phase = negotiationPhases.find(p => p.id === phaseId);
+    return phase ? phase.progress : 0;
+  }, []);
 
   return {
     negotiationPhases,
@@ -177,6 +276,8 @@ export const useNegotiationLogic = (groupId: string) => {
     loading,
     startNegotiations,
     moveToNextPhase,
-    canStartNegotiations
+    canStartNegotiations,
+    checkGroupReadiness,
+    getPhaseProgress
   };
 };

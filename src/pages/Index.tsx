@@ -18,7 +18,11 @@ import {
   ChevronRight,
   Zap,
   Target,
-  Award
+  Award,
+  Home,
+  ArrowRight,
+  Settings,
+  User
 } from 'lucide-react';
 
 const Index = () => {
@@ -81,6 +85,48 @@ const Index = () => {
       <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
       
       <div className="container mx-auto px-4 py-8">
+        {/* Navigation Breadcrumb - Only show if user is logged in */}
+        {user && (
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-4">
+              <Button 
+                variant="outline" 
+                onClick={() => window.history.back()}
+                className="flex items-center gap-2"
+              >
+                <ArrowRight className="w-4 h-4" />
+                السابق
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => window.history.forward()}
+                className="flex items-center gap-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                التالي
+              </Button>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => navigate('/profile')}
+                className="flex items-center gap-2"
+              >
+                <User className="w-4 h-4" />
+                الملف الشخصي
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => navigate('/settings')}
+                className="flex items-center gap-2"
+              >
+                <Settings className="w-4 h-4" />
+                الإعدادات
+              </Button>
+            </div>
+          </div>
+        )}
+
         {/* Hero Section */}
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
@@ -100,6 +146,9 @@ const Index = () => {
                 </Button>
                 <Button size="lg" variant="outline" className="px-8 py-3" onClick={() => navigate('/create-group')}>
                   إنشاء مجموعة جديدة
+                </Button>
+                <Button size="lg" variant="secondary" className="px-8 py-3" onClick={() => navigate('/my-groups')}>
+                  مجموعاتي
                 </Button>
               </>
             ) : (
@@ -173,6 +222,45 @@ const Index = () => {
           
           <GatewayGrid />
         </div>
+
+        {/* Quick Actions for Logged Users */}
+        {user && (
+          <div className="mb-16">
+            <Card>
+              <CardHeader>
+                <CardTitle>الإجراءات السريعة</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex flex-col items-center justify-center gap-2"
+                    onClick={() => navigate('/create-group')}
+                  >
+                    <Users className="w-6 h-6" />
+                    إنشاء مجموعة جديدة
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex flex-col items-center justify-center gap-2"
+                    onClick={() => navigate('/my-groups')}
+                  >
+                    <Building2 className="w-6 h-6" />
+                    إدارة مجموعاتي
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex flex-col items-center justify-center gap-2"
+                    onClick={() => navigate('/dashboard')}
+                  >
+                    <TrendingUp className="w-6 h-6" />
+                    عرض الإحصائيات
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {/* CTA Section */}
         {!user && (
