@@ -1,9 +1,11 @@
+
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { useAuth } from "@/hooks/useAuth";
 import { 
   Home, 
   Users, 
@@ -25,7 +27,8 @@ import {
   Store,
   Coins,
   ShoppingBag,
-  Package
+  Package,
+  LogOut
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -35,6 +38,7 @@ interface SidebarProps {
 
 const Sidebar = ({ open, setOpen }: SidebarProps) => {
   const location = useLocation();
+  const { user, signOut } = useAuth();
 
   const menuItems = [
     {
@@ -199,6 +203,11 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
     return location.pathname === href;
   };
 
+  const handleSignOut = async () => {
+    await signOut();
+    setOpen(false);
+  };
+
   return (
     <>
       {/* Overlay */}
@@ -215,8 +224,11 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
         open ? "translate-x-0" : "translate-x-full"
       )}>
         <div className="flex flex-col h-full">
-          <div className="p-6 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">القائمة الرئيسية</h2>
+          <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-blue-700">
+            <h2 className="text-lg font-semibold text-white">القائمة الرئيسية</h2>
+            {user && (
+              <p className="text-sm text-blue-100 mt-1">أهلاً وسهلاً بك</p>
+            )}
           </div>
           
           <ScrollArea className="flex-1 px-3 py-4">
@@ -237,8 +249,10 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
                           <Button
                             variant={isActive(item.href) ? "default" : "ghost"}
                             className={cn(
-                              "w-full justify-start h-10 px-3",
-                              isActive(item.href) && "bg-primary text-primary-foreground"
+                              "w-full justify-start h-10 px-3 transition-all duration-200",
+                              isActive(item.href) 
+                                ? "bg-blue-600 text-white shadow-md hover:bg-blue-700" 
+                                : "text-gray-700 hover:bg-blue-50 hover:text-blue-600"
                             )}
                           >
                             <item.icon className="ml-2 h-4 w-4" />
@@ -253,6 +267,20 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
               })}
             </div>
           </ScrollArea>
+
+          {/* Sign Out Button */}
+          {user && (
+            <div className="p-4 border-t border-gray-200 bg-gray-50">
+              <Button
+                variant="outline"
+                className="w-full justify-start h-10 px-3 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300"
+                onClick={handleSignOut}
+              >
+                <LogOut className="ml-2 h-4 w-4" />
+                تسجيل الخروج
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </>
