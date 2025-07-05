@@ -38,26 +38,40 @@ const AdminElection: React.FC<AdminElectionProps> = ({ groupId, onElectionComple
 
   const fetchMembers = async () => {
     try {
-      const { data, error } = await supabase
+      // First get group members
+      const { data: membersData, error: membersError } = await supabase
         .from('group_members')
-        .select(`
-          *,
-          profiles!inner(full_name, company_name)
-        `)
+        .select('*')
         .eq('group_id', groupId);
 
-      if (error) throw error;
-      
-      // Handle the data properly with null check
-      const membersWithProfiles = (data || []).map(member => ({
-        ...member,
-        profiles: member.profiles || { full_name: 'مستخدم', company_name: '' }
-      }));
-      
-      setMembers(membersWithProfiles);
+      if (membersError) throw membersError;
+
+      if (!membersData) {
+        setMembers([]);
+        return;
+      }
+
+      // Then get profiles for each member
+      const memberProfiles = await Promise.all(
+        membersData.map(async (member) => {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name, company_name')
+            .eq('id', member.user_id)
+            .single();
+
+          return {
+            id: member.id,
+            user_id: member.user_id,
+            profiles: profile || { full_name: 'مستخدم', company_name: '' }
+          };
+        })
+      );
+
+      setMembers(memberProfiles);
     } catch (error) {
       console.error('Error fetching members:', error);
-      // Fallback: fetch without profiles
+      // Fallback with empty profiles
       try {
         const { data } = await supabase
           .from('group_members')
@@ -65,13 +79,15 @@ const AdminElection: React.FC<AdminElectionProps> = ({ groupId, onElectionComple
           .eq('group_id', groupId);
         
         const fallbackMembers = (data || []).map(member => ({
-          ...member,
+          id: member.id,
+          user_id: member.user_id,
           profiles: { full_name: 'مستخدم', company_name: '' }
         }));
         
         setMembers(fallbackMembers);
       } catch (fallbackError) {
         console.error('Fallback fetch failed:', fallbackError);
+        setMembers([]);
       }
     }
   };

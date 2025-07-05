@@ -86,6 +86,53 @@ export type Database = {
           },
         ]
       }
+      admin_elections: {
+        Row: {
+          candidates: string[]
+          created_at: string
+          elected_admins: string[] | null
+          group_id: string
+          id: string
+          phase: string
+          status: string
+          title: string
+          updated_at: string
+          votes: Json | null
+        }
+        Insert: {
+          candidates?: string[]
+          created_at?: string
+          elected_admins?: string[] | null
+          group_id: string
+          id?: string
+          phase: string
+          status?: string
+          title: string
+          updated_at?: string
+          votes?: Json | null
+        }
+        Update: {
+          candidates?: string[]
+          created_at?: string
+          elected_admins?: string[] | null
+          group_id?: string
+          id?: string
+          phase?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          votes?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_elections_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_permissions: {
         Row: {
           action: string | null
@@ -328,6 +375,38 @@ export type Database = {
             columns: ["role_id"]
             isOneToOne: false
             referencedRelation: "admin_roles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_votes: {
+        Row: {
+          created_at: string
+          election_id: string
+          id: string
+          selected_admins: string[]
+          voter_id: string
+        }
+        Insert: {
+          created_at?: string
+          election_id: string
+          id?: string
+          selected_admins: string[]
+          voter_id: string
+        }
+        Update: {
+          created_at?: string
+          election_id?: string
+          id?: string
+          selected_admins?: string[]
+          voter_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_votes_election_id_fkey"
+            columns: ["election_id"]
+            isOneToOne: false
+            referencedRelation: "admin_elections"
             referencedColumns: ["id"]
           },
         ]
@@ -1017,12 +1096,123 @@ export type Database = {
           },
         ]
       }
+      group_actions_log: {
+        Row: {
+          action: string
+          admin_id: string
+          created_at: string
+          group_id: string
+          id: string
+          reason: string | null
+          target_user_id: string | null
+        }
+        Insert: {
+          action: string
+          admin_id: string
+          created_at?: string
+          group_id: string
+          id?: string
+          reason?: string | null
+          target_user_id?: string | null
+        }
+        Update: {
+          action?: string
+          admin_id?: string
+          created_at?: string
+          group_id?: string
+          id?: string
+          reason?: string | null
+          target_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_actions_log_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_discussions: {
+        Row: {
+          created_at: string
+          group_id: string
+          id: string
+          message: string
+          message_type: string
+          parent_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          group_id: string
+          id?: string
+          message: string
+          message_type?: string
+          parent_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          group_id?: string
+          id?: string
+          message?: string
+          message_type?: string
+          parent_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      group_join_requests: {
+        Row: {
+          created_at: string
+          group_id: string
+          id: string
+          points_required: number
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          group_id: string
+          id?: string
+          points_required?: number
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          group_id?: string
+          id?: string
+          points_required?: number
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_join_requests_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       group_members: {
         Row: {
           group_id: string | null
           id: string
           joined_at: string | null
+          points_held: number | null
           role: string | null
+          status: string | null
           user_id: string | null
           voting_weight: number | null
         }
@@ -1030,7 +1220,9 @@ export type Database = {
           group_id?: string | null
           id?: string
           joined_at?: string | null
+          points_held?: number | null
           role?: string | null
+          status?: string | null
           user_id?: string | null
           voting_weight?: number | null
         }
@@ -1038,7 +1230,9 @@ export type Database = {
           group_id?: string | null
           id?: string
           joined_at?: string | null
+          points_held?: number | null
           role?: string | null
+          status?: string | null
           user_id?: string | null
           voting_weight?: number | null
         }
@@ -1051,6 +1245,84 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      group_votes: {
+        Row: {
+          choice: string | null
+          created_at: string
+          id: string
+          selections: string[] | null
+          voter_id: string
+          voting_session_id: string
+        }
+        Insert: {
+          choice?: string | null
+          created_at?: string
+          id?: string
+          selections?: string[] | null
+          voter_id: string
+          voting_session_id: string
+        }
+        Update: {
+          choice?: string | null
+          created_at?: string
+          id?: string
+          selections?: string[] | null
+          voter_id?: string
+          voting_session_id?: string
+        }
+        Relationships: []
+      }
+      group_voting_sessions: {
+        Row: {
+          candidates: string[] | null
+          created_at: string
+          created_by: string
+          deadline: string | null
+          description: string | null
+          group_id: string
+          id: string
+          max_selections: number
+          options: Json | null
+          phase: string
+          results: Json | null
+          status: string
+          title: string
+          type: string
+        }
+        Insert: {
+          candidates?: string[] | null
+          created_at?: string
+          created_by: string
+          deadline?: string | null
+          description?: string | null
+          group_id: string
+          id?: string
+          max_selections?: number
+          options?: Json | null
+          phase: string
+          results?: Json | null
+          status?: string
+          title: string
+          type: string
+        }
+        Update: {
+          candidates?: string[] | null
+          created_at?: string
+          created_by?: string
+          deadline?: string | null
+          description?: string | null
+          group_id?: string
+          id?: string
+          max_selections?: number
+          options?: Json | null
+          phase?: string
+          results?: Json | null
+          status?: string
+          title?: string
+          type?: string
+        }
+        Relationships: []
       }
       groups: {
         Row: {
@@ -1066,6 +1338,7 @@ export type Database = {
           max_members: number | null
           min_members: number | null
           name: string
+          points_required: number | null
           round_number: number | null
           service_gateway: string
           status: string | null
@@ -1086,6 +1359,7 @@ export type Database = {
           max_members?: number | null
           min_members?: number | null
           name: string
+          points_required?: number | null
           round_number?: number | null
           service_gateway: string
           status?: string | null
@@ -1106,12 +1380,43 @@ export type Database = {
           max_members?: number | null
           min_members?: number | null
           name?: string
+          points_required?: number | null
           round_number?: number | null
           service_gateway?: string
           status?: string | null
           type?: string
           updated_at?: string | null
           visibility?: string | null
+        }
+        Relationships: []
+      }
+      point_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string | null
+          group_id: string | null
+          id: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description?: string | null
+          group_id?: string | null
+          id?: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string | null
+          group_id?: string | null
+          id?: string
+          type?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -2151,6 +2456,36 @@ export type Database = {
           },
         ]
       }
+      user_points: {
+        Row: {
+          available_points: number
+          created_at: string
+          held_points: number
+          id: string
+          total_points: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          available_points?: number
+          created_at?: string
+          held_points?: number
+          id?: string
+          total_points?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          available_points?: number
+          created_at?: string
+          held_points?: number
+          id?: string
+          total_points?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null
@@ -2280,18 +2615,129 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cast_vote: {
+        Args: {
+          p_voting_session_id: string
+          p_voter_id: string
+          p_selections: string[]
+          p_choice?: string
+        }
+        Returns: string
+      }
+      create_group_discussion: {
+        Args: {
+          p_group_id: string
+          p_user_id: string
+          p_message: string
+          p_message_type: string
+          p_parent_id?: string
+        }
+        Returns: string
+      }
+      create_voting_session: {
+        Args: {
+          p_group_id: string
+          p_title: string
+          p_description: string
+          p_type: string
+          p_phase: string
+          p_max_selections: number
+          p_candidates: string[]
+          p_options: Json
+          p_created_by: string
+          p_deadline?: string
+        }
+        Returns: string
+      }
+      get_group_discussions: {
+        Args: { p_group_id: string }
+        Returns: {
+          id: string
+          group_id: string
+          user_id: string
+          message: string
+          message_type: string
+          parent_id: string
+          created_at: string
+          updated_at: string
+        }[]
+      }
+      get_group_voting_sessions: {
+        Args: { p_group_id: string }
+        Returns: {
+          id: string
+          group_id: string
+          title: string
+          description: string
+          type: string
+          phase: string
+          max_selections: number
+          candidates: string[]
+          options: Json
+          status: string
+          created_by: string
+          created_at: string
+          deadline: string
+          results: Json
+        }[]
+      }
+      get_point_transactions: {
+        Args: { p_user_id: string }
+        Returns: {
+          id: string
+          user_id: string
+          group_id: string
+          amount: number
+          type: string
+          description: string
+          created_at: string
+        }[]
+      }
       get_primary_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["user_role"]
+      }
+      get_user_points: {
+        Args: { p_user_id: string }
+        Returns: {
+          id: string
+          user_id: string
+          total_points: number
+          held_points: number
+          available_points: number
+          created_at: string
+          updated_at: string
+        }[]
       }
       get_user_roles: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["user_role"][]
       }
+      get_user_votes: {
+        Args: { p_user_id: string }
+        Returns: {
+          id: string
+          voting_session_id: string
+          voter_id: string
+          selections: string[]
+          choice: string
+          created_at: string
+        }[]
+      }
       has_role: {
         Args: {
           _user_id: string
           _role: Database["public"]["Enums"]["user_role"]
+        }
+        Returns: boolean
+      }
+      manage_user_points: {
+        Args: {
+          p_user_id: string
+          p_group_id: string
+          p_amount: number
+          p_action: string
+          p_description?: string
         }
         Returns: boolean
       }

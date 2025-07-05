@@ -37,7 +37,7 @@ const PlatformManagement = () => {
   }: { 
     title: string; 
     icon: any; 
-    stats: any; 
+    stats: Record<string, number>; 
     color?: string;
   }) => (
     <Card>
