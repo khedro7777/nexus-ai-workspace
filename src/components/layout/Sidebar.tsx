@@ -1,178 +1,260 @@
 
 import React from 'react';
-import { X, Users, FileText, Gavel, Building, MessageSquare, BarChart3, Settings, Bell, User, LogOut, Search, Vote, Shield, Star, Gift, UserPlus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
-import { useAuth } from '@/hooks/useAuth';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { 
+  Home, 
+  Users, 
+  Building2, 
+  BarChart3, 
+  Settings, 
+  User, 
+  Vote,
+  FileContract,
+  Gavel,
+  Shield,
+  TrendingUp,
+  Factory,
+  Briefcase,
+  Zap,
+  Crown,
+  UserCheck,
+  Truck,
+  Store,
+  Coins,
+  ShoppingBag,
+  Package
+} from 'lucide-react';
 
 interface SidebarProps {
   open: boolean;
   setOpen: (open: boolean) => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ open, setOpen }) => {
-  const { user, signOut } = useAuth();
+const Sidebar = ({ open, setOpen }: SidebarProps) => {
+  const location = useLocation();
 
   const menuItems = [
-    { icon: Users, label: 'مجموعاتي', count: 0, color: 'bg-blue-500', link: '/my-groups' },
-    { icon: FileText, label: 'العقود', count: 0, color: 'bg-green-500', link: '/contracts' },
-    { icon: Search, label: 'طلبات الخدمة', count: 0, color: 'bg-purple-500', link: '/rfq' },
-    { icon: Building, label: 'الموردين', count: 0, color: 'bg-orange-500', link: '/suppliers' },
-    { icon: Gavel, label: 'التحكيم', count: 0, color: 'bg-red-500', link: '/arbitration-hub' },
-    { icon: MessageSquare, label: 'المفاوضات', count: 0, color: 'bg-indigo-500', link: '/negotiations' },
-    { icon: Vote, label: 'الحوكمة', count: null, color: 'bg-cyan-500', link: '/governance' },
-    { icon: BarChart3, label: 'المحفظة', count: null, color: 'bg-emerald-500', link: '/portfolio' },
-    { icon: Star, label: 'نظام النقاط', count: null, color: 'bg-yellow-500', link: '/points' },
-    { icon: UserPlus, label: 'إدارة الأطراف', count: null, color: 'bg-pink-500', link: '/parties' },
-    { icon: BarChart3, label: 'التحليلات', count: null, color: 'bg-teal-500', link: '/analytics' },
+    {
+      title: "الرئيسية",
+      icon: Home,
+      href: "/",
+      section: "main"
+    },
+    {
+      title: "لوحة التحكم",
+      icon: BarChart3,
+      href: "/dashboard",
+      section: "main"
+    },
+    {
+      title: "مجموعاتي",
+      icon: Users,
+      href: "/my-groups",
+      section: "groups"
+    },
+    {
+      title: "إنشاء مجموعة",
+      icon: Building2,
+      href: "/create-group",
+      section: "groups"
+    },
+    {
+      title: "المفاوضات",
+      icon: Briefcase,
+      href: "/negotiations",
+      section: "business"
+    },
+    {
+      title: "الموردين",
+      icon: Truck,
+      href: "/suppliers",
+      section: "business"
+    },
+    {
+      title: "طلبات العروض",
+      icon: Package,
+      href: "/rfq",
+      section: "business"
+    },
+    {
+      title: "العقود",
+      icon: FileContract,
+      href: "/contracts",
+      section: "business"
+    },
+    {
+      title: "التصويت",
+      icon: Vote,
+      href: "/voting",
+      section: "governance"
+    },
+    {
+      title: "الحوكمة",
+      icon: Shield,
+      href: "/governance",
+      section: "governance"
+    },
+    {
+      title: "التحكيم",
+      icon: Gavel,
+      href: "/arbitration",
+      section: "governance"
+    },
+    {
+      title: "التحليلات",
+      icon: TrendingUp,
+      href: "/analytics",
+      section: "tools"
+    },
+    {
+      title: "الاستثمار",
+      icon: TrendingUp,
+      href: "/investment",
+      section: "tools"
+    },
+    {
+      title: "تكوين الشركات",
+      icon: Factory,
+      href: "/company-formation",
+      section: "tools"
+    },
+    {
+      title: "مركز الشركات",
+      icon: Building2,
+      href: "/company-hub",
+      section: "tools"
+    },
+    {
+      title: "الأتمتة",
+      icon: Zap,
+      href: "/automation",
+      section: "tools"
+    },
+    {
+      title: "إدارة المنصة",
+      icon: Crown,
+      href: "/platform",
+      section: "admin"
+    },
+    {
+      title: "لوحة الإدارة",
+      icon: UserCheck,
+      href: "/admin",
+      section: "admin"
+    },
+    {
+      title: "لوحة المورد",
+      icon: Truck,
+      href: "/supplier-dashboard",
+      section: "roles"
+    },
+    {
+      title: "لوحة المستقل",
+      icon: User,
+      href: "/freelancer-dashboard",
+      section: "roles"
+    },
+    {
+      title: "متجر الخدمات",
+      icon: Store,
+      href: "/services",
+      section: "services"
+    },
+    {
+      title: "النقاط",
+      icon: Coins,
+      href: "/points",
+      section: "services"
+    },
+    {
+      title: "الملف الشخصي",
+      icon: User,
+      href: "/profile",
+      section: "account"
+    },
+    {
+      title: "الإعدادات",
+      icon: Settings,
+      href: "/settings",
+      section: "account"
+    }
   ];
 
-  const notifications = [
-    { title: 'اقتراح مجموعة جديدة', time: 'منذ دقيقتين', type: 'info' },
-    { title: 'تم توقيع عقد', time: 'منذ 5 دقائق', type: 'success' },
-    { title: 'طلب تحكيم', time: 'منذ 10 دقائق', type: 'warning' },
-    { title: 'عرض جديد من مورد', time: 'منذ 15 دقيقة', type: 'info' },
-    { title: 'انتهاء موعد تصويت', time: 'منذ 30 دقيقة', type: 'warning' },
-  ];
+  const sections = {
+    main: "الرئيسية",
+    groups: "المجموعات",
+    business: "الأعمال",
+    governance: "الحوكمة",
+    tools: "الأدوات",
+    services: "الخدمات والنقاط",
+    admin: "الإدارة",
+    roles: "الأدوار المتخصصة",
+    account: "الحساب"
+  };
+
+  const isActive = (href: string) => {
+    return location.pathname === href;
+  };
 
   return (
     <>
+      {/* Overlay */}
       {open && (
         <div 
-          className="fixed inset-0 bg-black/20 z-40 md:hidden"
+          className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden"
           onClick={() => setOpen(false)}
         />
       )}
       
-      <div className={`
-        fixed right-0 top-0 h-full w-80 glass border-l z-50 transform transition-transform duration-300
-        ${open ? 'translate-x-0' : 'translate-x-full'}
-        animate-slide-in-right
-      `} dir="rtl">
-        <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-lg font-semibold">لوحة التحكم</h2>
-          <Button variant="ghost" size="icon" onClick={() => setOpen(false)}>
-            <X className="w-5 h-5" />
-          </Button>
-        </div>
-
-        <ScrollArea className="h-[calc(100vh-140px)]">
-          <div className="p-4 space-y-6">
-            {/* User Profile */}
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-card border">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <User className="w-5 h-5" />
-              </div>
-              <div className="flex-1">
-                <p className="font-medium text-sm">{user?.user_metadata?.full_name || 'مستخدم'}</p>
-                <p className="text-xs text-muted-foreground">{user?.email}</p>
-              </div>
-            </div>
-
-            {/* Quick Stats */}
-            <div>
-              <h3 className="text-sm font-medium mb-3 flex items-center gap-2">
-                <BarChart3 className="w-4 h-4" />
-                الخدمات والأدوات
-              </h3>
-              <div className="space-y-2">
-                {menuItems.map((item, index) => (
-                  <Link key={index} to={item.link}>
-                    <div className="flex items-center justify-between p-2 rounded-lg hover:bg-accent/50 transition-colors cursor-pointer">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-2 h-2 rounded-full ${item.color}`} />
-                        <span className="text-sm">{item.label}</span>
-                      </div>
-                      {item.count !== null && (
-                        <Badge variant="secondary" className="text-xs">
-                          {item.count}
-                        </Badge>
-                      )}
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* Live Notifications */}
-            <div>
-              <h3 className="text-sm font-medium mb-3 flex items-center gap-2">
-                <Bell className="w-4 h-4" />
-                التحديثات المباشرة
-              </h3>
-              <div className="space-y-3">
-                {notifications.map((notif, index) => (
-                  <div key={index} className="p-3 rounded-lg bg-card border border-border/50 hover:shadow-md transition-all">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <p className="text-sm font-medium">{notif.title}</p>
-                        <p className="text-xs text-muted-foreground mt-1">{notif.time}</p>
-                      </div>
-                      <div className={`w-2 h-2 rounded-full ${
-                        notif.type === 'success' ? 'bg-green-500' :
-                        notif.type === 'warning' ? 'bg-orange-500' : 'bg-blue-500'
-                      }`} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* Quick Actions */}
-            <div>
-              <h3 className="text-sm font-medium mb-3 flex items-center gap-2">
-                <Shield className="w-4 h-4" />
-                إجراءات سريعة
-              </h3>
-              <div className="space-y-2">
-                <Button variant="ghost" className="w-full justify-start" size="sm" asChild>
-                  <Link to="/create-group">
-                    <Users className="w-4 h-4 ml-2" />
-                    إنشاء مجموعة
-                  </Link>
-                </Button>
-                <Button variant="ghost" className="w-full justify-start" size="sm" asChild>
-                  <Link to="/rfq">
-                    <Search className="w-4 h-4 ml-2" />
-                    طلب خدمة جديد
-                  </Link>
-                </Button>
-                <Button variant="ghost" className="w-full justify-start" size="sm" asChild>
-                  <Link to="/points">
-                    <Gift className="w-4 h-4 ml-2" />
-                    متجر النقاط
-                  </Link>
-                </Button>
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* Settings and Logout */}
-            <div className="space-y-2">
-              <Button variant="ghost" className="w-full justify-start" size="sm">
-                <Settings className="w-4 h-4 ml-2" />
-                الإعدادات
-              </Button>
-              <Button 
-                variant="ghost" 
-                className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50" 
-                size="sm"
-                onClick={signOut}
-              >
-                <LogOut className="w-4 h-4 ml-2" />
-                تسجيل الخروج
-              </Button>
-            </div>
+      {/* Sidebar */}
+      <div className={cn(
+        "fixed top-0 right-0 z-50 h-full w-64 bg-white border-l border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0",
+        open ? "translate-x-0" : "translate-x-full"
+      )}>
+        <div className="flex flex-col h-full">
+          <div className="p-6 border-b border-gray-200">
+            <h2 className="text-lg font-semibold text-gray-900">القائمة الرئيسية</h2>
           </div>
-        </ScrollArea>
+          
+          <ScrollArea className="flex-1 px-3 py-4">
+            <div className="space-y-6">
+              {Object.entries(sections).map(([sectionKey, sectionTitle]) => {
+                const sectionItems = menuItems.filter(item => item.section === sectionKey);
+                
+                if (sectionItems.length === 0) return null;
+                
+                return (
+                  <div key={sectionKey}>
+                    <h3 className="px-3 mb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      {sectionTitle}
+                    </h3>
+                    <div className="space-y-1">
+                      {sectionItems.map((item) => (
+                        <Link key={item.href} to={item.href} onClick={() => setOpen(false)}>
+                          <Button
+                            variant={isActive(item.href) ? "default" : "ghost"}
+                            className={cn(
+                              "w-full justify-start h-10 px-3",
+                              isActive(item.href) && "bg-primary text-primary-foreground"
+                            )}
+                          >
+                            <item.icon className="ml-2 h-4 w-4" />
+                            {item.title}
+                          </Button>
+                        </Link>
+                      ))}
+                    </div>
+                    {sectionKey !== 'account' && <Separator className="my-4" />}
+                  </div>
+                );
+              })}
+            </div>
+          </ScrollArea>
+        </div>
       </div>
     </>
   );

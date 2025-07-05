@@ -1420,6 +1420,45 @@ export type Database = {
         }
         Relationships: []
       }
+      point_withdrawals: {
+        Row: {
+          commission_amount: number
+          commission_rate: number | null
+          created_at: string | null
+          id: string
+          money_amount: number
+          net_amount: number
+          points_amount: number
+          processed_at: string | null
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          commission_amount: number
+          commission_rate?: number | null
+          created_at?: string | null
+          id?: string
+          money_amount: number
+          net_amount: number
+          points_amount: number
+          processed_at?: string | null
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          commission_amount?: number
+          commission_rate?: number | null
+          created_at?: string | null
+          id?: string
+          money_amount?: number
+          net_amount?: number
+          points_amount?: number
+          processed_at?: string | null
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       posts: {
         Row: {
           content: string | null
@@ -1553,6 +1592,47 @@ export type Database = {
           role?: Database["public"]["Enums"]["user_role"]
         }
         Relationships: []
+      }
+      service_purchases: {
+        Row: {
+          buyer_id: string
+          commission_points: number
+          created_at: string | null
+          id: string
+          points_paid: number
+          seller_id: string
+          service_id: string
+          status: string | null
+        }
+        Insert: {
+          buyer_id: string
+          commission_points?: number
+          created_at?: string | null
+          id?: string
+          points_paid: number
+          seller_id: string
+          service_id: string
+          status?: string | null
+        }
+        Update: {
+          buyer_id?: string
+          commission_points?: number
+          created_at?: string | null
+          id?: string
+          points_paid?: number
+          seller_id?: string
+          service_id?: string
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_purchases_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "user_services"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       strapi_api_token_permissions: {
         Row: {
@@ -2525,6 +2605,48 @@ export type Database = {
         }
         Relationships: []
       }
+      user_services: {
+        Row: {
+          category: string
+          created_at: string | null
+          description: string
+          features: string[] | null
+          id: string
+          is_active: boolean | null
+          price_points: number
+          title: string
+          total_sales: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          description: string
+          features?: string[] | null
+          id?: string
+          is_active?: boolean | null
+          price_points?: number
+          title: string
+          total_sales?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          description?: string
+          features?: string[] | null
+          id?: string
+          is_active?: boolean | null
+          price_points?: number
+          title?: string
+          total_sales?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       votes: {
         Row: {
           choice: string
@@ -2739,6 +2861,10 @@ export type Database = {
           p_action: string
           p_description?: string
         }
+        Returns: boolean
+      }
+      purchase_service: {
+        Args: { p_service_id: string; p_buyer_id: string }
         Returns: boolean
       }
     }

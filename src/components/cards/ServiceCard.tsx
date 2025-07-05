@@ -27,13 +27,13 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   const getStatusConfig = (status: string) => {
     switch (status) {
       case 'active':
-        return { color: 'bg-green-500', text: 'Active', textColor: 'text-green-700' };
+        return { color: 'bg-green-500', text: 'نشط', textColor: 'text-green-700' };
       case 'pending':
-        return { color: 'bg-orange-500', text: 'Pending', textColor: 'text-orange-700' };
+        return { color: 'bg-orange-500', text: 'قيد الانتظار', textColor: 'text-orange-700' };
       case 'completed':
-        return { color: 'bg-blue-500', text: 'Completed', textColor: 'text-blue-700' };
+        return { color: 'bg-blue-500', text: 'مكتمل', textColor: 'text-blue-700' };
       default:
-        return { color: 'bg-purple-500', text: 'New', textColor: 'text-purple-700' };
+        return { color: 'bg-purple-500', text: 'جديد', textColor: 'text-purple-700' };
     }
   };
 
@@ -59,7 +59,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
                 </Badge>
                 {members && (
                   <span className="text-xs text-muted-foreground">
-                    {members} members
+                    {members} عضو
                   </span>
                 )}
               </div>
@@ -76,7 +76,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
         {progress !== undefined && (
           <div className="mb-4">
             <div className="flex justify-between text-sm mb-1">
-              <span>Progress</span>
+              <span>التقدم</span>
               <span>{progress}%</span>
             </div>
             <div className="w-full bg-secondary rounded-full h-2">
@@ -89,7 +89,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
         )}
 
         <Button variant="ghost" className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-          Open Assistant
+          فتح المساعد
         </Button>
       </CardContent>
     </Card>

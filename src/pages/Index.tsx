@@ -22,7 +22,10 @@ import {
   Home,
   ArrowRight,
   Settings,
-  User
+  User,
+  ShoppingBag,
+  Coins,
+  Store
 } from 'lucide-react';
 
 const Index = () => {
@@ -79,6 +82,15 @@ const Index = () => {
     }
   ];
 
+  // Navigation function for back/forward
+  const handleNavigation = (direction: 'back' | 'forward') => {
+    if (direction === 'back') {
+      window.history.back();
+    } else {
+      window.history.forward();
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50" dir="rtl">
       <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
@@ -91,7 +103,7 @@ const Index = () => {
             <div className="flex items-center gap-4">
               <Button 
                 variant="outline" 
-                onClick={() => window.history.back()}
+                onClick={() => handleNavigation('back')}
                 className="flex items-center gap-2"
               >
                 <ArrowRight className="w-4 h-4" />
@@ -99,14 +111,30 @@ const Index = () => {
               </Button>
               <Button 
                 variant="outline" 
-                onClick={() => window.history.forward()}
+                onClick={() => handleNavigation('forward')}
                 className="flex items-center gap-2"
               >
                 <ArrowLeft className="w-4 h-4" />
                 التالي
               </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => navigate('/')}
+                className="flex items-center gap-2"
+              >
+                <Home className="w-4 h-4" />
+                الرئيسية
+              </Button>
             </div>
             <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => navigate('/points')}
+                className="flex items-center gap-2"
+              >
+                <Coins className="w-4 h-4" />
+                النقاط
+              </Button>
               <Button 
                 variant="outline" 
                 onClick={() => navigate('/profile')}
@@ -210,13 +238,19 @@ const Index = () => {
           <div className="flex items-center justify-between mb-8">
             <div>
               <h2 className="text-3xl font-bold text-gray-900">استكشف بواباتنا</h2>
-              <p className="text-gray-600 mt-2">اختر البوابة التي تناسب احتياجاتك</p>
+              <p className="text-gray-600 mt-2">اختر البوابة التي تناسب احتياجاتك أو اشتر خدمات من المستخدمين الآخرين</p>
             </div>
             {user && (
-              <Button variant="outline" onClick={() => navigate('/dashboard')}>
-                عرض الكل
-                <ChevronRight className="w-4 h-4 mr-2" />
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => navigate('/services')}>
+                  <Store className="w-4 h-4 mr-2" />
+                  متجر الخدمات
+                </Button>
+                <Button variant="outline" onClick={() => navigate('/dashboard')}>
+                  عرض الكل
+                  <ChevronRight className="w-4 h-4 mr-2" />
+                </Button>
+              </div>
             )}
           </div>
           
@@ -231,7 +265,7 @@ const Index = () => {
                 <CardTitle>الإجراءات السريعة</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <Button 
                     variant="outline" 
                     className="h-20 flex flex-col items-center justify-center gap-2"
@@ -251,10 +285,18 @@ const Index = () => {
                   <Button 
                     variant="outline" 
                     className="h-20 flex flex-col items-center justify-center gap-2"
-                    onClick={() => navigate('/dashboard')}
+                    onClick={() => navigate('/services')}
                   >
-                    <TrendingUp className="w-6 h-6" />
-                    عرض الإحصائيات
+                    <ShoppingBag className="w-6 h-6" />
+                    متجر الخدمات
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex flex-col items-center justify-center gap-2"
+                    onClick={() => navigate('/points')}
+                  >
+                    <Coins className="w-6 h-6" />
+                    إدارة النقاط
                   </Button>
                 </div>
               </CardContent>
