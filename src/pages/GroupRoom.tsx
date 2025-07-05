@@ -9,6 +9,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useGroupPhase } from '@/hooks/useGroupPhase';
+import { useGroupAccess } from '@/hooks/useGroupAccess';
+import { useNegotiationLogic } from '@/hooks/useNegotiationLogic';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -27,7 +29,10 @@ import {
   Send,
   AlertCircle,
   CheckCircle,
-  ArrowRight
+  ArrowRight,
+  Home,
+  Play,
+  Shield
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/Sidebar';
@@ -48,6 +53,8 @@ const GroupRoom = () => {
   const { toast } = useToast();
   
   const { groupContext, loading: phaseLoading, canShowComponent, getPhaseDisplayName } = useGroupPhase(id || '');
+  const { access, loading: accessLoading } = useGroupAccess(id || '');
+  const { startNegotiations, canStartNegotiations, loading: negotiationLoading } = useNegotiationLogic(id || '');
 
   // Fetch group data
   const { data: group, isLoading } = useQuery({
@@ -61,7 +68,8 @@ const GroupRoom = () => {
       
       if (error) throw error;
       return data;
-    }
+    },
+    enabled: !!id && access.canView
   });
 
   // Fetch group members
@@ -70,24 +78,62 @@ const GroupRoom = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('group_members')
-        .select(`
-          *,
-          profiles!inner(full_name, role, company_name)
-        `)
+        .select('*')
         .eq('group_id', id);
       
-      if (error) {
-        console.warn('Failed to fetch with profiles, trying without:', error);
-        // Fallback without profiles
-        const { data: fallbackData } = await supabase
-          .from('group_members')
-          .select('*')
-          .eq('group_id', id);
-        return fallbackData;
-      }
+      if (error) throw error;
       return data;
-    }
+    },
+    enabled: !!id && access.canView
   });
+
+  // التحقق من الوصول قبل عرض المحتوى
+  if (accessLoading || isLoading || phaseLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50" dir="rtl">
+        <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+        <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      </div>
+    );
+  }
+
+  // إذا لم يكن للمستخدم حق الوصول
+  if (!access.canView) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50" dir="rtl">
+        <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+        <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
+        
+        <div className="container mx-auto px-4 py-8">
+          <Card className="max-w-2xl mx-auto">
+            <CardHeader className="text-center">
+              <CardTitle className="flex items-center justify-center gap-2 text-red-600">
+                <Shield className="w-6 h-6" />
+                غير مصرح بالوصول
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+              <p className="text-gray-600 mb-6">
+                عذراً، لا يمكنك الوصول إلى هذه المجموعة. قد تكون مجموعة خاصة أو تحتاج إلى دعوة للانضمام.
+              </p>
+              <div className="flex gap-4 justify-center">
+                <Button onClick={() => navigate('/')}>
+                  <Home className="w-4 h-4 ml-2" />
+                  الصفحة الرئيسية
+                </Button>
+                <Button variant="outline" onClick={() => navigate('/my-groups')}>
+                  مجموعاتي
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   const handleInviteMember = async () => {
     if (!inviteEmail || !canShowComponent('invite_button')) return;
@@ -121,12 +167,24 @@ const GroupRoom = () => {
         description: "أهلاً بك في المجموعة!"
       });
       
-      // Refresh the page to update member count
       window.location.reload();
     } catch (error: any) {
       toast({
         title: "خطأ في الانضمام",
         description: error.message,
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleStartNegotiations = async () => {
+    const canStart = await canStartNegotiations();
+    if (canStart) {
+      await startNegotiations();
+    } else {
+      toast({
+        title: "لا يمكن بدء التفاوضات",
+        description: "تحقق من توفر الحد الأدنى من الأعضاء",
         variant: "destructive"
       });
     }
@@ -138,26 +196,6 @@ const GroupRoom = () => {
       description: "تم انتخاب 3 مديرين جدد للمجموعة"
     });
   };
-
-  const handleBackToDashboard = () => {
-    navigate('/dashboard');
-  };
-
-  const handleBackToMyGroups = () => {
-    navigate('/my-groups');
-  };
-
-  if (isLoading || phaseLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50" dir="rtl">
-        <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-        <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        </div>
-      </div>
-    );
-  }
 
   const getStatusColor = (phase: string) => {
     switch (phase) {
@@ -182,17 +220,26 @@ const GroupRoom = () => {
           <Button 
             variant="ghost" 
             size="sm" 
-            onClick={handleBackToDashboard}
+            onClick={() => navigate('/')}
             className="flex items-center gap-1 hover:bg-gray-100"
           >
-            <ArrowRight className="w-4 h-4" />
+            <Home className="w-4 h-4" />
+            الرئيسية
+          </Button>
+          <span>/</span>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => navigate('/dashboard')}
+            className="hover:bg-gray-100"
+          >
             لوحة التحكم
           </Button>
           <span>/</span>
           <Button 
             variant="ghost" 
             size="sm" 
-            onClick={handleBackToMyGroups}
+            onClick={() => navigate('/my-groups')}
             className="hover:bg-gray-100"
           >
             مجموعاتي
@@ -311,6 +358,20 @@ const GroupRoom = () => {
                     <Send className="w-4 h-4" />
                   </Button>
                 </div>
+              </div>
+            )}
+
+            {/* Start Negotiations Button */}
+            {access.isMember && groupContext?.current_phase === 'pending_members' && (
+              <div className="mt-4">
+                <Button
+                  onClick={handleStartNegotiations}
+                  disabled={negotiationLoading}
+                  className="flex items-center gap-2"
+                >
+                  <Play className="w-4 h-4" />
+                  {negotiationLoading ? 'جاري البدء...' : 'بدء التفاوضات'}
+                </Button>
               </div>
             )}
           </CardContent>

@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useNavigate } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/Sidebar';
 import PlatformLogicManager from '@/components/platform/PlatformLogicManager';
@@ -16,11 +17,14 @@ import {
   Activity,
   CheckCircle,
   AlertTriangle,
-  Clock
+  Clock,
+  ArrowRight,
+  Home
 } from 'lucide-react';
 
 const PlatformManagement = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const navigate = useNavigate();
 
   const systemStatus = {
     groups: { total: 47, active: 23, pending: 15, issues: 9 },
@@ -36,7 +40,7 @@ const PlatformManagement = () => {
     color = 'blue' 
   }: { 
     title: string; 
-    icon: any; 
+    icon: React.ComponentType<any>; 
     stats: Record<string, number>; 
     color?: string;
   }) => (
@@ -85,6 +89,28 @@ const PlatformManagement = () => {
       <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
       
       <div className="container mx-auto px-4 py-8">
+        {/* Navigation */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/')}
+              className="flex items-center gap-2"
+            >
+              <Home className="w-4 h-4" />
+              الواجهة الرئيسية
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => window.history.back()}
+              className="flex items-center gap-2"
+            >
+              <ArrowRight className="w-4 h-4" />
+              العودة
+            </Button>
+          </div>
+        </div>
+
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">إدارة منطق المنصة</h1>
           <p className="text-gray-600">
