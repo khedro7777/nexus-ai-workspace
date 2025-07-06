@@ -92,7 +92,7 @@ const App = () => {
                     <Route path="/portfolio" element={<Portfolio />} />
                     <Route path="/parties" element={<Parties />} />
                     
-                    {/* البوابات الجديدة */}
+                    {/* Enhanced Gateway Routes */}
                     <Route path="/gateway/:gatewayId" element={<GatewayPage />} />
                     <Route path="/cooperative-purchasing" element={<GatewayPage />} />
                     <Route path="/cooperative-marketing" element={<GatewayPage />} />
@@ -104,6 +104,14 @@ const App = () => {
                     <Route path="/company-formation-group" element={<GatewayPage />} />
                     <Route path="/service-providers" element={<GatewayPage />} />
                     <Route path="/marketplace" element={<GatewayPage />} />
+                    
+                    {/* Additional Routes */}
+                    <Route path="/about" element={<div className="p-8 text-center">صفحة من نحن قيد التطوير</div>} />
+                    <Route path="/how-it-works" element={<div className="p-8 text-center">صفحة كيف نعمل قيد التطوير</div>} />
+                    <Route path="/support" element={<div className="p-8 text-center">صفحة الدعم قيد التطوير</div>} />
+                    <Route path="/contact" element={<div className="p-8 text-center">صفحة اتصل بنا قيد التطوير</div>} />
+                    <Route path="/pricing" element={<div className="p-8 text-center">صفحة الأسعار قيد التطوير</div>} />
+                    <Route path="/faq" element={<div className="p-8 text-center">صفحة الأسئلة الشائعة قيد التطوير</div>} />
                     
                     <Route path="*" element={<NotFound />} />
                   </Routes>
