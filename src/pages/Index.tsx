@@ -12,9 +12,14 @@ import {
   Shield,
   ArrowLeft,
   Star,
+  ChevronRight,
   Zap,
   Target,
   Award,
+  Home,
+  ArrowRight,
+  Settings,
+  User,
   ShoppingBag,
   Coins,
   Store,
@@ -31,229 +36,178 @@ import {
   Laptop,
   Wrench,
   MessageSquare,
-  UserPlus,
   Mail,
-  Phone,
-  MapPin,
-  Clock,
-  CheckCircle
+  UserPlus
 } from 'lucide-react';
 
 const Index = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [selectedCountry, setSelectedCountry] = useState('SA');
-  const [selectedLanguage, setSelectedLanguage] = useState('ar');
 
   const stats = [
     {
       title: 'المجموعات النشطة',
-      value: '2,847',
+      value: '1,247',
       icon: Users,
       color: 'bg-blue-500',
-      change: '+18%'
-    },
-    {
-      title: 'الشركات المشاركة',
-      value: '1,589',
-      icon: Building2,
-      color: 'bg-green-500',
       change: '+12%'
     },
     {
+      title: 'الشركات المشاركة',
+      value: '589',
+      icon: Building2,
+      color: 'bg-green-500',
+      change: '+8%'
+    },
+    {
       title: 'حجم التوفير',
-      value: '₪8.4M',
+      value: '₪2.4M',
       icon: TrendingUp,
       color: 'bg-purple-500',
-      change: '+35%'
+      change: '+23%'
     },
     {
       title: 'المعاملات الآمنة',
-      value: '99.8%',
+      value: '99.9%',
       icon: Shield,
       color: 'bg-orange-500',
-      change: '+0.3%'
+      change: '+0.1%'
     }
   ];
 
   const gateways = [
     {
-      id: 'cooperative-purchasing',
+      id: 'purchasing',
       title: 'مجموعات الشراء التعاوني',
-      description: 'انضم لمجموعات الشراء الجماعي واحصل على أفضل الأسعار والشروط من خلال قوة التفاوض الجماعي',
+      description: 'انضم لمجموعات الشراء الجماعي واحصل على أفضل الأسعار',
       icon: ShoppingBag,
-      color: 'from-blue-500 to-blue-600',
-      activeGroups: 387,
+      color: 'bg-blue-500',
+      activeGroups: 156,
       status: 'تطلب أعضاء',
       route: '/cooperative-purchasing',
-      features: ['توفير 25-40%', 'ضمان الجودة', 'شروط دفع مرنة', 'دعم فني متكامل'],
-      requirements: 'شركات مسجلة',
-      estimatedMembers: '15-50 عضو',
-      averagePhase: 'مرحلة التفاوض'
+      features: ['أسعار أفضل', 'كميات أكبر', 'ضمان الجودة']
     },
     {
-      id: 'cooperative-marketing',
+      id: 'marketing',
       title: 'مجموعات التسويق التعاوني',
-      description: 'شارك في حملات تسويقية مشتركة لزيادة الوصول وتقليل التكاليف مع ضمان أفضل النتائج',
+      description: 'شارك في حملات تسويقية مشتركة لزيادة الوصول',
       icon: TrendingUp,
-      color: 'from-green-500 to-green-600',
-      activeGroups: 156,
+      color: 'bg-green-500',
+      activeGroups: 89,
       status: 'تطلب مستقلين',
       route: '/cooperative-marketing',
-      features: ['تكلفة أقل 60%', 'وصول أوسع', 'نتائج مقيسة', 'حملات احترافية'],
-      requirements: 'ميزانية تسويق 10K+',
-      estimatedMembers: '8-25 عضو',
-      averagePhase: 'مرحلة التخطيط'
+      features: ['تكلفة أقل', 'وصول أوسع', 'نتائج أفضل']
     },
     {
       id: 'freelancers-individual',
       title: 'مجموعات المستقلين (فردي)',
-      description: 'اعثر على مستقلين متخصصين لمشاريعك الفردية مع ضمان الجودة والالتزام بالمواعيد',
-      icon: Laptop,
-      color: 'from-purple-500 to-purple-600',
-      activeGroups: 534,
+      description: 'اعثر على مستقلين متخصصين لمشاريعك الفردية',
+      icon: User,
+      color: 'bg-purple-500',
+      activeGroups: 234,
       status: 'تطلب موردين',
       route: '/freelancers-individual',
-      features: ['خبرة متخصصة', 'مرونة عالية', 'أسعار تنافسية', 'ضمان التسليم'],
-      requirements: 'مشاريع فردية',
-      estimatedMembers: '1-5 أعضاء',
-      averagePhase: 'مرحلة التنفيذ'
+      features: ['خبرة متخصصة', 'مرونة عالية', 'أسعار تنافسية']
     },
     {
       id: 'freelancers-group',
       title: 'مجموعات المستقلين (جماعي)',
-      description: 'فرق متكاملة من المستقلين لمشاريع كبيرة ومعقدة مع إدارة مشاريع احترافية',
+      description: 'فرق من المستقلين لمشاريع كبيرة ومعقدة',
       icon: Users,
-      color: 'from-indigo-500 to-indigo-600',
-      activeGroups: 189,
+      color: 'bg-indigo-500',
+      activeGroups: 67,
       status: 'تطلب أعضاء',
       route: '/freelancers-group',
-      features: ['فرق متكاملة', 'إدارة مشاريع', 'ضمان التسليم', 'دعم مستمر'],
-      requirements: 'مشاريع متوسطة-كبيرة',
-      estimatedMembers: '5-20 عضو',
-      averagePhase: 'مرحلة التكوين'
+      features: ['فرق متكاملة', 'إدارة مشاريع', 'ضمان التسليم']
     },
     {
       id: 'suppliers-individual',
       title: 'مجموعات الموردين (فردي)',
-      description: 'تواصل مباشر مع موردين معتمدين للحصول على أفضل الأسعار والشروط',
+      description: 'تواصل مباشر مع موردين معتمدين',
       icon: Truck,
-      color: 'from-orange-500 to-orange-600',
-      activeGroups: 298,
+      color: 'bg-orange-500',
+      activeGroups: 123,
       status: 'تطلب أعضاء',
       route: '/suppliers-individual',
-      features: ['موردين معتمدين', 'أسعار مباشرة', 'شروط مرنة', 'ضمان الجودة'],
-      requirements: 'طلبات فردية',
-      estimatedMembers: '1-10 أعضاء',
-      averagePhase: 'مرحلة التفاوض'
+      features: ['موردين معتمدين', 'أسعار مباشرة', 'شروط مرنة']
     },
     {
       id: 'suppliers-group',
       title: 'مجموعات الموردين (جماعي)',
-      description: 'تحالفات موردين لمشاريع ضخمة مع ضمان التوريد المستمر والجودة العالية',
+      description: 'تحالفات موردين لمشاريع ضخمة',
       icon: Factory,
-      color: 'from-red-500 to-red-600',
-      activeGroups: 87,
+      color: 'bg-red-500',
+      activeGroups: 45,
       status: 'تطلب موردين',
       route: '/suppliers-group',
-      features: ['كميات ضخمة', 'تنوع المنتجات', 'ضمان التوريد', 'أسعار تفضيلية'],
-      requirements: 'مشاريع ضخمة',
-      estimatedMembers: '10-50 عضو',
-      averagePhase: 'مرحلة التأهيل'
+      features: ['كميات ضخمة', 'تنوع المنتجات', 'ضمان التوريد']
     },
     {
       id: 'company-formation-individual',
       title: 'تأسيس الشركات (فردي)',
-      description: 'خدمات تأسيس الشركات والإجراءات القانونية مع استشارة قانونية شاملة',
+      description: 'خدمات تأسيس الشركات والإجراءات القانونية',
       icon: Building2,
-      color: 'from-teal-500 to-teal-600',
-      activeGroups: 145,
+      color: 'bg-teal-500',
+      activeGroups: 78,
       status: 'تطلب مستقلين',
       route: '/company-formation-individual',
-      features: ['إجراءات سريعة', 'استشارة قانونية', 'متابعة كاملة', 'ضمان التأسيس'],
-      requirements: 'أفراد ورجال أعمال',
-      estimatedMembers: '1-5 أعضاء',
-      averagePhase: 'مرحلة التأسيس'
+      features: ['إجراءات سريعة', 'استشارة قانونية', 'متابعة كاملة']
     },
     {
       id: 'company-formation-group',
       title: 'تأسيس الشركات (جماعي)',
-      description: 'تأسيس شركات مشتركة وشراكات استراتيجية مع إدارة مهنية متخصصة',
+      description: 'تأسيس شركات مشتركة وشراكات استراتيجية',
       icon: Briefcase,
-      color: 'from-cyan-500 to-cyan-600',
-      activeGroups: 63,
+      color: 'bg-cyan-500',
+      activeGroups: 23,
       status: 'تطلب أعضاء',
       route: '/company-formation-group',
-      features: ['شراكات استراتيجية', 'رأس مال مشترك', 'إدارة مهنية', 'توزيع الأرباح'],
-      requirements: 'شركاء متعددين',
-      estimatedMembers: '2-10 شركاء',
-      averagePhase: 'مرحلة التخطيط'
+      features: ['شراكات استراتيجية', 'رأس مال مشترك', 'إدارة مهنية']
     },
     {
       id: 'arbitration',
-      title: 'التحكيم والفصل في النزاعات (ORDA)',
-      description: 'حل النزاعات التجارية عبر نظام ORDA مع محكمين معتمدين وأحكام ملزمة',
+      title: 'التحكيم والفصل في النزاعات',
+      description: 'حل النزاعات التجارية عبر نظام ORDA',
       icon: Gavel,
-      color: 'from-amber-500 to-amber-600',
-      activeGroups: 78,
+      color: 'bg-amber-500',
+      activeGroups: 34,
       status: 'متاح الآن',
       route: '/arbitration',
-      features: ['محكمين معتمدين', 'أحكام ملزمة', 'سرية تامة', 'تنفيذ سريع'],
-      requirements: 'نزاعات تجارية',
-      estimatedMembers: 'حسب القضية',
-      averagePhase: 'مرحلة النظر'
+      features: ['محكمين معتمدين', 'أحكام ملزمة', 'سرية تامة']
     },
     {
       id: 'investment',
       title: 'الاستثمار للشركات',
-      description: 'فرص استثمارية وتمويل للمشاريع الناشئة مع دراسات جدوى متكاملة',
+      description: 'فرص استثمارية وتمويل للمشاريع الناشئة',
       icon: Calculator,
-      color: 'from-emerald-500 to-emerald-600',
-      activeGroups: 124,
+      color: 'bg-emerald-500',
+      activeGroups: 56,
       status: 'تطلب مستثمرين',
       route: '/investment',
-      features: ['فرص مربحة', 'دراسات جدوى', 'مخاطر محسوبة', 'عوائد مضمونة'],
-      requirements: 'رأس مال استثماري',
-      estimatedMembers: '3-15 مستثمر',
-      averagePhase: 'مرحلة التقييم'
+      features: ['فرص مربحة', 'دراسات جدوى', 'مخاطر محسوبة']
     },
     {
       id: 'service-providers',
       title: 'بوابة مقدمي الخدمات',
-      description: 'خدمات الشحن والتخليص والخدمات المصرفية والخدمات اللوجستية المتكاملة',
+      description: 'خدمات الشحن والتخليص والخدمات المصرفية',
       icon: Globe,
-      color: 'from-violet-500 to-violet-600',
-      activeGroups: 267,
+      color: 'bg-violet-500',
+      activeGroups: 145,
       status: 'متاح الآن',
       route: '/service-providers',
-      features: ['DHL Express', 'شحن بحري APL', 'تخليص جمركي', 'خدمات مصرفية'],
-      requirements: 'احتياج خدمات',
-      estimatedMembers: 'مفتوح للجميع',
-      averagePhase: 'خدمات فورية'
+      features: ['DHL', 'شحن بحري', 'تخليص جمركي']
     },
     {
       id: 'marketplace',
       title: 'بوابة السلع والمنتجات',
-      description: 'عرض وشراء السلع المتنوعة من الأعضاء - ماكينات، أدوات، سلع رقمية وأكثر',
+      description: 'عرض وشراء السلع المتنوعة من الأعضاء',
       icon: Package,
-      color: 'from-rose-500 to-rose-600',
-      activeGroups: 456,
+      color: 'bg-rose-500',
+      activeGroups: 289,
       status: 'تطلب بائعين',
       route: '/marketplace',
-      features: ['منتجات متنوعة', 'أسعار تنافسية', 'ضمان الجودة', 'توصيل سريع'],
-      requirements: 'بائعين ومشترين',
-      estimatedMembers: 'مفتوح للجميع',
-      averagePhase: 'عروض نشطة'
+      features: ['منتجات متنوعة', 'أسعار تنافسية', 'ضمان الجودة']
     }
-  ];
-
-  const countries = [
-    { code: 'SA', name: 'السعودية', flag: '🇸🇦' },
-    { code: 'AE', name: 'الإمارات', flag: '🇦🇪' },
-    { code: 'EG', name: 'مصر', flag: '🇪🇬' },
-    { code: 'JO', name: 'الأردن', flag: '🇯🇴' },
-    { code: 'KW', name: 'الكويت', flag: '🇰🇼' },
-    { code: 'QA', name: 'قطر', flag: '🇶🇦' }
   ];
 
   const handleJoinGroup = (gatewayId: string) => {
@@ -261,7 +215,7 @@ const Index = () => {
       navigate('/auth');
       return;
     }
-    navigate(`/${gatewayId}`);
+    navigate(`/gateway/${gatewayId}`);
   };
 
   const handleContactGroup = (gatewayId: string) => {
@@ -269,154 +223,104 @@ const Index = () => {
       navigate('/auth');
       return;
     }
-    navigate(`/${gatewayId}/contact`);
+    // إرسال رسالة لصندوق الوارد في غرفة المجموعة
+    navigate(`/gateway/${gatewayId}/contact`);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50" dir="rtl">
-      {/* Enhanced Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 shadow-sm">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          {/* Logo Section */}
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg">
-                <Building2 className="w-7 h-7 text-white" />
+      {/* Header */}
+      <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+        <div className="container flex h-16 items-center justify-between">
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2">
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+                <Building2 className="w-6 h-6 text-white" />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">GPO Platform</h1>
-                <p className="text-xs text-gray-500">منصة التفاوض التعاوني الذكية Web2.5</p>
+                <p className="text-xs text-gray-500">منصة التفاوض التعاوني الذكية</p>
               </div>
             </div>
           </div>
 
-          {/* Navigation Links */}
-          <nav className="hidden md:flex items-center gap-8">
-            <Link to="/about" className="text-gray-600 hover:text-blue-600 transition-colors font-medium">
+          <nav className="hidden md:flex items-center gap-6">
+            <Link to="/about" className="text-gray-600 hover:text-gray-900 transition-colors">
               من نحن
             </Link>
-            <Link to="/how-it-works" className="text-gray-600 hover:text-blue-600 transition-colors font-medium">
+            <Link to="/how-it-works" className="text-gray-600 hover:text-gray-900 transition-colors">
               كيف نعمل
             </Link>
-            <Link to="/support" className="text-gray-600 hover:text-blue-600 transition-colors font-medium">
+            <Link to="/support" className="text-gray-600 hover:text-gray-900 transition-colors">
               الدعم
-            </Link>
-            <Link to="/contact" className="text-gray-600 hover:text-blue-600 transition-colors font-medium">
-              اتصل بنا
             </Link>
           </nav>
 
-          {/* Controls Section */}
           <div className="flex items-center gap-4">
-            {/* Country Selector */}
-            <select 
-              value={selectedCountry} 
-              onChange={(e) => setSelectedCountry(e.target.value)}
-              className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white hover:border-gray-300 transition-colors"
-            >
-              {countries.map((country) => (
-                <option key={country.code} value={country.code}>
-                  {country.flag} {country.name}
-                </option>
-              ))}
+            <select className="px-3 py-1 border rounded-md text-sm">
+              <option value="sa">🇸🇦 السعودية</option>
+              <option value="ae">🇦🇪 الإمارات</option>
+              <option value="eg">🇪🇬 مصر</option>
             </select>
-
-            {/* Language Selector */}
-            <select 
-              value={selectedLanguage} 
-              onChange={(e) => setSelectedLanguage(e.target.value)}
-              className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white hover:border-gray-300 transition-colors"
-            >
+            <select className="px-3 py-1 border rounded-md text-sm">
               <option value="ar">العربية</option>
               <option value="en">English</option>
             </select>
-
-            {/* Auth Buttons */}
             {user ? (
-              <Button onClick={() => navigate('/dashboard')} className="bg-blue-600 hover:bg-blue-700">
+              <Button onClick={() => navigate('/dashboard')}>
                 لوحة التحكم
               </Button>
             ) : (
-              <div className="flex items-center gap-2">
-                <Button variant="outline" onClick={() => navigate('/auth')}>
-                  تسجيل الدخول
-                </Button>
-                <Button onClick={() => navigate('/auth')} className="bg-blue-600 hover:bg-blue-700">
-                  إنشاء حساب
-                </Button>
-              </div>
+              <Button onClick={() => navigate('/auth')}>
+                تسجيل الدخول
+              </Button>
             )}
           </div>
         </div>
       </header>
 
       <div className="container mx-auto px-4 py-8">
-        {/* Enhanced Hero Section */}
-        <div className="text-center mb-16 relative">
-          <div className="absolute inset-0 -z-10">
-            <div className="absolute top-20 left-1/4 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-            <div className="absolute top-20 right-1/4 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-            <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
-          </div>
-          
+        {/* Hero Section */}
+        <div className="text-center mb-16">
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-            منصة التفاوض التعاوني الذكية
-            <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">
-              Web2.5 GPO Platform
-            </span>
+            منصة التفاوض التعاوني
+            <span className="block text-blue-600">الذكية Web2.5</span>
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-4xl mx-auto leading-relaxed">
-            انضم إلى ثورة التجارة التعاونية الذكية - كوّن فرق، تفاوض بذكاء، واحصل على أفضل النتائج
-            من خلال قوة الذكاء الاصطناعي والتفاوض الجماعي
+          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+            انضم إلى ثورة التجارة التعاونية الذكية - فرق، تفاوض، واحصل على أفضل النتائج
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             {user ? (
               <>
-                <Button size="lg" className="px-8 py-4 text-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700" onClick={() => navigate('/dashboard')}>
+                <Button size="lg" className="px-8 py-3" onClick={() => navigate('/dashboard')}>
                   <span>لوحة التحكم</span>
                   <ArrowLeft className="w-5 h-5 mr-2" />
                 </Button>
-                <Button size="lg" variant="outline" className="px-8 py-4 text-lg border-2 hover:bg-gray-50" onClick={() => navigate('/my-groups')}>
+                <Button size="lg" variant="outline" className="px-8 py-3" onClick={() => navigate('/my-groups')}>
                   مجموعاتي
                 </Button>
               </>
             ) : (
-              <Button size="lg" className="px-8 py-4 text-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 animate-pulse-glow" onClick={() => navigate('/auth')}>
-                <span>ابدأ الآن مجاناً</span>
+              <Button size="lg" className="px-8 py-3 animate-pulse-glow" onClick={() => navigate('/auth')}>
+                <span>ابدأ الآن</span>
                 <Zap className="w-5 h-5 mr-2" />
               </Button>
             )}
           </div>
-
-          {/* Trust Indicators */}
-          <div className="flex flex-wrap justify-center items-center gap-8 text-sm text-gray-500">
-            <div className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4 text-green-500" />
-              <span>أمان مضمون 100%</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4 text-green-500" />
-              <span>لا رسوم خفية</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4 text-green-500" />
-              <span>دعم 24/7</span>
-            </div>
-          </div>
         </div>
 
-        {/* Enhanced Stats Section */}
+        {/* Stats Section */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16">
           {stats.map((stat, index) => (
-            <Card key={index} className="text-center hover:shadow-xl transition-all duration-500 hover:scale-105 border-0 shadow-lg bg-gradient-to-br from-white to-gray-50">
+            <Card key={index} className="text-center hover:shadow-lg transition-all duration-300 hover:scale-105">
               <CardContent className="pt-6">
-                <div className={`w-16 h-16 ${stat.color} rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg`}>
-                  <stat.icon className="w-8 h-8 text-white" />
+                <div className={`w-12 h-12 ${stat.color} rounded-full flex items-center justify-center mx-auto mb-4`}>
+                  <stat.icon className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</h3>
-                <p className="text-gray-600 text-sm mb-3">{stat.title}</p>
-                <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50">
+                <h3 className="text-2xl font-bold text-gray-900 mb-1">{stat.value}</h3>
+                <p className="text-gray-600 text-sm mb-2">{stat.title}</p>
+                <Badge variant="outline" className="text-green-600">
                   {stat.change}
                 </Badge>
               </CardContent>
@@ -424,91 +328,65 @@ const Index = () => {
           ))}
         </div>
 
-        {/* Enhanced Gateways Section */}
+        {/* Gateways Section */}
         <div className="mb-16">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
               اكتشف بواباتنا المتخصصة
             </h2>
-            <p className="text-gray-600 max-w-3xl mx-auto text-lg leading-relaxed">
-              اختر البوابة التي تناسب احتياجاتك واستفد من قوة التفاوض الجماعي والذكاء الاصطناعي
-              لتحقيق أفضل النتائج والوفورات
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              اختر البوابة التي تناسب احتياجاتك واستفد من قوة التفاوض الجماعي
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {gateways.map((gateway) => (
-              <Card key={gateway.id} className="hover:shadow-2xl transition-all duration-500 hover:scale-105 group border-0 shadow-lg overflow-hidden bg-white">
-                <div className={`h-2 bg-gradient-to-r ${gateway.color}`}></div>
-                
+              <Card key={gateway.id} className="hover:shadow-xl transition-all duration-300 hover:scale-102 group">
                 <CardHeader className="pb-4">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className={`w-14 h-14 bg-gradient-to-r ${gateway.color} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg`}>
-                      <gateway.icon className="w-7 h-7 text-white" />
+                  <div className="flex items-start justify-between">
+                    <div className={`w-12 h-12 ${gateway.color} rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                      <gateway.icon className="w-6 h-6 text-white" />
                     </div>
                     <div className="text-left">
                       <Badge 
-                        variant={gateway.status === 'متاح الآن' ? 'default' : gateway.status === 'تطلب أعضاء' ? 'secondary' : 'outline'}
-                        className="text-xs mb-2"
+                        variant={gateway.status === 'متاح الآن' ? 'default' : 'outline'}
+                        className="text-xs"
                       >
                         {gateway.status}
                       </Badge>
-                      <div className="flex items-center gap-1 text-sm text-gray-500">
-                        <Users className="w-4 h-4" />
-                        <span>{gateway.activeGroups} مجموعة</span>
-                      </div>
+                      <p className="text-sm text-gray-500 mt-1">
+                        {gateway.activeGroups} مجموعة نشطة
+                      </p>
                     </div>
                   </div>
-                  <CardTitle className="text-lg leading-tight mb-2">{gateway.title}</CardTitle>
-                  <p className="text-gray-600 text-sm leading-relaxed line-clamp-3">
+                  <CardTitle className="text-lg leading-tight">{gateway.title}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-gray-600 text-sm leading-relaxed">
                     {gateway.description}
                   </p>
-                </CardHeader>
-
-                <CardContent className="space-y-4">
-                  {/* Key Features */}
-                  <div className="space-y-3">
-                    <h4 className="font-medium text-sm text-gray-800">المزايا الرئيسية:</h4>
-                    <div className="flex flex-wrap gap-1">
-                      {gateway.features.map((feature, index) => (
-                        <Badge key={index} variant="secondary" className="text-xs bg-gray-100 text-gray-700 hover:bg-gray-200">
-                          {feature}
-                        </Badge>
-                      ))}
-                    </div>
+                  
+                  <div className="flex flex-wrap gap-1">
+                    {gateway.features.map((feature, index) => (
+                      <Badge key={index} variant="secondary" className="text-xs">
+                        {feature}
+                      </Badge>
+                    ))}
                   </div>
 
-                  {/* Details */}
-                  <div className="space-y-2 text-xs text-gray-600 bg-gray-50 p-3 rounded-lg">
-                    <div className="flex justify-between">
-                      <span>المتطلبات:</span>
-                      <span className="font-medium">{gateway.requirements}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>حجم المجموعة:</span>
-                      <span className="font-medium">{gateway.estimatedMembers}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>المرحلة الشائعة:</span>
-                      <span className="font-medium">{gateway.averagePhase}</span>
-                    </div>
-                  </div>
-
-                  {/* Action Buttons */}
                   <div className="flex gap-2 pt-2">
                     <Button 
                       size="sm" 
-                      className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+                      className="flex-1"
                       onClick={() => handleJoinGroup(gateway.id)}
                     >
                       <UserPlus className="w-4 h-4 ml-1" />
-                      استكشف المجموعات
+                      انضم للمجموعة
                     </Button>
                     <Button 
                       size="sm" 
                       variant="outline"
                       onClick={() => handleContactGroup(gateway.id)}
-                      className="hover:bg-gray-50"
                     >
                       <MessageSquare className="w-4 h-4" />
                     </Button>
@@ -519,137 +397,64 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Enhanced Features Section */}
+        {/* Features Section */}
         <div className="mb-16">
-          <h2 className="text-4xl font-bold text-center text-gray-900 mb-12">
-            لماذا تختار منصة GPO؟
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
+            لماذا تختار منصتنا؟
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
                 icon: Zap,
                 title: 'قوة التفاوض الجماعي',
-                description: 'احصل على أسعار أفضل بنسبة تصل إلى 40% من خلال التفاوض مع آخرين',
-                color: 'from-yellow-400 to-orange-500'
+                description: 'احصل على أسعار أفضل من خلال التفاوض مع آخرين'
               },
               {
                 icon: Target,
-                title: 'استهداف دقيق بالذكاء الاصطناعي',
-                description: 'نظام MCP يحلل احتياجاتك ويجد المجموعات الأنسب لك تلقائياً',
-                color: 'from-green-400 to-blue-500'
+                title: 'استهداف دقيق',
+                description: 'ابحث عن المجموعات التي تناسب احتياجاتك بالضبط'
               },
               {
                 icon: Award,
-                title: 'شركاء موثوقون ومعتمدون',
-                description: 'تعامل مع موردين ومستقلين معتمدين مع ضمان الجودة والالتزام',
-                color: 'from-purple-400 to-pink-500'
+                title: 'شركاء موثوقون',
+                description: 'تعامل مع موردين ومستقلين معتمدين فقط'
               }
             ].map((feature, index) => (
-              <Card key={index} className="text-center hover:shadow-xl transition-all duration-500 hover:scale-105 border-0 shadow-lg">
+              <Card key={index} className="text-center hover:shadow-lg transition-all duration-300">
                 <CardHeader>
-                  <div className={`w-20 h-20 bg-gradient-to-r ${feature.color} rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg`}>
-                    <feature.icon className="w-10 h-10 text-white" />
+                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <feature.icon className="w-8 h-8 text-blue-600" />
                   </div>
-                  <CardTitle className="text-xl mb-3">{feature.title}</CardTitle>
+                  <CardTitle className="text-xl">{feature.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-600 leading-relaxed">{feature.description}</p>
+                  <p className="text-gray-600">{feature.description}</p>
                 </CardContent>
               </Card>
             ))}
           </div>
         </div>
 
-        {/* Enhanced CTA Section */}
+        {/* CTA Section */}
         {!user && (
-          <div className="text-center bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 text-white rounded-3xl p-12 shadow-2xl relative overflow-hidden">
-            <div className="absolute inset-0 opacity-10">
-              <div className="absolute top-0 left-0 w-40 h-40 bg-white rounded-full -translate-x-20 -translate-y-20"></div>
-              <div className="absolute bottom-0 right-0 w-40 h-40 bg-white rounded-full translate-x-20 translate-y-20"></div>
-            </div>
-            <div className="relative z-10">
-              <h2 className="text-4xl font-bold mb-4">
-                هل أنت مستعد للانضمام؟
-              </h2>
-              <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
-                ابدأ رحلتك في التفاوض التعاوني الذكي اليوم واستفد من قوة المجتمع والذكاء الاصطناعي
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" variant="secondary" className="px-8 py-4 text-lg bg-white text-blue-600 hover:bg-gray-100" onClick={() => navigate('/auth')}>
-                  إنشاء حساب مجاني
-                </Button>
-                <Button size="lg" variant="outline" className="px-8 py-4 text-lg border-2 border-white text-white hover:bg-white hover:text-blue-600" onClick={() => navigate('/auth')}>
-                  تسجيل الدخول
-                </Button>
-              </div>
+          <div className="text-center bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl p-12">
+            <h2 className="text-3xl font-bold mb-4">
+              هل أنت مستعد للانضمام؟
+            </h2>
+            <p className="text-xl mb-8 opacity-90">
+              ابدأ رحلتك في التفاوض التعاوني الذكي اليوم
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button size="lg" variant="secondary" className="px-8 py-3" onClick={() => navigate('/auth')}>
+                إنشاء حساب مجاني
+              </Button>
+              <Button size="lg" variant="outline" className="px-8 py-3 border-white text-white hover:bg-white hover:text-blue-600" onClick={() => navigate('/auth')}>
+                تسجيل الدخول
+              </Button>
             </div>
           </div>
         )}
       </div>
-
-      {/* Enhanced Footer */}
-      <footer className="bg-gray-900 text-white py-12 mt-16">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-                  <Building2 className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-lg">GPO Platform</h3>
-                  <p className="text-sm text-gray-400">Web2.5 Smart Platform</p>
-                </div>
-              </div>
-              <p className="text-gray-400 text-sm">
-                منصة التفاوض التعاوني الذكية الرائدة في الشرق الأوسط
-              </p>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold mb-4">روابط سريعة</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><Link to="/about" className="hover:text-white transition-colors">من نحن</Link></li>
-                <li><Link to="/how-it-works" className="hover:text-white transition-colors">كيف نعمل</Link></li>
-                <li><Link to="/pricing" className="hover:text-white transition-colors">الأسعار</Link></li>
-                <li><Link to="/faq" className="hover:text-white transition-colors">الأسئلة الشائعة</Link></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-semibold mb-4">البوابات</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><Link to="/cooperative-purchasing" className="hover:text-white transition-colors">الشراء التعاوني</Link></li>
-                <li><Link to="/cooperative-marketing" className="hover:text-white transition-colors">التسويق التعاوني</Link></li>
-                <li><Link to="/freelancers-individual" className="hover:text-white transition-colors">المستقلين</Link></li>
-                <li><Link to="/arbitration" className="hover:text-white transition-colors">التحكيم ORDA</Link></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-semibold mb-4">تواصل معنا</h4>
-              <div className="space-y-2 text-sm text-gray-400">
-                <div className="flex items-center gap-2">
-                  <Mail className="w-4 h-4" />
-                  <span>info@gpo-platform.com</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Phone className="w-4 h-4" />
-                  <span>+966 50 123 4567</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4" />
-                  <span>الرياض، السعودية</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
-            <p>&copy; 2024 GPO Platform. جميع الحقوق محفوظة.</p>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };
