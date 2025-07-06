@@ -38,6 +38,7 @@ import Points from "./pages/Points";
 import RFQ from "./pages/RFQ";
 import Portfolio from "./pages/Portfolio";
 import Parties from "./pages/Parties";
+import GatewayPage from "./pages/GatewayPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -90,6 +91,20 @@ const App = () => {
                     <Route path="/rfq" element={<RFQ />} />
                     <Route path="/portfolio" element={<Portfolio />} />
                     <Route path="/parties" element={<Parties />} />
+                    
+                    {/* البوابات الجديدة */}
+                    <Route path="/gateway/:gatewayId" element={<GatewayPage />} />
+                    <Route path="/cooperative-purchasing" element={<GatewayPage />} />
+                    <Route path="/cooperative-marketing" element={<GatewayPage />} />
+                    <Route path="/freelancers-individual" element={<GatewayPage />} />
+                    <Route path="/freelancers-group" element={<GatewayPage />} />
+                    <Route path="/suppliers-individual" element={<GatewayPage />} />
+                    <Route path="/suppliers-group" element={<GatewayPage />} />
+                    <Route path="/company-formation-individual" element={<GatewayPage />} />
+                    <Route path="/company-formation-group" element={<GatewayPage />} />
+                    <Route path="/service-providers" element={<GatewayPage />} />
+                    <Route path="/marketplace" element={<GatewayPage />} />
+                    
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </main>
