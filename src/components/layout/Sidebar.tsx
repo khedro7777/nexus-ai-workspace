@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from "@/lib/utils";
@@ -13,7 +12,7 @@ import {
   Settings, 
   User, 
   Vote,
-  FileContract,
+  FileText,
   Gavel,
   Shield,
   TrendingUp,
@@ -82,7 +81,7 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
     },
     {
       title: "العقود",
-      icon: FileContract,
+      icon: FileText,
       href: "/contracts",
       section: "business"
     },
