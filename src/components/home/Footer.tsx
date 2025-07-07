@@ -69,8 +69,8 @@ const Footer = () => {
 
   const contactInfo = [
     { icon: Mail, label: 'info@gpoworld.com', href: 'mailto:info@gpoworld.com' },
-    { icon: Phone, label: '+970 2 123 4567', href: 'tel:+97021234567' },
-    { icon: MapPin, label: 'رام الله، فلسطين', href: '#' }
+    { icon: Phone, label: '+201004056668', href: 'tel:+201004056668' },
+    { icon: MapPin, label: 'مصر-الجيزة- القرية الذكية', href: '#' }
   ];
 
   return (
