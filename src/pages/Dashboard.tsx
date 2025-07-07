@@ -1,27 +1,24 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
 import { 
-  BarChart3, 
-  TrendingUp, 
   Users, 
+  TrendingUp, 
   Activity,
-  Lightbulb,
-  Workflow,
-  Play,
   ShoppingCart,
   Megaphone,
   UserCheck,
   Building,
-  Gavel,
-  TrendingDown,
-  Package,
-  Globe
+  Bell,
+  MessageSquare,
+  Calendar,
+  Target,
+  Award,
+  Zap
 } from 'lucide-react';
 
 const Dashboard = () => {
@@ -33,91 +30,30 @@ const Dashboard = () => {
     return null;
   }
 
-  // بيانات وهمية للإحصائيات
-  const stats = [
-    {
-      title: "المجموعات النشطة",
-      value: "12",
-      change: "+3",
-      icon: Users,
-      color: "text-blue-600"
-    },
-    {
-      title: "إجمالي التوفير",
-      value: "₪84,250",
-      change: "+15%",
-      icon: TrendingUp,
-      color: "text-green-600"
-    },
-    {
-      title: "المفاوضات الجارية",
-      value: "8",
-      change: "5 تحتاج متابعة",
-      icon: Activity,
-      color: "text-orange-600"
-    },
-    {
-      title: "معدل النجاح",
-      value: "92%",
-      change: "+2%",
-      icon: BarChart3,
-      color: "text-purple-600"
-    }
+  const userStats = [
+    { title: "مجموعاتي", value: "5", icon: Users, color: "text-blue-600" },
+    { title: "النقاط المتاحة", value: "1,250", icon: Award, color: "text-green-600" },
+    { title: "المفاوضات النشطة", value: "3", icon: Activity, color: "text-orange-600" },
+    { title: "معدل النجاح", value: "95%", icon: Target, color: "text-purple-600" }
   ];
 
   const quickActions = [
-    {
-      title: "إنشاء مجموعة شراء",
-      description: "ابدأ مجموعة شراء تعاوني جديدة",
-      icon: ShoppingCart,
-      color: "bg-blue-500",
-      path: "/create-group"
-    },
-    {
-      title: "انضم لمجموعة تسويق",
-      description: "ابحث عن مجموعات تسويق نشطة",
-      icon: Megaphone,
-      color: "bg-green-500",
-      path: "/cooperative-marketing"
-    },
-    {
-      title: "عرض خدماتك",
-      description: "سجل كمستقل أو مورد",
-      icon: UserCheck,
-      color: "bg-purple-500",
-      path: "/freelancers-individual"
-    },
-    {
-      title: "تأسيس شركة",
-      description: "ابدأ رحلة تأسيس شركتك",
-      icon: Building,
-      color: "bg-indigo-500",
-      path: "/company-formation-individual"
-    }
+    { title: "إنشاء مجموعة", description: "ابدأ مجموعة جديدة", icon: Building, color: "bg-blue-500", path: "/create-group" },
+    { title: "البحث عن مجموعات", description: "اكتشف مجموعات جديدة", icon: Users, color: "bg-green-500", path: "/explore-groups" },
+    { title: "مجموعاتي", description: "إدارة مجموعاتي", icon: MessageSquare, color: "bg-purple-500", path: "/my-groups" },
+    { title: "المحفظة", description: "إدارة النقاط والمحفظة", icon: Award, color: "bg-orange-500", path: "/wallet" }
   ];
 
   const recentActivity = [
-    {
-      type: "join",
-      title: "انضمام عضو جديد",
-      description: "انضم أحمد محمد إلى مجموعة شراء المعدات المكتبية",
-      time: "منذ 5 دقائق",
-      icon: Users
-    },
-    {
-      type: "vote",
-      title: "تصويت جديد",
-      description: "بدأ تصويت على عرض شركة التقنية المتقدمة",
-      time: "منذ 15 دقيقة",
-      icon: Activity
-    },
-    {
-      type: "offer",
-      title: "عرض جديد",
-      description: "وصل عرض جديد لمجموعة الخدمات اللوجستية",
-      time: "منذ ساعة",
-      icon: Package
-    }
+    { type: "join", title: "انضممت إلى مجموعة", description: "مجموعة شراء الحاسوب المكتبي", time: "منذ 10 دقائق", icon: Users },
+    { type: "vote", title: "تصويت جديد", description: "تصويت على عرض شركة التقنية", time: "منذ 30 دقيقة", icon: Activity },
+    { type: "offer", title: "عرض جديد", description: "عرض من مورد معتمد", time: "منذ ساعة", icon: ShoppingCart }
+  ];
+
+  const notifications = [
+    { title: "تصويت مطلوب", description: "مجموعة التسويق الرقمي", urgent: true },
+    { title: "عرض جديد", description: "مجموعة الشراء التعاوني", urgent: false },
+    { title: "موعد اجتماع", description: "مجموعة تأسيس الشركات", urgent: true }
   ];
 
   return (
@@ -133,16 +69,15 @@ const Dashboard = () => {
           </p>
         </div>
 
-        {/* Stats Grid */}
+        {/* User Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {stats.map((stat, index) => (
+          {userStats.map((stat, index) => (
             <Card key={index} className="hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600">{stat.title}</p>
                     <p className={`text-3xl font-bold ${stat.color}`}>{stat.value}</p>
-                    <p className="text-xs text-green-600 mt-1">{stat.change}</p>
                   </div>
                   <stat.icon className={`w-12 h-12 ${stat.color} opacity-20`} />
                 </div>
@@ -157,7 +92,7 @@ const Dashboard = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Lightbulb className="w-5 h-5" />
+                  <Zap className="w-5 h-5" />
                   الإجراءات السريعة
                 </CardTitle>
                 <CardDescription>ابدأ المهام الشائعة بسرعة</CardDescription>
@@ -185,25 +120,28 @@ const Dashboard = () => {
             </Card>
           </div>
 
-          {/* Recent Activity */}
+          {/* Notifications */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Activity className="w-5 h-5" />
-                النشاط الأخير
+                <Bell className="w-5 h-5" />
+                الإشعارات
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {recentActivity.map((activity, index) => (
-                  <div key={index} className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                      <activity.icon className="w-4 h-4 text-blue-600" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900">{activity.title}</p>
-                      <p className="text-xs text-gray-600 mt-1">{activity.description}</p>
-                      <p className="text-xs text-gray-400 mt-1">{activity.time}</p>
+                {notifications.map((notification, index) => (
+                  <div key={index} className={`p-3 rounded-lg border ${notification.urgent ? 'border-red-200 bg-red-50' : 'border-gray-200 bg-gray-50'}`}>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-900">{notification.title}</p>
+                        <p className="text-xs text-gray-600 mt-1">{notification.description}</p>
+                      </div>
+                      {notification.urgent && (
+                        <Badge variant="destructive" className="text-xs">
+                          عاجل
+                        </Badge>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -212,46 +150,28 @@ const Dashboard = () => {
           </Card>
         </div>
 
-        {/* Recommendations */}
+        {/* Recent Activity */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Workflow className="w-5 h-5" />
-              التوصيات الذكية - MCP
+              <Activity className="w-5 h-5" />
+              النشاط الأخير
             </CardTitle>
-            <CardDescription>اقتراحات مخصصة لتحسين أدائك</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="p-4 border border-blue-200 bg-blue-50 rounded-lg">
-                <div className="flex items-center gap-2 mb-2">
-                  <TrendingUp className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm font-medium text-blue-800">فرصة توفير</span>
+            <div className="space-y-4">
+              {recentActivity.map((activity, index) => (
+                <div key={index} className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                    <activity.icon className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900">{activity.title}</p>
+                    <p className="text-xs text-gray-600 mt-1">{activity.description}</p>
+                    <p className="text-xs text-gray-400 mt-1">{activity.time}</p>
+                  </div>
                 </div>
-                <p className="text-sm text-blue-700">
-                  يمكنك توفير 15% إضافية في مجموعة المعدات المكتبية بدمج طلبات أخرى
-                </p>
-              </div>
-
-              <div className="p-4 border border-green-200 bg-green-50 rounded-lg">
-                <div className="flex items-center gap-2 mb-2">
-                  <Users className="w-4 h-4 text-green-600" />
-                  <span className="text-sm font-medium text-green-800">انضم الآن</span>
-                </div>
-                <p className="text-sm text-green-700">
-                  هناك 3 مجموعات تسويق جديدة تناسب ملفك الشخصي
-                </p>
-              </div>
-
-              <div className="p-4 border border-orange-200 bg-orange-50 rounded-lg">
-                <div className="flex items-center gap-2 mb-2">
-                  <Activity className="w-4 h-4 text-orange-600" />
-                  <span className="text-sm font-medium text-orange-800">تذكير</span>
-                </div>
-                <p className="text-sm text-orange-700">
-                  لديك تصويت معلق في مجموعة الخدمات اللوجستية
-                </p>
-              </div>
+              ))}
             </div>
           </CardContent>
         </Card>
