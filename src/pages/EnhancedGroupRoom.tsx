@@ -30,7 +30,6 @@ import {
   MessageCircleQuestion,
   ShoppingCart,
   Briefcase,
-  FileContract,
   AlertTriangle,
   Shield,
   User,
@@ -245,7 +244,7 @@ const EnhancedGroupRoom = () => {
               عروض المستقلين
             </TabsTrigger>
             <TabsTrigger value="contracts" className="flex items-center gap-1 text-xs">
-              <FileContract className="w-3 h-3" />
+              <FileText className="w-3 h-3" />
               العقود
             </TabsTrigger>
             <TabsTrigger value="complaints" className="flex items-center gap-1 text-xs">

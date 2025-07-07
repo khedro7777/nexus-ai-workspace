@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { FileContract, Download, Eye, Edit, Calendar, User, Shield } from 'lucide-react';
+import { FileText, Download, Eye, Edit, Calendar, User, Shield } from 'lucide-react';
 
 interface GroupContractsProps {
   groupId: string;
@@ -31,7 +31,7 @@ const GroupContracts: React.FC<GroupContractsProps> = ({ groupId, userAccess }) 
     <Card className="h-[800px]">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <FileContract className="w-5 h-5" />
+          <FileText className="w-5 h-5" />
           العقود والاتفاقيات
         </CardTitle>
       </CardHeader>
@@ -68,7 +68,7 @@ const GroupContracts: React.FC<GroupContractsProps> = ({ groupId, userAccess }) 
           
           {contracts.length === 0 && (
             <div className="text-center py-12">
-              <FileContract className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+              <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">لا توجد عقود</h3>
               <p className="text-gray-600">لم يتم إنشاء أي عقود بعد</p>
             </div>
