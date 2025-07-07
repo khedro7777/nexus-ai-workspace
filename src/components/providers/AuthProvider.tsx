@@ -8,12 +8,14 @@ interface User {
   country: string;
   role: 'client' | 'supplier' | 'freelancer' | 'browse';
   avatar?: string;
+  full_name?: string;
 }
 
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
+  signOut: () => void;
   register: (userData: Omit<User, 'id'> & { password: string }) => Promise<boolean>;
   isLoading: boolean;
 }
@@ -55,6 +57,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const mockUser: User = {
         id: '1',
         name: 'محمد أحمد',
+        full_name: 'محمد أحمد',
         email: email,
         country: 'السعودية',
         role: 'client',
@@ -81,6 +84,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const newUser: User = {
         ...userData,
         id: Date.now().toString(),
+        full_name: userData.name,
       };
 
       setUser(newUser);
@@ -99,10 +103,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem('gpo_user');
   };
 
+  const signOut = () => {
+    logout();
+  };
+
   const value: AuthContextType = {
     user,
     login,
     logout,
+    signOut,
     register,
     isLoading,
   };

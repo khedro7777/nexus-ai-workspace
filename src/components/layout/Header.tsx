@@ -57,7 +57,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }: HeaderProps) => {
                 <Button variant="ghost" size="sm" className="flex items-center gap-2">
                   <User className="h-4 w-4" />
                   <span className="hidden md:inline">
-                    {user.user_metadata?.full_name || 'المستخدم'}
+                    {user.full_name || user.name || 'المستخدم'}
                   </span>
                 </Button>
               </Link>
