@@ -1,180 +1,369 @@
 
-import React from 'react';
-import { useAuth } from '@/components/providers/AuthProvider';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import Header from '@/components/layout/Header';
+import Sidebar from '@/components/layout/Sidebar';
+import ProjectManagement from '@/components/project/ProjectManagement';
+import SmartContractManagement from '@/components/contracts/SmartContractManagement';
 import { 
   Users, 
   TrendingUp, 
-  Activity,
-  ShoppingCart,
-  Megaphone,
-  UserCheck,
-  Building,
-  Bell,
-  MessageSquare,
+  ShoppingCart, 
+  FileText, 
   Calendar,
+  DollarSign,
   Target,
-  Award,
-  Zap
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  BarChart3,
+  MessageCircle,
+  Bell
 } from 'lucide-react';
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  if (!user) {
-    navigate('/auth');
-    return null;
-  }
+  // بيانات وهمية للإحصائيات
+  const stats = {
+    totalGroups: 12,
+    activeGroups: 8,
+    completedProjects: 15,
+    totalRevenue: 125000,
+    pendingContracts: 5,
+    activeContracts: 18,
+    notifications: 7,
+    messages: 12
+  };
 
-  const userStats = [
-    { title: "مجموعاتي", value: "5", icon: Users, color: "text-blue-600" },
-    { title: "النقاط المتاحة", value: "1,250", icon: Award, color: "text-green-600" },
-    { title: "المفاوضات النشطة", value: "3", icon: Activity, color: "text-orange-600" },
-    { title: "معدل النجاح", value: "95%", icon: Target, color: "text-purple-600" }
+  const recentActivities = [
+    {
+      id: 1,
+      type: 'contract',
+      title: 'تم توقيع عقد تطوير التطبيق',
+      description: 'العقد مع فريق التطوير الذكي',
+      time: '2024-01-15T10:30:00Z',
+      status: 'completed'
+    },
+    {
+      id: 2,
+      type: 'project',
+      title: 'مرحلة جديدة في مشروع التجارة الإلكترونية',
+      description: 'تم الانتهاء من تصميم واجهة المستخدم',
+      time: '2024-01-14T16:45:00Z',
+      status: 'in_progress'
+    },
+    {
+      id: 3,
+      type: 'group',
+      title: 'انضمام عضو جديد للمجموعة',
+      description: 'مجموعة استيراد أجهزة طبية',
+      time: '2024-01-14T09:15:00Z',
+      status: 'new'
+    },
+    {
+      id: 4,
+      type: 'negotiation',
+      title: 'عرض جديد من مورد',
+      description: 'عرض شراء معدات مكتبية',
+      time: '2024-01-13T14:20:00Z',
+      status: 'pending'
+    }
   ];
 
-  const quickActions = [
-    { title: "إنشاء مجموعة", description: "ابدأ مجموعة جديدة", icon: Building, color: "bg-blue-500", path: "/create-group" },
-    { title: "البحث عن مجموعات", description: "اكتشف مجموعات جديدة", icon: Users, color: "bg-green-500", path: "/explore-groups" },
-    { title: "مجموعاتي", description: "إدارة مجموعاتي", icon: MessageSquare, color: "bg-purple-500", path: "/my-groups" },
-    { title: "المحفظة", description: "إدارة النقاط والمحفظة", icon: Award, color: "bg-orange-500", path: "/wallet" }
+  const upcomingTasks = [
+    {
+      id: 1,
+      title: 'مراجعة عقد الشراكة',
+      dueDate: '2024-01-20',
+      priority: 'high',
+      category: 'contract'
+    },
+    {
+      id: 2,
+      title: 'اجتماع فريق التطوير',
+      dueDate: '2024-01-18',
+      priority: 'medium',
+      category: 'meeting'
+    },
+    {
+      id: 3,
+      title: 'تسليم المرحلة الثانية',
+      dueDate: '2024-01-25',
+      priority: 'high',
+      category: 'delivery'
+    },
+    {
+      id: 4,
+      title: 'مراجعة الميزانية الشهرية',
+      dueDate: '2024-01-30',
+      priority: 'low',
+      category: 'finance'
+    }
   ];
 
-  const recentActivity = [
-    { type: "join", title: "انضممت إلى مجموعة", description: "مجموعة شراء الحاسوب المكتبي", time: "منذ 10 دقائق", icon: Users },
-    { type: "vote", title: "تصويت جديد", description: "تصويت على عرض شركة التقنية", time: "منذ 30 دقيقة", icon: Activity },
-    { type: "offer", title: "عرض جديد", description: "عرض من مورد معتمد", time: "منذ ساعة", icon: ShoppingCart }
-  ];
+  const getActivityIcon = (type: string) => {
+    switch (type) {
+      case 'contract': return <FileText className="w-4 h-4 text-blue-600" />;
+      case 'project': return <Target className="w-4 h-4 text-green-600" />;
+      case 'group': return <Users className="w-4 h-4 text-purple-600" />;
+      case 'negotiation': return <MessageCircle className="w-4 h-4 text-orange-600" />;
+      default: return <Bell className="w-4 h-4 text-gray-600" />;
+    }
+  };
 
-  const notifications = [
-    { title: "تصويت مطلوب", description: "مجموعة التسويق الرقمي", urgent: true },
-    { title: "عرض جديد", description: "مجموعة الشراء التعاوني", urgent: false },
-    { title: "موعد اجتماع", description: "مجموعة تأسيس الشركات", urgent: true }
-  ];
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed': return 'text-green-600';
+      case 'in_progress': return 'text-blue-600';
+      case 'pending': return 'text-yellow-600';
+      case 'new': return 'text-purple-600';
+      default: return 'text-gray-600';
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high': return 'bg-red-100 text-red-800';
+      case 'medium': return 'bg-yellow-100 text-yellow-800';
+      case 'low': return 'bg-green-100 text-green-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const userRole = user?.user_metadata?.user_role || 'client';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 p-6" dir="rtl">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            مرحباً، {user.name}
-          </h1>
-          <p className="text-gray-600 text-lg">
-            نظرة شاملة على أداء مجموعاتك ومشاريعك
-          </p>
-        </div>
-
-        {/* User Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {userStats.map((stat, index) => (
-            <Card key={index} className="hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">{stat.title}</p>
-                    <p className={`text-3xl font-bold ${stat.color}`}>{stat.value}</p>
-                  </div>
-                  <stat.icon className={`w-12 h-12 ${stat.color} opacity-20`} />
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-          {/* Quick Actions */}
-          <div className="lg:col-span-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Zap className="w-5 h-5" />
-                  الإجراءات السريعة
-                </CardTitle>
-                <CardDescription>ابدأ المهام الشائعة بسرعة</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {quickActions.map((action, index) => (
-                    <Button
-                      key={index}
-                      variant="outline"
-                      className="h-24 flex flex-col items-center justify-center gap-2 hover:scale-105 transition-transform"
-                      onClick={() => navigate(action.path)}
-                    >
-                      <div className={`w-8 h-8 rounded-full ${action.color} flex items-center justify-center`}>
-                        <action.icon className="w-4 h-4 text-white" />
-                      </div>
-                      <div className="text-center">
-                        <div className="font-medium text-sm">{action.title}</div>
-                        <div className="text-xs text-gray-500">{action.description}</div>
-                      </div>
-                    </Button>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+    <div className="min-h-screen bg-gray-50" dir="rtl">
+      <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+      
+      <div className="flex">
+        <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
+        
+        <main className="flex-1 p-6 lg:mr-64">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              مرحباً، {user?.user_metadata?.full_name || 'المستخدم'}
+            </h1>
+            <p className="text-gray-600">
+              إليك نظرة سريعة على أنشطتك ومشاريعك اليوم
+            </p>
           </div>
 
-          {/* Notifications */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Bell className="w-5 h-5" />
-                الإشعارات
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {notifications.map((notification, index) => (
-                  <div key={index} className={`p-3 rounded-lg border ${notification.urgent ? 'border-red-200 bg-red-50' : 'border-gray-200 bg-gray-50'}`}>
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900">{notification.title}</p>
-                        <p className="text-xs text-gray-600 mt-1">{notification.description}</p>
-                      </div>
-                      {notification.urgent && (
-                        <Badge variant="destructive" className="text-xs">
-                          عاجل
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+          <Tabs defaultValue="overview" className="w-full">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="overview">نظرة عامة</TabsTrigger>
+              <TabsTrigger value="projects">إدارة المشاريع</TabsTrigger>
+              <TabsTrigger value="contracts">العقود الذكية</TabsTrigger>
+              <TabsTrigger value="analytics">التحليلات</TabsTrigger>
+            </TabsList>
 
-        {/* Recent Activity */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Activity className="w-5 h-5" />
-              النشاط الأخير
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {recentActivity.map((activity, index) => (
-                <div key={index} className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                    <activity.icon className="w-4 h-4 text-blue-600" />
+            <TabsContent value="overview" className="space-y-6">
+              {/* إحصائيات سريعة */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">المجموعات النشطة</p>
+                        <p className="text-2xl font-bold text-green-600">{stats.activeGroups}</p>
+                        <p className="text-xs text-gray-500">من إجمالي {stats.totalGroups}</p>
+                      </div>
+                      <div className="p-3 bg-green-100 rounded-full">
+                        <Users className="w-6 h-6 text-green-600" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">المشاريع المكتملة</p>
+                        <p className="text-2xl font-bold text-blue-600">{stats.completedProjects}</p>
+                        <p className="text-xs text-green-500">+12% من الشهر الماضي</p>
+                      </div>
+                      <div className="p-3 bg-blue-100 rounded-full">
+                        <CheckCircle className="w-6 h-6 text-blue-600" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">الإيرادات الإجمالية</p>
+                        <p className="text-2xl font-bold text-purple-600">${stats.totalRevenue.toLocaleString()}</p>
+                        <p className="text-xs text-green-500">+8% من الشهر الماضي</p>
+                      </div>
+                      <div className="p-3 bg-purple-100 rounded-full">
+                        <DollarSign className="w-6 h-6 text-purple-600" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">العقود النشطة</p>
+                        <p className="text-2xl font-bold text-orange-600">{stats.activeContracts}</p>
+                        <p className="text-xs text-yellow-500">{stats.pendingContracts} في الانتظار</p>
+                      </div>
+                      <div className="p-3 bg-orange-100 rounded-full">
+                        <FileText className="w-6 h-6 text-orange-600" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* الأنشطة الأخيرة */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Clock className="w-5 h-5" />
+                      الأنشطة الأخيرة
+                    </CardTitle>
+                    <CardDescription>
+                      آخر التحديثات على مشاريعك ومجموعاتك
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {recentActivities.map((activity) => (
+                      <div key={activity.id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                        <div className="p-2 bg-white rounded-full">
+                          {getActivityIcon(activity.type)}
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-medium text-sm">{activity.title}</h4>
+                          <p className="text-xs text-gray-600">{activity.description}</p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {new Date(activity.time).toLocaleDateString('ar')} - {new Date(activity.time).toLocaleTimeString('ar', { hour: '2-digit', minute: '2-digit' })}
+                          </p>
+                        </div>
+                        <div className={`w-2 h-2 rounded-full ${getStatusColor(activity.status)}`} />
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+
+                {/* المهام القادمة */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Calendar className="w-5 h-5" />
+                      المهام القادمة
+                    </CardTitle>
+                    <CardDescription>
+                      المهام والمواعيد المقررة لهذا الأسبوع
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {upcomingTasks.map((task) => (
+                      <div key={task.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div className="flex-1">
+                          <h4 className="font-medium text-sm">{task.title}</h4>
+                          <p className="text-xs text-gray-600 flex items-center gap-1 mt-1">
+                            <Calendar className="w-3 h-3" />
+                            {new Date(task.dueDate).toLocaleDateString('ar')}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(task.priority)}`}>
+                            {task.priority === 'high' ? 'عالية' : task.priority === 'medium' ? 'متوسطة' : 'منخفضة'}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* روابط سريعة */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>روابط سريعة</CardTitle>
+                  <CardDescription>
+                    الإجراءات الشائعة والمفيدة
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <Button 
+                      variant="outline" 
+                      className="h-20 flex-col gap-2"
+                      onClick={() => navigate('/create-group')}
+                    >
+                      <Users className="w-6 h-6" />
+                      إنشاء مجموعة
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="h-20 flex-col gap-2"
+                      onClick={() => navigate('/suppliers')}
+                    >
+                      <ShoppingCart className="w-6 h-6" />
+                      تصفح الموردين
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="h-20 flex-col gap-2"
+                      onClick={() => navigate('/contracts')}
+                    >
+                      <FileText className="w-6 h-6" />
+                      العقود
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="h-20 flex-col gap-2"
+                      onClick={() => navigate('/analytics')}
+                    >
+                      <BarChart3 className="w-6 h-6" />
+                      التحليلات
+                    </Button>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900">{activity.title}</p>
-                    <p className="text-xs text-gray-600 mt-1">{activity.description}</p>
-                    <p className="text-xs text-gray-400 mt-1">{activity.time}</p>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="projects">
+              <ProjectManagement />
+            </TabsContent>
+
+            <TabsContent value="contracts">
+              <SmartContractManagement />
+            </TabsContent>
+
+            <TabsContent value="analytics" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>التحليلات والإحصائيات</CardTitle>
+                  <CardDescription>
+                    رؤى مفصلة حول أداء مشاريعك ومجموعاتك
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center py-8 text-gray-500">
+                    <BarChart3 className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                    <p>قريباً: تحليلات متقدمة وتقارير شاملة</p>
                   </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </main>
       </div>
     </div>
   );

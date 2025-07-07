@@ -1,8 +1,10 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/useAuth";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import { 
   Home, 
   Users, 
@@ -10,38 +12,22 @@ import {
   BarChart3, 
   Settings, 
   User, 
-  LogOut,
-  MessageSquare,
-  Wallet,
+  Vote,
+  FileContract,
+  Gavel,
   Shield,
-  Bell,
-  Award,
-  Target,
+  TrendingUp,
+  Factory,
+  Briefcase,
   Zap,
   Crown,
   UserCheck,
-  Briefcase,
-  TrendingUp,
-  Calculator,
-  Globe,
+  Truck,
   Store,
-  Package,
-  Gavel,
-  Activity
+  Coins,
+  ShoppingBag,
+  Package
 } from 'lucide-react';
-import {
-  Sidebar as ShadcnSidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarHeader,
-  SidebarFooter,
-  useSidebar,
-} from "@/components/ui/sidebar";
 
 interface SidebarProps {
   open: boolean;
@@ -50,232 +36,227 @@ interface SidebarProps {
 
 const Sidebar = ({ open, setOpen }: SidebarProps) => {
   const location = useLocation();
-  const { user, signOut } = useAuth();
-  const { state } = useSidebar();
 
-  const mainMenuItems = [
-    { title: "الرئيسية", icon: Home, href: "/" },
-    { title: "لوحة التحكم", icon: BarChart3, href: "/dashboard" }
+  const menuItems = [
+    {
+      title: "الرئيسية",
+      icon: Home,
+      href: "/",
+      section: "main"
+    },
+    {
+      title: "لوحة التحكم",
+      icon: BarChart3,
+      href: "/dashboard",
+      section: "main"
+    },
+    {
+      title: "مجموعاتي",
+      icon: Users,
+      href: "/my-groups",
+      section: "groups"
+    },
+    {
+      title: "إنشاء مجموعة",
+      icon: Building2,
+      href: "/create-group",
+      section: "groups"
+    },
+    {
+      title: "المفاوضات",
+      icon: Briefcase,
+      href: "/negotiations",
+      section: "business"
+    },
+    {
+      title: "الموردين",
+      icon: Truck,
+      href: "/suppliers",
+      section: "business"
+    },
+    {
+      title: "طلبات العروض",
+      icon: Package,
+      href: "/rfq",
+      section: "business"
+    },
+    {
+      title: "العقود",
+      icon: FileContract,
+      href: "/contracts",
+      section: "business"
+    },
+    {
+      title: "التصويت",
+      icon: Vote,
+      href: "/voting",
+      section: "governance"
+    },
+    {
+      title: "الحوكمة",
+      icon: Shield,
+      href: "/governance",
+      section: "governance"
+    },
+    {
+      title: "التحكيم",
+      icon: Gavel,
+      href: "/arbitration",
+      section: "governance"
+    },
+    {
+      title: "التحليلات",
+      icon: TrendingUp,
+      href: "/analytics",
+      section: "tools"
+    },
+    {
+      title: "الاستثمار",
+      icon: TrendingUp,
+      href: "/investment",
+      section: "tools"
+    },
+    {
+      title: "تكوين الشركات",
+      icon: Factory,
+      href: "/company-formation",
+      section: "tools"
+    },
+    {
+      title: "مركز الشركات",
+      icon: Building2,
+      href: "/company-hub",
+      section: "tools"
+    },
+    {
+      title: "الأتمتة",
+      icon: Zap,
+      href: "/automation",
+      section: "tools"
+    },
+    {
+      title: "إدارة المنصة",
+      icon: Crown,
+      href: "/platform",
+      section: "admin"
+    },
+    {
+      title: "لوحة الإدارة",
+      icon: UserCheck,
+      href: "/admin",
+      section: "admin"
+    },
+    {
+      title: "لوحة المورد",
+      icon: Truck,
+      href: "/supplier-dashboard",
+      section: "roles"
+    },
+    {
+      title: "لوحة المستقل",
+      icon: User,
+      href: "/freelancer-dashboard",
+      section: "roles"
+    },
+    {
+      title: "متجر الخدمات",
+      icon: Store,
+      href: "/services",
+      section: "services"
+    },
+    {
+      title: "النقاط",
+      icon: Coins,
+      href: "/points",
+      section: "services"
+    },
+    {
+      title: "الملف الشخصي",
+      icon: User,
+      href: "/profile",
+      section: "account"
+    },
+    {
+      title: "الإعدادات",
+      icon: Settings,
+      href: "/settings",
+      section: "account"
+    }
   ];
 
-  const accountMenuItems = [
-    { title: "حسابي", icon: User, href: "/profile" },
-    { title: "محفظتي", icon: Wallet, href: "/wallet" },
-    { title: "الإشعارات", icon: Bell, href: "/notifications" }
-  ];
-
-  const groupsMenuItems = [
-    { title: "مجموعاتي", icon: Users, href: "/my-groups" },
-    { title: "إنشاء مجموعة", icon: Building2, href: "/create-group" },
-    { title: "استكشاف المجموعات", icon: Target, href: "/explore-groups" }
-  ];
-
-  const roleMenuItems = [
-    { title: "كمورد", icon: Store, href: "/supplier-dashboard" },
-    { title: "كمستقل", icon: UserCheck, href: "/freelancer-dashboard" },
-    { title: "كمؤسس شركة", icon: Briefcase, href: "/company-dashboard" }
-  ];
-
-  const systemMenuItems = [
-    { title: "التحكيم", icon: Gavel, href: "/arbitration" },
-    { title: "الإعدادات", icon: Settings, href: "/settings" }
-  ];
+  const sections = {
+    main: "الرئيسية",
+    groups: "المجموعات",
+    business: "الأعمال",
+    governance: "الحوكمة",
+    tools: "الأدوات",
+    services: "الخدمات والنقاط",
+    admin: "الإدارة",
+    roles: "الأدوار المتخصصة",
+    account: "الحساب"
+  };
 
   const isActive = (href: string) => {
     return location.pathname === href;
   };
 
-  const handleSignOut = async () => {
-    await signOut();
-    setOpen(false);
-  };
-
   return (
-    <ShadcnSidebar 
-      collapsible="icon"
-      className="border-l border-gray-200 bg-white"
-    >
-      <SidebarHeader className="border-b border-gray-200">
-        <div className="flex items-center gap-2 px-4 py-3">
-          <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-            <Building2 className="w-4 h-4 text-white" />
+    <>
+      {/* Overlay */}
+      {open && (
+        <div 
+          className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden"
+          onClick={() => setOpen(false)}
+        />
+      )}
+      
+      {/* Sidebar */}
+      <div className={cn(
+        "fixed top-0 right-0 z-50 h-full w-64 bg-white border-l border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0",
+        open ? "translate-x-0" : "translate-x-full"
+      )}>
+        <div className="flex flex-col h-full">
+          <div className="p-6 border-b border-gray-200">
+            <h2 className="text-lg font-semibold text-gray-900">القائمة الرئيسية</h2>
           </div>
-          {state === "expanded" && (
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900">GPO WORLD</h2>
-              <p className="text-sm text-gray-500">منصة التفاوض التعاوني</p>
-            </div>
-          )}
-        </div>
-      </SidebarHeader>
-
-      <SidebarContent>
-        {/* Main Menu */}
-        <SidebarGroup>
-          <SidebarGroupLabel>الرئيسية</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {mainMenuItems.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton 
-                    asChild
-                    isActive={isActive(item.href)}
-                    tooltip={state === "collapsed" ? item.title : undefined}
-                  >
-                    <Link to={item.href}>
-                      <item.icon className="w-4 h-4" />
-                      {state === "expanded" && <span>{item.title}</span>}
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Account Menu */}
-        <SidebarGroup>
-          <SidebarGroupLabel>حسابي</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {accountMenuItems.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton 
-                    asChild
-                    isActive={isActive(item.href)}
-                    tooltip={state === "collapsed" ? item.title : undefined}
-                  >
-                    <Link to={item.href}>
-                      <item.icon className="w-4 h-4" />
-                      {state === "expanded" && <span>{item.title}</span>}
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Groups Menu - قلب المشروع */}
-        <SidebarGroup>
-          <SidebarGroupLabel>مجموعاتي</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {groupsMenuItems.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton 
-                    asChild
-                    isActive={isActive(item.href)}
-                    tooltip={state === "collapsed" ? item.title : undefined}
-                  >
-                    <Link to={item.href}>
-                      <item.icon className="w-4 h-4" />
-                      {state === "expanded" && <span>{item.title}</span>}
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-              
-              {/* Group Rooms - المجموعات النشطة */}
-              {user && state === "expanded" && (
-                <>
-                  <SidebarMenuItem>
-                    <div className="px-2 py-1 text-xs font-medium text-gray-500 uppercase">
-                      غرف المجموعات
+          
+          <ScrollArea className="flex-1 px-3 py-4">
+            <div className="space-y-6">
+              {Object.entries(sections).map(([sectionKey, sectionTitle]) => {
+                const sectionItems = menuItems.filter(item => item.section === sectionKey);
+                
+                if (sectionItems.length === 0) return null;
+                
+                return (
+                  <div key={sectionKey}>
+                    <h3 className="px-3 mb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      {sectionTitle}
+                    </h3>
+                    <div className="space-y-1">
+                      {sectionItems.map((item) => (
+                        <Link key={item.href} to={item.href} onClick={() => setOpen(false)}>
+                          <Button
+                            variant={isActive(item.href) ? "default" : "ghost"}
+                            className={cn(
+                              "w-full justify-start h-10 px-3",
+                              isActive(item.href) && "bg-primary text-primary-foreground"
+                            )}
+                          >
+                            <item.icon className="ml-2 h-4 w-4" />
+                            {item.title}
+                          </Button>
+                        </Link>
+                      ))}
                     </div>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton 
-                      asChild
-                      isActive={isActive('/group/1')}
-                    >
-                      <Link to="/group/1">
-                        <MessageSquare className="w-4 h-4" />
-                        <span>مجموعة الشراء التعاوني</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton 
-                      asChild
-                      isActive={isActive('/group/2')}
-                    >
-                      <Link to="/group/2">
-                        <MessageSquare className="w-4 h-4" />
-                        <span>مجموعة التسويق الرقمي</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                </>
-              )}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Role-based Menu */}
-        <SidebarGroup>
-          <SidebarGroupLabel>الأدوار</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {roleMenuItems.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton 
-                    asChild
-                    isActive={isActive(item.href)}
-                    tooltip={state === "collapsed" ? item.title : undefined}
-                  >
-                    <Link to={item.href}>
-                      <item.icon className="w-4 h-4" />
-                      {state === "expanded" && <span>{item.title}</span>}
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* System Menu */}
-        <SidebarGroup>
-          <SidebarGroupLabel>النظام</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {systemMenuItems.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton 
-                    asChild
-                    isActive={isActive(item.href)}
-                    tooltip={state === "collapsed" ? item.title : undefined}
-                  >
-                    <Link to={item.href}>
-                      <item.icon className="w-4 h-4" />
-                      {state === "expanded" && <span>{item.title}</span>}
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-
-      <SidebarFooter className="border-t border-gray-200">
-        <SidebarMenu>
-          {user && (
-            <SidebarMenuItem>
-              <SidebarMenuButton 
-                onClick={handleSignOut}
-                tooltip={state === "collapsed" ? "تسجيل الخروج" : undefined}
-                className="text-red-600 hover:text-red-700 hover:bg-red-50"
-              >
-                <LogOut className="w-4 h-4" />
-                {state === "expanded" && <span>تسجيل الخروج</span>}
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          )}
-        </SidebarMenu>
-      </SidebarFooter>
-    </ShadcnSidebar>
+                    {sectionKey !== 'account' && <Separator className="my-4" />}
+                  </div>
+                );
+              })}
+            </div>
+          </ScrollArea>
+        </div>
+      </div>
+    </>
   );
 };
 
