@@ -1,7 +1,5 @@
 
 import React, { useState } from 'react';
-import Header from '@/components/layout/Header';
-import Sidebar from '@/components/layout/Sidebar';
 import BusinessLogic from '@/components/business/BusinessLogic';
 import SmartRecommendations from '@/components/smart/SmartRecommendations';
 import WorkflowEngine from '@/components/workflow/WorkflowEngine';
@@ -21,7 +19,6 @@ import {
 } from 'lucide-react';
 
 const Dashboard = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeWorkflow, setActiveWorkflow] = useState<string | null>(null);
 
   const startWorkflow = (templateId: string) => {
@@ -36,40 +33,31 @@ const Dashboard = () => {
     const template = workflowTemplates.find(t => t.id === activeWorkflow);
     if (template) {
       return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50" dir="rtl">
-          <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-          <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
-          
-          <div className="container mx-auto px-4 py-8">
-            <div className="mb-6">
-              <Button variant="outline" onClick={closeWorkflow}>
-                ← العودة للوحة التحكم
-              </Button>
-            </div>
-            
-            <WorkflowEngine 
-              template={template}
-              onWorkflowComplete={closeWorkflow}
-              onWorkflowCancel={closeWorkflow}
-            />
+        <>
+          <div className="mb-6">
+            <Button variant="outline" onClick={closeWorkflow}>
+              ← العودة للوحة التحكم
+            </Button>
           </div>
-        </div>
+
+          <WorkflowEngine
+            template={template}
+            onWorkflowComplete={closeWorkflow}
+            onWorkflowCancel={closeWorkflow}
+          />
+        </>
       );
     }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50" dir="rtl">
-      <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-      <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
-      
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">لوحة التحكم الذكية</h1>
-          <p className="text-gray-600">نظرة شاملة على أداء مجموعاتك ومشاريعك</p>
-        </div>
+    <>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">لوحة التحكم الذكية</h1>
+        <p className="text-gray-600">نظرة شاملة على أداء مجموعاتك ومشاريعك</p>
+      </div>
 
-        <Tabs defaultValue="overview" className="space-y-6">
+      <Tabs defaultValue="overview" className="space-y-6">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
@@ -234,8 +222,7 @@ const Dashboard = () => {
             </div>
           </TabsContent>
         </Tabs>
-      </div>
-    </div>
+    </>
   );
 };
 
