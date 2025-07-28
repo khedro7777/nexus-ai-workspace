@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./hooks/useAuth";
 import { LanguageProvider } from "./hooks/useLanguage";
 import MainLayout from "./components/layout/MainLayout";
@@ -48,50 +48,41 @@ function App() {
           <TooltipProvider>
             <Toaster />
             <Sonner />
-            <BrowserRouter>
+            <HashRouter>
               <Routes>
+                <Route path="/" element={<MainLayout><Index /></MainLayout>} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/dashboard" element={<MainLayout><Dashboard /></MainLayout>} />
+                <Route path="/profile" element={<MainLayout><Profile /></MainLayout>} />
+                <Route path="/settings" element={<MainLayout><Settings /></MainLayout>} />
+                <Route path="/create-group" element={<MainLayout><CreateGroup /></MainLayout>} />
+                <Route path="/my-groups" element={<MainLayout><MyGroups /></MainLayout>} />
+                <Route path="/group/:id" element={<MainLayout><GroupDetails /></MainLayout>} />
+                <Route path="/group-room/:id" element={<MainLayout><EnhancedGroupRoom /></MainLayout>} />
+                <Route path="/company-formation" element={<MainLayout><CompanyFormation /></MainLayout>} />
+                <Route path="/company-hub" element={<MainLayout><CompanyHub /></MainLayout>} />
+                <Route path="/investment" element={<MainLayout><InvestmentPortal /></MainLayout>} />
+                <Route path="/suppliers" element={<MainLayout><Suppliers /></MainLayout>} />
+                <Route path="/supplier-dashboard" element={<MainLayout><SupplierDashboard /></MainLayout>} />
+                <Route path="/freelancer-dashboard" element={<MainLayout><FreelancerDashboard /></MainLayout>} />
+                <Route path="/negotiations" element={<MainLayout><Negotiations /></MainLayout>} />
+                <Route path="/contracts" element={<MainLayout><Contracts /></MainLayout>} />
+                <Route path="/contract/:id" element={<MainLayout><ContractPage /></MainLayout>} />
+                <Route path="/arbitration" element={<MainLayout><ArbitrationHub /></MainLayout>} />
+                <Route path="/voting" element={<MainLayout><VotingPage /></MainLayout>} />
+                <Route path="/analytics" element={<MainLayout><Analytics /></MainLayout>} />
+                <Route path="/admin" element={<MainLayout><AdminDashboard /></MainLayout>} />
+                <Route path="/platform-management" element={<MainLayout><PlatformManagement /></MainLayout>} />
+                <Route path="/governance" element={<MainLayout><Governance /></MainLayout>} />
+                <Route path="/services" element={<MainLayout><Services /></MainLayout>} />
+                <Route path="/rfq" element={<MainLayout><RFQ /></MainLayout>} />
+                <Route path="/portfolio" element={<MainLayout><Portfolio /></MainLayout>} />
+                <Route path="/parties" element={<MainLayout><Parties /></MainLayout>} />
+                <Route path="/automation" element={<MainLayout><Automation /></MainLayout>} />
+                <Route path="/points" element={<MainLayout><Points /></MainLayout>} />
                 <Route path="*" element={<NotFound />} />
-                <Route
-                  path="/*"
-                  element={
-                    <MainLayout>
-                      <Routes>
-                        <Route path="/" element={<Index />} />
-                        <Route path="/dashboard" element={<Dashboard />} />
-                        <Route path="/profile" element={<Profile />} />
-                        <Route path="/settings" element={<Settings />} />
-                        <Route path="/create-group" element={<CreateGroup />} />
-                        <Route path="/my-groups" element={<MyGroups />} />
-                        <Route path="/group/:id" element={<GroupDetails />} />
-                        <Route path="/group-room/:id" element={<EnhancedGroupRoom />} />
-                        <Route path="/company-formation" element={<CompanyFormation />} />
-                        <Route path="/company-hub" element={<CompanyHub />} />
-                        <Route path="/investment" element={<InvestmentPortal />} />
-                        <Route path="/suppliers" element={<Suppliers />} />
-                        <Route path="/supplier-dashboard" element={<SupplierDashboard />} />
-                        <Route path="/freelancer-dashboard" element={<FreelancerDashboard />} />
-                        <Route path="/negotiations" element={<Negotiations />} />
-                        <Route path="/contracts" element={<Contracts />} />
-                        <Route path="/contract/:id" element={<ContractPage />} />
-                        <Route path="/arbitration" element={<ArbitrationHub />} />
-                        <Route path="/voting" element={<VotingPage />} />
-                        <Route path="/analytics" element={<Analytics />} />
-                        <Route path="/admin" element={<AdminDashboard />} />
-                        <Route path="/platform-management" element={<PlatformManagement />} />
-                        <Route path="/governance" element={<Governance />} />
-                        <Route path="/services" element={<Services />} />
-                        <Route path="/rfq" element={<RFQ />} />
-                        <Route path="/portfolio" element={<Portfolio />} />
-                        <Route path="/parties" element={<Parties />} />
-                        <Route path="/automation" element={<Automation />} />
-                        <Route path="/points" element={<Points />} />
-                      </Routes>
-                    </MainLayout>
-                  }
-                />
               </Routes>
-            </BrowserRouter>
+            </HashRouter>
           </TooltipProvider>
         </LanguageProvider>
       </AuthProvider>
