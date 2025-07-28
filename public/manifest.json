@@ -1,0 +1,43 @@
+
+{
+  "name": "GPO Smart Platform - منصة التعاقد الذكي",
+  "short_name": "GPO Nexus",
+  "description": "منصة التعاقد الذكي بين المشترين والموردين والمستقلين",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "orientation": "portrait",
+  "lang": "ar",
+  "dir": "rtl",
+  "categories": ["business", "productivity", "shopping"],
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "type": "image/x-icon",
+      "sizes": "16x16"
+    },
+    {
+      "src": "/placeholder.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/placeholder.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/placeholder.svg",
+      "type": "image/svg+xml",
+      "sizes": "540x720",
+      "form_factor": "narrow"
+    }
+  ],
+  "scope": "/",
+  "prefer_related_applications": false
+}
