@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from "@/lib/utils";
@@ -28,7 +27,12 @@ import {
   Coins,
   ShoppingBag,
   Package,
-  LogOut
+  LogOut,
+  Brain,
+  Archive,
+  Bell,
+  Wallet,
+  MessageSquare
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -66,8 +70,50 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
       section: "groups"
     },
     {
-      title: "المفاوضات",
+      title: "الإشعارات",
+      icon: Bell,
+      href: "/notifications",
+      section: "dashboard"
+    },
+    {
+      title: "محفظة النقاط",
+      icon: Wallet,
+      href: "/points",
+      section: "dashboard"
+    },
+    {
+      title: "المساعد الذكي",
+      icon: Brain,
+      href: "/ai-assistant",
+      section: "dashboard"
+    },
+    {
+      title: "التحكيم",
+      icon: Gavel,
+      href: "/arbitration",
+      section: "dashboard"
+    },
+    {
+      title: "الأرشيف",
+      icon: Archive,
+      href: "/archive",
+      section: "dashboard"
+    },
+    {
+      title: "المتجر",
+      icon: Store,
+      href: "/marketplace",
+      section: "dashboard"
+    },
+    {
+      title: "الخدمات",
       icon: Briefcase,
+      href: "/services",
+      section: "dashboard"
+    },
+    {
+      title: "المفاوضات",
+      icon: MessageSquare,
       href: "/negotiations",
       section: "business"
     },
@@ -99,12 +145,6 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
       title: "الحوكمة",
       icon: Shield,
       href: "/governance",
-      section: "governance"
-    },
-    {
-      title: "التحكيم",
-      icon: Gavel,
-      href: "/arbitration",
       section: "governance"
     },
     {
@@ -140,7 +180,7 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
     {
       title: "إدارة المنصة",
       icon: Crown,
-      href: "/platform",
+      href: "/platform-management",
       section: "admin"
     },
     {
@@ -162,18 +202,6 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
       section: "roles"
     },
     {
-      title: "متجر الخدمات",
-      icon: Store,
-      href: "/services",
-      section: "services"
-    },
-    {
-      title: "النقاط",
-      icon: Coins,
-      href: "/points",
-      section: "services"
-    },
-    {
       title: "الملف الشخصي",
       icon: User,
       href: "/profile",
@@ -190,10 +218,10 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
   const sections = {
     main: "الرئيسية",
     groups: "المجموعات",
+    dashboard: "لوحة التحكم",
     business: "الأعمال",
     governance: "الحوكمة",
     tools: "الأدوات",
-    services: "الخدمات والنقاط",
     admin: "الإدارة",
     roles: "الأدوار المتخصصة",
     account: "الحساب"
@@ -225,10 +253,8 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
       )}>
         <div className="flex flex-col h-full">
           <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-blue-700">
-            <h2 className="text-lg font-semibold text-white">القائمة الرئيسية</h2>
-            {user && (
-              <p className="text-sm text-blue-100 mt-1">أهلاً وسهلاً بك</p>
-            )}
+            <h2 className="text-lg font-semibold text-white">🧠 GPODO</h2>
+            <p className="text-sm text-blue-100 mt-1">Smart Collaborative Platform</p>
           </div>
           
           <ScrollArea className="flex-1 px-3 py-4">
@@ -288,3 +314,4 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
 };
 
 export default Sidebar;
+

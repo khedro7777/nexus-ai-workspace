@@ -1,229 +1,395 @@
-
-import React, { useState } from 'react';
-import BusinessLogic from '@/components/business/BusinessLogic';
-import SmartRecommendations from '@/components/smart/SmartRecommendations';
-import WorkflowEngine from '@/components/workflow/WorkflowEngine';
-import { workflowTemplates } from '@/components/workflow/WorkflowTemplates';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
+import React from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
-  BarChart3, 
-  TrendingUp, 
   Users, 
-  Activity,
-  Lightbulb,
-  Workflow,
-  Play
+  TrendingUp, 
+  Building2, 
+  Bell, 
+  Wallet, 
+  Brain, 
+  Gavel, 
+  Archive, 
+  Store, 
+  Briefcase,
+  MessageSquare,
+  FileText,
+  BarChart3,
+  Plus,
+  Eye,
+  Star,
+  Clock,
+  CheckCircle,
+  AlertCircle
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
-  const [activeWorkflow, setActiveWorkflow] = useState<string | null>(null);
+  const userStats = [
+    { label: 'المجموعات النشطة', value: '12', icon: Users, color: 'text-blue-600' },
+    { label: 'إجمالي التوفير', value: '₪84,250', icon: TrendingUp, color: 'text-green-600' },
+    { label: 'المفاوضات الجارية', value: '8', icon: MessageSquare, color: 'text-orange-600' },
+    { label: 'معدل النجاح', value: '92%', icon: Star, color: 'text-purple-600' }
+  ];
 
-  const startWorkflow = (templateId: string) => {
-    setActiveWorkflow(templateId);
-  };
+  const quickActions = [
+    { title: 'إنشاء مجموعة جديدة', icon: Plus, href: '/create-group', color: 'bg-blue-500' },
+    { title: 'بدء مفاوضة', icon: MessageSquare, href: '/negotiations', color: 'bg-green-500' },
+    { title: 'تنفيذ عقد', icon: FileText, href: '/contracts', color: 'bg-purple-500' }
+  ];
 
-  const closeWorkflow = () => {
-    setActiveWorkflow(null);
-  };
+  const recentActivities = [
+    { type: 'group', title: 'انضممت إلى مجموعة شراء الأجهزة الإلكترونية', time: 'منذ ساعتين', status: 'success' },
+    { type: 'negotiation', title: 'تم قبول عرضك في مفاوضة المواد الخام', time: 'منذ 4 ساعات', status: 'success' },
+    { type: 'contract', title: 'عقد جديد في انتظار التوقيع', time: 'منذ يوم', status: 'pending' },
+    { type: 'arbitration', title: 'تم حل نزاع التحكيم بنجاح', time: 'منذ يومين', status: 'success' }
+  ];
 
-  if (activeWorkflow) {
-    const template = workflowTemplates.find(t => t.id === activeWorkflow);
-    if (template) {
-      return (
-        <>
-          <div className="mb-6">
-            <Button variant="outline" onClick={closeWorkflow}>
-              ← العودة للوحة التحكم
-            </Button>
-          </div>
-
-          <WorkflowEngine
-            template={template}
-            onWorkflowComplete={closeWorkflow}
-            onWorkflowCancel={closeWorkflow}
-          />
-        </>
-      );
+  const myGroups = [
+    { 
+      id: 1, 
+      name: 'مجموعة شراء الأجهزة الإلكترونية', 
+      type: 'شراء تعاوني', 
+      members: '12/50', 
+      status: 'نشط',
+      progress: 24
+    },
+    { 
+      id: 2, 
+      name: 'استثمار في العقارات', 
+      type: 'استثمار', 
+      members: '15/20', 
+      status: 'تفاوض',
+      progress: 75
+    },
+    { 
+      id: 3, 
+      name: 'مجموعة تطوير التطبيقات', 
+      type: 'مستقلين', 
+      members: '8/10', 
+      status: 'نشط',
+      progress: 80
     }
-  }
+  ];
+
+  const dashboardTabs = [
+    { id: 'overview', label: 'نظرة عامة', icon: BarChart3 },
+    { id: 'groups', label: 'مجموعاتي', icon: Users },
+    { id: 'notifications', label: 'الإشعارات', icon: Bell },
+    { id: 'wallet', label: 'محفظة النقاط', icon: Wallet },
+    { id: 'ai-assistant', label: 'المساعد الذكي', icon: Brain },
+    { id: 'arbitration', label: 'التحكيم', icon: Gavel },
+    { id: 'archive', label: 'الأرشيف', icon: Archive },
+    { id: 'marketplace', label: 'المتجر', icon: Store },
+    { id: 'services', label: 'الخدمات', icon: Briefcase }
+  ];
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'success': return 'text-green-600';
+      case 'pending': return 'text-orange-600';
+      case 'error': return 'text-red-600';
+      default: return 'text-gray-600';
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'success': return CheckCircle;
+      case 'pending': return Clock;
+      case 'error': return AlertCircle;
+      default: return Eye;
+    }
+  };
 
   return (
-    <>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">لوحة التحكم الذكية</h1>
-        <p className="text-gray-600">نظرة شاملة على أداء مجموعاتك ومشاريعك</p>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">لوحة التحكم الذكية</h1>
+          <p className="text-gray-600 mt-1">نظرة شاملة على أداء مجموعاتك ومشاريعك</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm">
+            <Bell className="h-4 w-4 ml-2" />
+            الإشعارات
+          </Button>
+          <Button size="sm">
+            <Plus className="h-4 w-4 ml-2" />
+            إنشاء مجموعة
+          </Button>
+        </div>
       </div>
 
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {userStats.map((stat, index) => (
+          <Card key={index}>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">{stat.label}</p>
+                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                </div>
+                <div className={`p-3 rounded-full bg-gray-100 ${stat.color}`}>
+                  <stat.icon className="h-6 w-6" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Dashboard Tabs */}
       <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview" className="flex items-center gap-2">
-              <BarChart3 className="w-4 h-4" />
-              نظرة عامة
+        <TabsList className="grid w-full grid-cols-3 lg:grid-cols-9">
+          {dashboardTabs.map((tab) => (
+            <TabsTrigger key={tab.id} value={tab.id} className="flex items-center gap-2">
+              <tab.icon className="h-4 w-4" />
+              <span className="hidden sm:inline">{tab.label}</span>
             </TabsTrigger>
-            <TabsTrigger value="business" className="flex items-center gap-2">
-              <Activity className="w-4 h-4" />
-              منطق الأعمال
-            </TabsTrigger>
-            <TabsTrigger value="recommendations" className="flex items-center gap-2">
-              <Lightbulb className="w-4 h-4" />
-              التوصيات الذكية
-            </TabsTrigger>
-            <TabsTrigger value="workflows" className="flex items-center gap-2">
-              <Workflow className="w-4 h-4" />
-              سير العمل
-            </TabsTrigger>
-          </TabsList>
+          ))}
+        </TabsList>
 
-          <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-gray-600">المجموعات النشطة</p>
-                      <p className="text-3xl font-bold text-blue-600">12</p>
-                      <p className="text-xs text-green-600 mt-1">+3 هذا الشهر</p>
-                    </div>
-                    <Users className="w-12 h-12 text-blue-500 opacity-20" />
-                  </div>
-                </CardContent>
-              </Card>
+        <TabsContent value="overview" className="space-y-6">
+          {/* Quick Actions */}
+          <Card>
+            <CardHeader>
+              <CardTitle>الإجراءات السريعة</CardTitle>
+              <CardDescription>ابدأ المهام الشائعة بسرعة</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {quickActions.map((action, index) => (
+                  <Link key={index} to={action.href}>
+                    <Button 
+                      variant="outline" 
+                      className="w-full h-20 flex flex-col items-center justify-center gap-2 hover:shadow-md transition-shadow"
+                    >
+                      <div className={`p-2 rounded-full ${action.color} text-white`}>
+                        <action.icon className="h-5 w-5" />
+                      </div>
+                      <span className="text-sm font-medium">{action.title}</span>
+                    </Button>
+                  </Link>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
 
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-gray-600">إجمالي التوفير</p>
-                      <p className="text-3xl font-bold text-green-600">₪84,250</p>
-                      <p className="text-xs text-green-600 mt-1">+15% من الشهر الماضي</p>
-                    </div>
-                    <TrendingUp className="w-12 h-12 text-green-500 opacity-20" />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-gray-600">المفاوضات الجارية</p>
-                      <p className="text-3xl font-bold text-orange-600">8</p>
-                      <p className="text-xs text-orange-600 mt-1">5 تحتاج متابعة</p>
-                    </div>
-                    <Activity className="w-12 h-12 text-orange-500 opacity-20" />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-gray-600">معدل النجاح</p>
-                      <p className="text-3xl font-bold text-purple-600">92%</p>
-                      <p className="text-xs text-green-600 mt-1">+2% تحسن</p>
-                    </div>
-                    <BarChart3 className="w-12 h-12 text-purple-500 opacity-20" />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Quick Actions */}
+          {/* My Groups and Recent Activities */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* My Groups */}
             <Card>
               <CardHeader>
-                <CardTitle>الإجراءات السريعة</CardTitle>
-                <CardDescription>ابدأ المهام الشائعة بسرعة</CardDescription>
+                <CardTitle>مجموعاتي</CardTitle>
+                <CardDescription>المجموعات التي أنت عضو فيها</CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Button 
-                    className="h-20 flex flex-col items-center justify-center gap-2"
-                    onClick={() => startWorkflow('group-creation')}
-                  >
-                    <Users className="w-6 h-6" />
-                    إنشاء مجموعة جديدة
-                  </Button>
-                  <Button 
-                    variant="outline"
-                    className="h-20 flex flex-col items-center justify-center gap-2"
-                    onClick={() => startWorkflow('supplier-negotiation')}
-                  >
-                    <Activity className="w-6 h-6" />
-                    بدء مفاوضة
-                  </Button>
-                  <Button 
-                    variant="outline"
-                    className="h-20 flex flex-col items-center justify-center gap-2"
-                    onClick={() => startWorkflow('contract-execution')}
-                  >
-                    <BarChart3 className="w-6 h-6" />
-                    تنفيذ عقد
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="business">
-            <BusinessLogic />
-          </TabsContent>
-
-          <TabsContent value="recommendations">
-            <SmartRecommendations />
-          </TabsContent>
-
-          <TabsContent value="workflows" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {workflowTemplates.map((template) => (
-                <Card key={template.id} className="hover:shadow-lg transition-shadow cursor-pointer">
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-lg">{template.name}</CardTitle>
-                      <Badge variant="outline">{template.category}</Badge>
+              <CardContent className="space-y-4">
+                {myGroups.map((group) => (
+                  <div key={group.id} className="p-4 border rounded-lg hover:shadow-sm transition-shadow">
+                    <div className="flex justify-between items-start mb-2">
+                      <h4 className="font-medium text-gray-900">{group.name}</h4>
+                      <Badge variant="outline">{group.status}</Badge>
                     </div>
-                    <CardDescription>{template.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">الوقت المقدر:</span>
-                        <span className="font-semibold">{template.estimatedTime} دقيقة</span>
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">عدد الخطوات:</span>
-                        <span className="font-semibold">{template.steps.length} خطوة</span>
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">التعقيد:</span>
-                        <Badge 
-                          variant={template.complexity === 'simple' ? 'default' : 
-                                  template.complexity === 'medium' ? 'secondary' : 'destructive'}
-                          className="text-xs"
-                        >
-                          {template.complexity === 'simple' ? 'بسيط' :
-                           template.complexity === 'medium' ? 'متوسط' : 'معقد'}
-                        </Badge>
-                      </div>
-                      <Button 
-                        className="w-full mt-4 flex items-center gap-2"
-                        onClick={() => startWorkflow(template.id)}
-                      >
-                        <Play className="w-4 h-4" />
-                        بدء سير العمل
+                    <p className="text-sm text-gray-600 mb-2">{group.type}</p>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm text-gray-500">الأعضاء: {group.members}</span>
+                      <span className="text-sm text-gray-500">{group.progress}%</span>
+                    </div>
+                    <Progress value={group.progress} className="h-2" />
+                    <div className="flex gap-2 mt-3">
+                      <Button size="sm" variant="outline">
+                        <Eye className="h-4 w-4 ml-1" />
+                        عرض
+                      </Button>
+                      <Button size="sm">
+                        دخول الغرفة
                       </Button>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-        </Tabs>
-    </>
+                  </div>
+                ))}
+                <Link to="/my-groups">
+                  <Button variant="outline" className="w-full">
+                    عرض جميع المجموعات
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+
+            {/* Recent Activities */}
+            <Card>
+              <CardHeader>
+                <CardTitle>النشاطات الأخيرة</CardTitle>
+                <CardDescription>آخر التحديثات والأنشطة</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {recentActivities.map((activity, index) => {
+                  const StatusIcon = getStatusIcon(activity.status);
+                  return (
+                    <div key={index} className="flex items-start gap-3 p-3 border rounded-lg">
+                      <div className={`p-2 rounded-full bg-gray-100 ${getStatusColor(activity.status)}`}>
+                        <StatusIcon className="h-4 w-4" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-900">{activity.title}</p>
+                        <p className="text-xs text-gray-500">{activity.time}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+                <Link to="/archive">
+                  <Button variant="outline" className="w-full">
+                    عرض جميع الأنشطة
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="groups">
+          <Card>
+            <CardHeader>
+              <CardTitle>إدارة المجموعات</CardTitle>
+              <CardDescription>جميع المجموعات التي أنت عضو فيها أو تديرها</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8">
+                <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600 mb-4">سيتم عرض تفاصيل المجموعات هنا</p>
+                <Link to="/my-groups">
+                  <Button>عرض المجموعات</Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="notifications">
+          <Card>
+            <CardHeader>
+              <CardTitle>مركز الإشعارات</CardTitle>
+              <CardDescription>جميع الإشعارات والتنبيهات</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8">
+                <Bell className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600 mb-4">لا توجد إشعارات جديدة</p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="wallet">
+          <Card>
+            <CardHeader>
+              <CardTitle>محفظة النقاط</CardTitle>
+              <CardDescription>إدارة نقاطك وعمليات الشراء</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8">
+                <Wallet className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600 mb-4">رصيدك الحالي: 1,250 نقطة</p>
+                <Link to="/points">
+                  <Button>إدارة النقاط</Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="ai-assistant">
+          <Card>
+            <CardHeader>
+              <CardTitle>المساعد الذكي MCP</CardTitle>
+              <CardDescription>مساعدك الذكي للتحليل والترجمة والملخصات</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8">
+                <Brain className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600 mb-4">مساعدك الذكي جاهز لمساعدتك</p>
+                <Button>بدء محادثة</Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="arbitration">
+          <Card>
+            <CardHeader>
+              <CardTitle>مركز التحكيم</CardTitle>
+              <CardDescription>رفع الشكاوى وحل النزاعات</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8">
+                <Gavel className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600 mb-4">لا توجد قضايا تحكيم حالياً</p>
+                <Link to="/arbitration">
+                  <Button>رفع شكوى</Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="archive">
+          <Card>
+            <CardHeader>
+              <CardTitle>الأرشيف</CardTitle>
+              <CardDescription>سجل كامل لكل تفاعلاتك والتوثيق</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8">
+                <Archive className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600 mb-4">جميع أنشطتك موثقة ومحفوظة</p>
+                <Button>عرض الأرشيف</Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="marketplace">
+          <Card>
+            <CardHeader>
+              <CardTitle>المتجر</CardTitle>
+              <CardDescription>عرض المنتجات C2C داخل المنصة</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8">
+                <Store className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600 mb-4">اكتشف المنتجات والخدمات</p>
+                <Button>تصفح المتجر</Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="services">
+          <Card>
+            <CardHeader>
+              <CardTitle>الخدمات</CardTitle>
+              <CardDescription>التقديم كمستقل أو مورد أو مؤسس شركة</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8">
+                <Briefcase className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600 mb-4">قدم خدماتك أو ابحث عن مقدمي خدمات</p>
+                <Link to="/services">
+                  <Button>عرض الخدمات</Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 };
 
 export default Dashboard;
+
