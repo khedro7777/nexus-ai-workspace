@@ -49,169 +49,169 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
 
   const menuItems = [
     {
-      titleKey: "home" as keyof typeof import("../../hooks/useLanguage").translations.en,
+      titleKey: "home",
       icon: Home,
       href: "/",
       section: "main"
     },
     {
-      titleKey: "dashboard" as keyof typeof import("../../hooks/useLanguage").translations.en,
+      titleKey: "dashboard",
       icon: BarChart3,
       href: "/dashboard",
       section: "main"
     },
     {
-      titleKey: "myGroups" as keyof typeof import("../../hooks/useLanguage").translations.en,
+      titleKey: "myGroups",
       icon: Users,
       href: "/my-groups",
       section: "business"
     },
     {
-      titleKey: "createGroup" as keyof typeof import("../../hooks/useLanguage").translations.en,
+      titleKey: "createGroup",
       icon: Building2,
       href: "/create-group",
       section: "business"
     },
     {
-      titleKey: "notifications" as keyof typeof import("../../hooks/useLanguage").translations.en,
+      titleKey: "notifications",
       icon: Bell,
       href: "/notifications",
       section: "main"
     },
     {
-      titleKey: "pointsWallet" as keyof typeof import("../../hooks/useLanguage").translations.en,
+      titleKey: "pointsWallet",
       icon: Wallet,
       href: "/points",
       section: "main"
     },
     {
-      titleKey: "aiAssistant" as keyof typeof import("../../hooks/useLanguage").translations.en,
+      titleKey: "aiAssistant",
       icon: Brain,
       href: "/ai-assistant",
       section: "tools"
     },
     {
-      titleKey: "arbitration" as keyof typeof import("../../hooks/useLanguage").translations.en,
+      titleKey: "arbitration",
       icon: Gavel,
       href: "/arbitration",
       section: "business"
     },
     {
-      titleKey: "archive" as keyof typeof import("../../hooks/useLanguage").translations.en,
+      titleKey: "archive",
       icon: Archive,
       href: "/archive",
       section: "tools"
     },
     {
-      titleKey: "marketplace" as keyof typeof import("../../hooks/useLanguage").translations.en,
+      titleKey: "marketplace",
       icon: Store,
       href: "/marketplace",
       section: "business"
     },
     {
-      titleKey: "services" as keyof typeof import("../../hooks/useLanguage").translations.en,
+      titleKey: "services",
       icon: Briefcase,
       href: "/services",
       section: "business"
     },
     {
-      titleKey: "negotiations" as keyof typeof import("../../hooks/useLanguage").translations.en,
+      titleKey: "negotiations",
       icon: MessageSquare,
       href: "/negotiations",
       section: "business"
     },
     {
-      titleKey: "suppliers" as keyof typeof import("../../hooks/useLanguage").translations.en,
+      titleKey: "suppliers",
       icon: Truck,
       href: "/suppliers",
       section: "business"
     },
     {
-      titleKey: "rfq" as keyof typeof import("../../hooks/useLanguage").translations.en,
+      titleKey: "rfq",
       icon: Package,
       href: "/rfq",
       section: "business"
     },
     {
-      titleKey: "contracts" as keyof typeof import("../../hooks/useLanguage").translations.en,
+      titleKey: "contracts",
       icon: FileText,
       href: "/contracts",
       section: "business"
     },
     {
-      titleKey: "voting" as keyof typeof import("../../hooks/useLanguage").translations.en,
+      titleKey: "voting",
       icon: Vote,
       href: "/voting",
       section: "business"
     },
     {
-      titleKey: "governance" as keyof typeof import("../../hooks/useLanguage").translations.en,
+      titleKey: "governance",
       icon: Shield,
       href: "/governance",
       section: "administration"
     },
     {
-      titleKey: "analytics" as keyof typeof import("../../hooks/useLanguage").translations.en,
+      titleKey: "analytics",
       icon: TrendingUp,
       href: "/analytics",
       section: "tools"
     },
     {
-      titleKey: "investment" as keyof typeof import("../../hooks/useLanguage").translations.en,
+      titleKey: "investment",
       icon: TrendingUp,
       href: "/investment",
       section: "tools"
     },
     {
-      titleKey: "companyFormation" as keyof typeof import("../../hooks/useLanguage").translations.en,
+      titleKey: "companyFormation",
       icon: Factory,
       href: "/company-formation",
       section: "tools"
     },
     {
-      titleKey: "companyHub" as keyof typeof import("../../hooks/useLanguage").translations.en,
+      titleKey: "companyHub",
       icon: Building2,
       href: "/company-hub",
       section: "tools"
     },
     {
-      titleKey: "automation" as keyof typeof import("../../hooks/useLanguage").translations.en,
+      titleKey: "automation",
       icon: Zap,
       href: "/automation",
       section: "tools"
     },
     {
-      titleKey: "platformManagement" as keyof typeof import("../../hooks/useLanguage").translations.en,
+      titleKey: "platformManagement",
       icon: Crown,
       href: "/platform-management",
       section: "administration"
     },
     {
-      titleKey: "adminDashboard" as keyof typeof import("../../hooks/useLanguage").translations.en,
+      titleKey: "adminDashboard",
       icon: UserCheck,
       href: "/admin",
       section: "administration"
     },
     {
-      titleKey: "supplierDashboard" as keyof typeof import("../../hooks/useLanguage").translations.en,
+      titleKey: "supplierDashboard",
       icon: Truck,
       href: "/supplier-dashboard",
       section: "specializedRoles"
     },
     {
-      titleKey: "freelancerDashboard" as keyof typeof import("../../hooks/useLanguage").translations.en,
+      titleKey: "freelancerDashboard",
       icon: User,
       href: "/freelancer-dashboard",
       section: "specializedRoles"
     },
     {
-      titleKey: "profile" as keyof typeof import("../../hooks/useLanguage").translations.en,
+      titleKey: "profile",
       icon: User,
       href: "/profile",
       section: "account"
     },
     {
-      titleKey: "settings" as keyof typeof import("../../hooks/useLanguage").translations.en,
+      titleKey: "settings",
       icon: Settings,
       href: "/settings",
       section: "account"
@@ -282,7 +282,7 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
                             )}
                           >
                             <item.icon className="mr-3 h-4 w-4" />
-                            {t(item.titleKey)}
+                            {t(item.titleKey as any)}
                           </Button>
                         </Link>
                       ))}
