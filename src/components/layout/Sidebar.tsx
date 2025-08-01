@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/hooks/useLanguage";
 import { 
   Home, 
   Users, 
@@ -44,172 +45,173 @@ interface SidebarProps {
 const Sidebar = ({ open, setOpen }: SidebarProps) => {
   const location = useLocation();
   const { user, signOut } = useAuth();
+  const { t } = useLanguage();
 
   const menuItems = [
     {
-      title: "Home",
+      titleKey: "home" as keyof typeof import("../../hooks/useLanguage").translations.en,
       icon: Home,
       href: "/",
       section: "main"
     },
     {
-      title: "Dashboard",
+      titleKey: "dashboard" as keyof typeof import("../../hooks/useLanguage").translations.en,
       icon: BarChart3,
       href: "/dashboard",
       section: "main"
     },
     {
-      title: "My Groups",
+      titleKey: "myGroups" as keyof typeof import("../../hooks/useLanguage").translations.en,
       icon: Users,
       href: "/my-groups",
-      section: "groups"
+      section: "business"
     },
     {
-      title: "Create Group",
+      titleKey: "createGroup" as keyof typeof import("../../hooks/useLanguage").translations.en,
       icon: Building2,
       href: "/create-group",
-      section: "groups"
+      section: "business"
     },
     {
-      title: "Notifications",
+      titleKey: "notifications" as keyof typeof import("../../hooks/useLanguage").translations.en,
       icon: Bell,
       href: "/notifications",
-      section: "dashboard"
+      section: "main"
     },
     {
-      title: "Points Wallet",
+      titleKey: "pointsWallet" as keyof typeof import("../../hooks/useLanguage").translations.en,
       icon: Wallet,
       href: "/points",
-      section: "dashboard"
+      section: "main"
     },
     {
-      title: "AI Assistant",
+      titleKey: "aiAssistant" as keyof typeof import("../../hooks/useLanguage").translations.en,
       icon: Brain,
       href: "/ai-assistant",
-      section: "dashboard"
+      section: "tools"
     },
     {
-      title: "Arbitration",
+      titleKey: "arbitration" as keyof typeof import("../../hooks/useLanguage").translations.en,
       icon: Gavel,
       href: "/arbitration",
-      section: "dashboard"
+      section: "business"
     },
     {
-      title: "Archive",
+      titleKey: "archive" as keyof typeof import("../../hooks/useLanguage").translations.en,
       icon: Archive,
       href: "/archive",
-      section: "dashboard"
+      section: "tools"
     },
     {
-      title: "Marketplace",
+      titleKey: "marketplace" as keyof typeof import("../../hooks/useLanguage").translations.en,
       icon: Store,
       href: "/marketplace",
-      section: "dashboard"
+      section: "business"
     },
     {
-      title: "Services",
+      titleKey: "services" as keyof typeof import("../../hooks/useLanguage").translations.en,
       icon: Briefcase,
       href: "/services",
-      section: "dashboard"
+      section: "business"
     },
     {
-      title: "Negotiations",
+      titleKey: "negotiations" as keyof typeof import("../../hooks/useLanguage").translations.en,
       icon: MessageSquare,
       href: "/negotiations",
       section: "business"
     },
     {
-      title: "Suppliers",
+      titleKey: "suppliers" as keyof typeof import("../../hooks/useLanguage").translations.en,
       icon: Truck,
       href: "/suppliers",
       section: "business"
     },
     {
-      title: "RFQ",
+      titleKey: "rfq" as keyof typeof import("../../hooks/useLanguage").translations.en,
       icon: Package,
       href: "/rfq",
       section: "business"
     },
     {
-      title: "Contracts",
+      titleKey: "contracts" as keyof typeof import("../../hooks/useLanguage").translations.en,
       icon: FileText,
       href: "/contracts",
       section: "business"
     },
     {
-      title: "Voting",
+      titleKey: "voting" as keyof typeof import("../../hooks/useLanguage").translations.en,
       icon: Vote,
       href: "/voting",
-      section: "governance"
+      section: "business"
     },
     {
-      title: "Governance",
+      titleKey: "governance" as keyof typeof import("../../hooks/useLanguage").translations.en,
       icon: Shield,
       href: "/governance",
-      section: "governance"
+      section: "administration"
     },
     {
-      title: "Analytics",
+      titleKey: "analytics" as keyof typeof import("../../hooks/useLanguage").translations.en,
       icon: TrendingUp,
       href: "/analytics",
       section: "tools"
     },
     {
-      title: "Investment",
+      titleKey: "investment" as keyof typeof import("../../hooks/useLanguage").translations.en,
       icon: TrendingUp,
       href: "/investment",
       section: "tools"
     },
     {
-      title: "Company Formation",
+      titleKey: "companyFormation" as keyof typeof import("../../hooks/useLanguage").translations.en,
       icon: Factory,
       href: "/company-formation",
       section: "tools"
     },
     {
-      title: "Company Hub",
+      titleKey: "companyHub" as keyof typeof import("../../hooks/useLanguage").translations.en,
       icon: Building2,
       href: "/company-hub",
       section: "tools"
     },
     {
-      title: "Automation",
+      titleKey: "automation" as keyof typeof import("../../hooks/useLanguage").translations.en,
       icon: Zap,
       href: "/automation",
       section: "tools"
     },
     {
-      title: "Platform Management",
+      titleKey: "platformManagement" as keyof typeof import("../../hooks/useLanguage").translations.en,
       icon: Crown,
       href: "/platform-management",
-      section: "admin"
+      section: "administration"
     },
     {
-      title: "Admin Dashboard",
+      titleKey: "adminDashboard" as keyof typeof import("../../hooks/useLanguage").translations.en,
       icon: UserCheck,
       href: "/admin",
-      section: "admin"
+      section: "administration"
     },
     {
-      title: "Supplier Dashboard",
+      titleKey: "supplierDashboard" as keyof typeof import("../../hooks/useLanguage").translations.en,
       icon: Truck,
       href: "/supplier-dashboard",
-      section: "roles"
+      section: "specializedRoles"
     },
     {
-      title: "Freelancer Dashboard",
+      titleKey: "freelancerDashboard" as keyof typeof import("../../hooks/useLanguage").translations.en,
       icon: User,
       href: "/freelancer-dashboard",
-      section: "roles"
+      section: "specializedRoles"
     },
     {
-      title: "Profile",
+      titleKey: "profile" as keyof typeof import("../../hooks/useLanguage").translations.en,
       icon: User,
       href: "/profile",
       section: "account"
     },
     {
-      title: "Settings",
+      titleKey: "settings" as keyof typeof import("../../hooks/useLanguage").translations.en,
       icon: Settings,
       href: "/settings",
       section: "account"
@@ -217,15 +219,12 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
   ];
 
   const sections = {
-    main: "Main",
-    groups: "Groups",
-    dashboard: "Dashboard",
-    business: "Business",
-    governance: "Governance",
-    tools: "Tools",
-    admin: "Administration",
-    roles: "Specialized Roles",
-    account: "Account"
+    main: t("main"),
+    business: t("business"),
+    tools: t("tools"),
+    administration: t("administration"),
+    specializedRoles: t("specializedRoles"),
+    account: t("account")
   };
 
   const isActive = (href: string) => {
@@ -249,12 +248,12 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
       
       {/* Sidebar */}
       <div className={cn(
-        "fixed top-0 left-0 z-50 h-full w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0",
+        "fixed top-0 left-0 z-50 h-full w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 shadow-xl",
         open ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="flex flex-col h-full">
-          <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-blue-700">
-            <h2 className="text-lg font-semibold text-white">🧠 GPODO</h2>
+          <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-600">
+            <h2 className="text-xl font-bold text-white">🧠 GPO NEXUS</h2>
             <p className="text-sm text-blue-100 mt-1">Smart Collaborative Platform</p>
           </div>
           
@@ -267,7 +266,7 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
                 
                 return (
                   <div key={sectionKey}>
-                    <h3 className="px-3 mb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    <h3 className="px-3 mb-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                       {sectionTitle}
                     </h3>
                     <div className="space-y-1">
@@ -276,19 +275,19 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
                           <Button
                             variant={isActive(item.href) ? "default" : "ghost"}
                             className={cn(
-                              "w-full justify-start h-10 px-3 transition-all duration-200",
+                              "w-full justify-start h-11 px-3 transition-all duration-200 rounded-lg",
                               isActive(item.href) 
-                                ? "bg-blue-600 text-white shadow-md hover:bg-blue-700" 
-                                : "text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                                ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg hover:from-blue-700 hover:to-blue-800 transform scale-105" 
+                                : "text-gray-700 hover:bg-blue-50 hover:text-blue-700 hover:scale-105"
                             )}
                           >
-                            <item.icon className="mr-2 h-4 w-4" />
-                            {item.title}
+                            <item.icon className="mr-3 h-4 w-4" />
+                            {t(item.titleKey)}
                           </Button>
                         </Link>
                       ))}
                     </div>
-                    {sectionKey !== 'account' && <Separator className="my-4" />}
+                    {sectionKey !== 'account' && <Separator className="my-4 opacity-30" />}
                   </div>
                 );
               })}
@@ -297,14 +296,14 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
 
           {/* Sign Out Button */}
           {user && (
-            <div className="p-4 border-t border-gray-200 bg-gray-50">
+            <div className="p-4 border-t border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100">
               <Button
                 variant="outline"
-                className="w-full justify-start h-10 px-3 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300"
+                className="w-full justify-start h-11 px-3 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300 transition-all duration-200 hover:scale-105"
                 onClick={handleSignOut}
               >
-                <LogOut className="mr-2 h-4 w-4" />
-                Sign Out
+                <LogOut className="mr-3 h-4 w-4" />
+                {t("signOut")}
               </Button>
             </div>
           )}
