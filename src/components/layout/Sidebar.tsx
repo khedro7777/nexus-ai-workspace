@@ -111,6 +111,12 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
       section: "business"
     },
     {
+      titleKey: "discountOffers",
+      icon: Coins,
+      href: "/discount-offers",
+      section: "business"
+    },
+    {
       titleKey: "services",
       icon: Briefcase,
       href: "/services",
@@ -268,7 +274,7 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-bold text-white">🧠 GPO NEXUS</h2>
-                <p className="text-xs text-blue-100">Smart Collaborative Platform</p>
+                <p className="text-xs text-blue-100">Global Business Platform</p>
               </div>
               
               {/* Navigation Controls */}
