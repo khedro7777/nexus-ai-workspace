@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from "@/lib/utils";
@@ -34,8 +35,8 @@ import {
   Bell,
   Wallet,
   MessageSquare,
-  ArrowLeft,
-  ChevronLeft
+  ChevronLeft,
+  X
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -52,174 +53,203 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
   const menuItems = [
     {
       titleKey: "home",
+      title: "Home",
       icon: Home,
       href: "/",
       section: "main"
     },
     {
       titleKey: "dashboard",
+      title: "Dashboard",
       icon: BarChart3,
       href: "/dashboard",
       section: "main"
     },
     {
       titleKey: "myGroups",
+      title: "My Groups",
       icon: Users,
       href: "/my-groups",
       section: "business"
     },
     {
       titleKey: "createGroup",
+      title: "Create Group",
       icon: Building2,
       href: "/create-group",
       section: "business"
     },
     {
       titleKey: "notifications",
+      title: "Notifications",
       icon: Bell,
       href: "/notifications",
       section: "main"
     },
     {
       titleKey: "pointsWallet",
+      title: "Points & Wallet",
       icon: Wallet,
       href: "/points",
       section: "main"
     },
     {
       titleKey: "aiAssistant",
+      title: "AI Assistant",
       icon: Brain,
       href: "/ai-assistant",
       section: "tools"
     },
     {
       titleKey: "arbitration",
+      title: "Arbitration",
       icon: Gavel,
       href: "/arbitration",
       section: "business"
     },
     {
       titleKey: "archive",
+      title: "Archive",
       icon: Archive,
       href: "/archive",
       section: "tools"
     },
     {
       titleKey: "marketplace",
+      title: "Marketplace",
       icon: Store,
       href: "/marketplace",
       section: "business"
     },
     {
       titleKey: "discountOffers",
+      title: "Discount Offers",
       icon: Coins,
       href: "/discount-offers",
       section: "business"
     },
     {
       titleKey: "services",
+      title: "Services",
       icon: Briefcase,
       href: "/services",
       section: "business"
     },
     {
       titleKey: "negotiations",
+      title: "Negotiations",
       icon: MessageSquare,
       href: "/negotiations",
       section: "business"
     },
     {
       titleKey: "suppliers",
+      title: "Suppliers",
       icon: Truck,
       href: "/suppliers",
       section: "business"
     },
     {
       titleKey: "rfq",
+      title: "RFQ",
       icon: Package,
       href: "/rfq",
       section: "business"
     },
     {
       titleKey: "contracts",
+      title: "Contracts",
       icon: FileText,
       href: "/contracts",
       section: "business"
     },
     {
       titleKey: "voting",
+      title: "Voting",
       icon: Vote,
       href: "/voting",
       section: "business"
     },
     {
       titleKey: "governance",
+      title: "Governance",
       icon: Shield,
       href: "/governance",
       section: "administration"
     },
     {
       titleKey: "analytics",
+      title: "Analytics",
       icon: TrendingUp,
       href: "/analytics",
       section: "tools"
     },
     {
       titleKey: "investment",
+      title: "Investment",
       icon: TrendingUp,
       href: "/investment",
       section: "tools"
     },
     {
       titleKey: "companyFormation",
+      title: "Company Formation",
       icon: Factory,
       href: "/company-formation",
       section: "tools"
     },
     {
       titleKey: "companyHub",
+      title: "Company Hub",
       icon: Building2,
       href: "/company-hub",
       section: "tools"
     },
     {
       titleKey: "automation",
+      title: "Automation",
       icon: Zap,
       href: "/automation",
       section: "tools"
     },
     {
       titleKey: "platformManagement",
+      title: "Platform Management",
       icon: Crown,
       href: "/platform-management",
       section: "administration"
     },
     {
       titleKey: "adminDashboard",
+      title: "Admin Dashboard",
       icon: UserCheck,
       href: "/admin",
       section: "administration"
     },
     {
       titleKey: "supplierDashboard",
+      title: "Supplier Dashboard",
       icon: Truck,
       href: "/supplier-dashboard",
       section: "specializedRoles"
     },
     {
       titleKey: "freelancerDashboard",
+      title: "Freelancer Dashboard",
       icon: User,
       href: "/freelancer-dashboard",
       section: "specializedRoles"
     },
     {
       titleKey: "profile",
+      title: "Profile",
       icon: User,
       href: "/profile",
       section: "account"
     },
     {
       titleKey: "settings",
+      title: "Settings",
       icon: Settings,
       href: "/settings",
       section: "account"
@@ -227,12 +257,12 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
   ];
 
   const sections = {
-    main: t("main"),
-    business: t("business"),
-    tools: t("tools"),
-    administration: t("administration"),
-    specializedRoles: t("specializedRoles"),
-    account: t("account")
+    main: "Main",
+    business: "Business",
+    tools: "Tools",
+    administration: "Administration",
+    specializedRoles: "Specialized Roles",
+    account: "Account"
   };
 
   const isActive = (href: string) => {
@@ -284,7 +314,7 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
                   size="sm"
                   onClick={goBack}
                   className="text-white hover:bg-blue-800 p-2"
-                  title={language === 'ar' ? 'العودة للصفحة السابقة' : 'Go Back'}
+                  title="Go Back"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </Button>
@@ -293,9 +323,18 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
                   size="sm"
                   onClick={goHome}
                   className="text-white hover:bg-blue-800 p-2"
-                  title={language === 'ar' ? 'العودة للرئيسية' : 'Go Home'}
+                  title="Go Home"
                 >
                   <Home className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setOpen(false)}
+                  className="text-white hover:bg-blue-800 p-2 lg:hidden"
+                  title="Close Sidebar"
+                >
+                  <X className="w-4 h-4" />
                 </Button>
               </div>
             </div>
@@ -327,7 +366,7 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
                             )}
                           >
                             <item.icon className="mr-3 h-4 w-4 flex-shrink-0" />
-                            <span className="truncate">{t(item.titleKey as any)}</span>
+                            <span className="truncate">{item.title}</span>
                           </Button>
                         </Link>
                       ))}
@@ -348,7 +387,7 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
                 onClick={handleSignOut}
               >
                 <LogOut className="mr-3 h-4 w-4 flex-shrink-0" />
-                <span className="truncate">{t("signOut")}</span>
+                <span className="truncate">Sign Out</span>
               </Button>
             </div>
           )}

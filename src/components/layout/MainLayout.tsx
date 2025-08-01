@@ -14,6 +14,7 @@ const MainLayout: React.FC = () => {
       
       {/* Main content area */}
       <div className="flex-1 flex flex-col min-w-0">
+        {/* Use only UnifiedHeader */}
         <UnifiedHeader sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
         
         {/* Main content with proper scrolling */}

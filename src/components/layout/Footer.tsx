@@ -10,16 +10,63 @@ const Footer: React.FC = () => {
   const { t } = useLanguage();
 
   const footerLinks = [
-    { label: t('about'), route: '/about' },
-    { label: t('founders'), route: '/founders' },
-    { label: t('legal'), route: '/legal' },
-    { label: t('contact'), route: '/contact' },
-    { label: t('userGuide'), route: '/user-guide' }
+    { label: 'About', route: '/about' },
+    { label: 'Founders', route: '/founders' },
+    { label: 'Legal', route: '/legal' },
+    { label: 'Contact', route: '/contact' },
+    { label: 'User Guide', route: '/user-guide' }
   ];
 
   return (
     <footer className="bg-gray-900 text-white py-12 mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Founders' Message Section */}
+        <div className="mb-12 p-8 bg-gray-800 rounded-lg">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-blue-400 mb-4">💼 Founders' Message</h2>
+          </div>
+          
+          <div className="prose prose-invert max-w-none">
+            <p className="text-gray-300 mb-6 leading-relaxed">
+              We, <strong>Mohamed Hassanein</strong> and <strong>Ahmed Seddiq</strong>, firmly believe that the future of business lies in collaborative intelligence, transparency, and empowering individuals and groups to negotiate collectively and effectively.
+            </p>
+            
+            <p className="text-gray-300 mb-6 leading-relaxed">
+              We founded <strong>gpodo.com</strong> to offer everyone — freelancers, startups, suppliers, and buyers alike — a fair opportunity to form smart groups, manage contracts professionally, and control negotiation processes with flexibility and security.
+            </p>
+            
+            <p className="text-gray-300 mb-6 leading-relaxed">
+              In a world filled with gaps between needs and supply, and between ideas and execution, we decided to build a practical solution grounded in:
+            </p>
+            
+            <ul className="list-disc list-inside text-gray-300 mb-6 space-y-2">
+              <li>• Collective empowerment</li>
+              <li>• Contractual fairness</li>
+              <li>• Intelligent role integration</li>
+              <li>• Bridging collaborative economy with international commercial law</li>
+            </ul>
+            
+            <p className="text-gray-300 mb-6 leading-relaxed">
+              Combining our expertise in international trade, arbitration, technology, and business management, we built this platform to transform negotiation from a privilege into a professional, participatory process — accessible to all, not just those with influence or budget.
+            </p>
+            
+            <p className="text-gray-300 mb-6 leading-relaxed">
+              Our vision is for <strong>GPO SMART</strong> to become a vital link between individuals and institutions across global markets — a real tool for fair negotiation, and a foundation for cooperative projects based on transparent, legally recognized principles.
+            </p>
+            
+            <p className="text-gray-300 mb-6 leading-relaxed">
+              We promise to uphold the values of innovation, governance, and user protection in every interaction and transaction on this platform.
+            </p>
+            
+            <div className="text-center mt-8">
+              <p className="text-blue-400 font-semibold">
+                Yours sincerely,<br />
+                Mohamed Hassanein & Ahmed Seddiq
+              </p>
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Company Info */}
           <div className="col-span-1 md:col-span-2">
