@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HashRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./hooks/useAuth";
 import { LanguageProvider } from "./hooks/useLanguage";
-import MainLayout from "./components/layout/MainLayout";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -50,38 +49,36 @@ function App() {
             <Sonner />
             <HashRouter>
               <Routes>
+                <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<Auth />} />
-                <Route element={<MainLayout />}>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/settings" element={<Settings />} />
-                  <Route path="/create-group" element={<CreateGroup />} />
-                  <Route path="/my-groups" element={<MyGroups />} />
-                  <Route path="/group/:id" element={<GroupDetails />} />
-                  <Route path="/group-room/:id" element={<EnhancedGroupRoom />} />
-                  <Route path="/company-formation" element={<CompanyFormation />} />
-                  <Route path="/company-hub" element={<CompanyHub />} />
-                  <Route path="/investment" element={<InvestmentPortal />} />
-                  <Route path="/suppliers" element={<Suppliers />} />
-                  <Route path="/supplier-dashboard" element={<SupplierDashboard />} />
-                  <Route path="/freelancer-dashboard" element={<FreelancerDashboard />} />
-                  <Route path="/negotiations" element={<Negotiations />} />
-                  <Route path="/contracts" element={<Contracts />} />
-                  <Route path="/contract/:id" element={<ContractPage />} />
-                  <Route path="/arbitration" element={<ArbitrationHub />} />
-                  <Route path="/voting" element={<VotingPage />} />
-                  <Route path="/analytics" element={<Analytics />} />
-                  <Route path="/admin" element={<AdminDashboard />} />
-                  <Route path="/platform-management" element={<PlatformManagement />} />
-                  <Route path="/governance" element={<Governance />} />
-                  <Route path="/services" element={<Services />} />
-                  <Route path="/rfq" element={<RFQ />} />
-                  <Route path="/portfolio" element={<Portfolio />} />
-                  <Route path="/parties" element={<Parties />} />
-                  <Route path="/automation" element={<Automation />} />
-                  <Route path="/points" element={<Points />} />
-                </Route>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/create-group" element={<CreateGroup />} />
+                <Route path="/my-groups" element={<MyGroups />} />
+                <Route path="/group/:id" element={<GroupDetails />} />
+                <Route path="/group-room/:id" element={<EnhancedGroupRoom />} />
+                <Route path="/company-formation" element={<CompanyFormation />} />
+                <Route path="/company-hub" element={<CompanyHub />} />
+                <Route path="/investment" element={<InvestmentPortal />} />
+                <Route path="/suppliers" element={<Suppliers />} />
+                <Route path="/supplier-dashboard" element={<SupplierDashboard />} />
+                <Route path="/freelancer-dashboard" element={<FreelancerDashboard />} />
+                <Route path="/negotiations" element={<Negotiations />} />
+                <Route path="/contracts" element={<Contracts />} />
+                <Route path="/contract/:id" element={<ContractPage />} />
+                <Route path="/arbitration" element={<ArbitrationHub />} />
+                <Route path="/voting" element={<VotingPage />} />
+                <Route path="/analytics" element={<Analytics />} />
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/platform-management" element={<PlatformManagement />} />
+                <Route path="/governance" element={<Governance />} />
+                <Route path="/services" element={<Services />} />
+                <Route path="/rfq" element={<RFQ />} />
+                <Route path="/portfolio" element={<Portfolio />} />
+                <Route path="/parties" element={<Parties />} />
+                <Route path="/automation" element={<Automation />} />
+                <Route path="/points" element={<Points />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </HashRouter>
@@ -93,5 +90,4 @@ function App() {
 }
 
 export default App;
-
 
