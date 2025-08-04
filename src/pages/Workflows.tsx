@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { 
   Search, 
   Filter, 
@@ -15,12 +15,176 @@ import {
   Users,
   FileText,
   Building2,
-  Coins
+  Coins,
+  Workflow
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/Sidebar';
 import WorkflowEngine from '@/components/workflow/WorkflowEngine';
-import { workflowTemplates, getWorkflowsByCategory } from '@/components/workflow/WorkflowTemplates';
+
+// Mock workflow templates with English content
+const workflowTemplates = [
+  {
+    id: '1',
+    name: 'Group Formation Workflow',
+    description: 'Complete process for creating and setting up a new purchasing group',
+    category: 'Group Management',
+    estimatedTime: 30,
+    complexity: 'medium' as const,
+    steps: [
+      {
+        id: 'step-1',
+        title: 'Define Group Purpose',
+        description: 'Clearly outline the group\'s purchasing objectives and target products',
+        status: 'pending' as const,
+        type: 'manual' as const,
+        duration: 10,
+        requirements: ['Business plan outline', 'Target product list'],
+        outputs: ['Group charter document']
+      },
+      {
+        id: 'step-2',
+        title: 'Set Governance Rules',
+        description: 'Establish voting mechanisms and decision-making processes',
+        status: 'pending' as const,
+        type: 'manual' as const,
+        duration: 15,
+        requirements: ['Group charter', 'Governance template'],
+        outputs: ['Governance document', 'Voting rules']
+      },
+      {
+        id: 'step-3',
+        title: 'Generate Legal Documents',
+        description: 'Automatically create necessary legal agreements',
+        status: 'pending' as const,
+        type: 'automatic' as const,
+        duration: 5,
+        requirements: ['Group details', 'Governance rules'],
+        outputs: ['Legal agreements', 'Terms of service']
+      }
+    ]
+  },
+  {
+    id: '2',
+    name: 'Supplier Negotiation Process',
+    description: 'Structured approach to negotiate with suppliers for better terms',
+    category: 'Negotiations',
+    estimatedTime: 45,
+    complexity: 'complex' as const,
+    steps: [
+      {
+        id: 'step-1',
+        title: 'Prepare Negotiation Strategy',
+        description: 'Analyze requirements and prepare negotiation points',
+        status: 'pending' as const,
+        type: 'manual' as const,
+        duration: 20,
+        requirements: ['RFQ details', 'Market analysis'],
+        outputs: ['Negotiation strategy', 'Key talking points']
+      },
+      {
+        id: 'step-2',
+        title: 'Conduct Negotiations',
+        description: 'Execute negotiation sessions with suppliers',
+        status: 'pending' as const,
+        type: 'manual' as const,
+        duration: 20,
+        requirements: ['Strategy document', 'Supplier contacts'],
+        outputs: ['Negotiation notes', 'Revised offers']
+      },
+      {
+        id: 'step-3',
+        title: 'Finalize Agreement',
+        description: 'Complete final agreement and documentation',
+        status: 'pending' as const,
+        type: 'approval' as const,
+        duration: 5,
+        requirements: ['Final terms', 'Legal review'],
+        outputs: ['Signed contract', 'Payment schedule']
+      }
+    ]
+  },
+  {
+    id: '3',
+    name: 'Contract Management Workflow',
+    description: 'End-to-end contract lifecycle management process',
+    category: 'Contracts',
+    estimatedTime: 25,
+    complexity: 'simple' as const,
+    steps: [
+      {
+        id: 'step-1',
+        title: 'Draft Contract',
+        description: 'Create initial contract based on negotiated terms',
+        status: 'pending' as const,
+        type: 'automatic' as const,
+        duration: 10,
+        requirements: ['Negotiation results', 'Contract template'],
+        outputs: ['Draft contract']
+      },
+      {
+        id: 'step-2',
+        title: 'Review and Approve',
+        description: 'Legal and business review of contract terms',
+        status: 'pending' as const,
+        type: 'approval' as const,
+        duration: 10,
+        requirements: ['Draft contract', 'Stakeholder list'],
+        outputs: ['Approved contract', 'Review comments']
+      },
+      {
+        id: 'step-3',
+        title: 'Execute Contract',
+        description: 'Finalize signatures and activate contract',
+        status: 'pending' as const,
+        type: 'manual' as const,
+        duration: 5,
+        requirements: ['Approved contract', 'Signatory access'],
+        outputs: ['Executed contract', 'Activation notice']
+      }
+    ]
+  },
+  {
+    id: '4',
+    name: 'Service Provider Onboarding',
+    description: 'Complete onboarding process for new service providers',
+    category: 'Services',
+    estimatedTime: 35,
+    complexity: 'medium' as const,
+    steps: [
+      {
+        id: 'step-1',
+        title: 'Verify Credentials',
+        description: 'Check and validate service provider credentials',
+        status: 'pending' as const,
+        type: 'manual' as const,
+        duration: 15,
+        requirements: ['Application form', 'Verification documents'],
+        outputs: ['Credential report', 'Verification status']
+      },
+      {
+        id: 'step-2',
+        title: 'Setup Profile',
+        description: 'Create comprehensive service provider profile',
+        status: 'pending' as const,
+        type: 'manual' as const,
+        duration: 15,
+        requirements: ['Verified credentials', 'Profile template'],
+        outputs: ['Complete profile', 'Service catalog']
+      },
+      {
+        id: 'step-3',
+        title: 'Activate Account',
+        description: 'Finalize account setup and grant platform access',
+        status: 'pending' as const,
+        type: 'automatic' as const,
+        duration: 5,
+        requirements: ['Complete profile', 'System access'],
+        outputs: ['Active account', 'Welcome package']
+      }
+    ]
+  }
+];
 
 const Workflows = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -82,7 +246,7 @@ const Workflows = () => {
         {/* Page Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
-            <Settings className="w-8 h-8 text-blue-600" />
+            <Workflow className="w-8 h-8 text-blue-600" />
             Smart Workflows
           </h1>
           <p className="text-gray-600">
@@ -193,7 +357,7 @@ const Workflows = () => {
 
         {filteredWorkflows.length === 0 && (
           <div className="text-center py-12">
-            <Settings className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+            <Workflow className="w-16 h-16 mx-auto mb-4 text-gray-300" />
             <h3 className="text-lg font-semibold mb-2">No workflows found</h3>
             <p className="text-gray-600">Try adjusting your search criteria</p>
           </div>

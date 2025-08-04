@@ -25,41 +25,23 @@ import PlatformFeatureManager from '@/components/admin/PlatformFeatureManager';
 const AdminDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Fetch admin dashboard data
-  const { data: adminData, isLoading } = useQuery({
-    queryKey: ['admin-dashboard'],
-    queryFn: async () => {
-      const [usersResult, groupsResult, supplierOffersResult, votingSessionsResult] = await Promise.all([
-        supabase.from('profiles').select('*'),
-        supabase.from('groups').select('*'),
-        supabase.from('supplier_offers').select('*'),
-        supabase.from('voting_sessions').select('*')
-      ]);
-
-      const totalUsers = usersResult.data?.length || 0;
-      const totalGroups = groupsResult.data?.length || 0;
-      const totalOffers = (supplierOffersResult.data?.length || 0);
-      const pendingOffers = (supplierOffersResult.data?.filter(o => o.status === 'pending') || []).length;
-
-      const totalRevenue = (supplierOffersResult.data?.filter(o => o.status === 'completed') || []).reduce((sum, offer) => {
-        const priceDetails = offer.price_details as any;
-        const amount = priceDetails?.amount || 0;
-        return sum + Number(amount);
-      }, 0);
-
-      return {
-        totalUsers,
-        totalGroups,
-        totalOffers,
-        pendingOffers,
-        totalRevenue,
-        activeGroups: groupsResult.data?.filter(g => g.status === 'active').length || 0,
-        recentUsers: usersResult.data?.slice(-5) || [],
-        recentGroups: groupsResult.data?.slice(-5) || [],
-        systemHealth: 95 // Mock data
-      };
-    }
-  });
+  // Mock admin dashboard data
+  const adminData = {
+    totalUsers: 1250,
+    activeGroups: 89,
+    totalRevenue: 125780.50,
+    pendingOffers: 24,
+    systemHealth: 95,
+    recentUsers: [
+      { id: '1', full_name: 'John Smith', created_at: '2024-01-15' },
+      { id: '2', full_name: 'Sarah Johnson', created_at: '2024-01-14' },
+      { id: '3', full_name: 'Mike Brown', created_at: '2024-01-13' }
+    ],
+    recentGroups: [
+      { id: '1', name: 'Tech Equipment Group', description: 'Latest tech for startups', status: 'active', created_at: '2024-01-15' },
+      { id: '2', name: 'Office Supplies Bulk', description: 'Bulk office materials', status: 'active', created_at: '2024-01-14' }
+    ]
+  };
 
   const stats = [
     {
@@ -113,18 +95,6 @@ const AdminDashboard = () => {
       status: 'excellent'
     }
   ];
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
-        <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-        <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
@@ -236,9 +206,6 @@ const AdminDashboard = () => {
                           </div>
                         </div>
                       ))}
-                      {(!adminData?.recentUsers || adminData.recentUsers.length === 0) && (
-                        <p className="text-gray-500 text-center py-4">No recent users</p>
-                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -266,9 +233,6 @@ const AdminDashboard = () => {
                           </div>
                         </div>
                       ))}
-                      {(!adminData?.recentGroups || adminData.recentGroups.length === 0) && (
-                        <p className="text-gray-500 text-center py-4">No recent groups</p>
-                      )}
                     </div>
                   </CardContent>
                 </Card>

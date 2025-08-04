@@ -27,8 +27,8 @@ const InvestmentStats: React.FC<InvestmentStatsProps> = ({
           <div className="flex items-center justify-between">
             <div>
               <p className="text-2xl font-bold text-gray-900">${totalInvested.toLocaleString()}</p>
-              <p className="text-gray-600 text-sm">إجمالي الاستثمارات</p>
-              <p className="text-xs text-blue-600 mt-1">{activeInvestments} استثمار نشط</p>
+              <p className="text-gray-600 text-sm">Total Investments</p>
+              <p className="text-xs text-blue-600 mt-1">{activeInvestments} active investments</p>
             </div>
             <DollarSign className="w-8 h-8 text-blue-500" />
           </div>
@@ -40,8 +40,8 @@ const InvestmentStats: React.FC<InvestmentStatsProps> = ({
           <div className="flex items-center justify-between">
             <div>
               <p className="text-2xl font-bold text-gray-900">${currentValue.toLocaleString()}</p>
-              <p className="text-gray-600 text-sm">القيمة الحالية</p>
-              <p className="text-xs text-green-600 mt-1">+{returnPercentage}% العائد</p>
+              <p className="text-gray-600 text-sm">Current Value</p>
+              <p className="text-xs text-green-600 mt-1">+{returnPercentage}% return</p>
             </div>
             <TrendingUp className="w-8 h-8 text-green-500" />
           </div>
@@ -53,8 +53,8 @@ const InvestmentStats: React.FC<InvestmentStatsProps> = ({
           <div className="flex items-center justify-between">
             <div>
               <p className="text-2xl font-bold text-green-600">+${totalReturn.toLocaleString()}</p>
-              <p className="text-gray-600 text-sm">إجمالي الأرباح</p>
-              <p className="text-xs text-gray-500 mt-1">{companies} شركات</p>
+              <p className="text-gray-600 text-sm">Total Profit</p>
+              <p className="text-xs text-gray-500 mt-1">{companies} companies</p>
             </div>
             <Building2 className="w-8 h-8 text-green-500" />
           </div>

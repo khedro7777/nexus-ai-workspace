@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from "@/lib/utils";
@@ -32,7 +33,8 @@ import {
   Archive,
   Bell,
   Wallet,
-  MessageSquare
+  MessageSquare,
+  Workflow
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -46,169 +48,175 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
 
   const menuItems = [
     {
-      title: "الرئيسية",
+      title: "Home",
       icon: Home,
       href: "/",
       section: "main"
     },
     {
-      title: "لوحة التحكم",
+      title: "Dashboard",
       icon: BarChart3,
       href: "/dashboard",
       section: "main"
     },
     {
-      title: "مجموعاتي",
+      title: "My Groups",
       icon: Users,
       href: "/my-groups",
       section: "groups"
     },
     {
-      title: "إنشاء مجموعة",
+      title: "Create Group",
       icon: Building2,
       href: "/create-group",
       section: "groups"
     },
     {
-      title: "الإشعارات",
+      title: "Notifications",
       icon: Bell,
       href: "/notifications",
       section: "dashboard"
     },
     {
-      title: "محفظة النقاط",
+      title: "Points Wallet",
       icon: Wallet,
       href: "/points",
       section: "dashboard"
     },
     {
-      title: "المساعد الذكي",
+      title: "AI Assistant",
       icon: Brain,
       href: "/ai-assistant",
       section: "dashboard"
     },
     {
-      title: "التحكيم",
+      title: "Arbitration",
       icon: Gavel,
       href: "/arbitration",
       section: "dashboard"
     },
     {
-      title: "الأرشيف",
+      title: "Archive",
       icon: Archive,
       href: "/archive",
       section: "dashboard"
     },
     {
-      title: "المتجر",
+      title: "C2C Store",
       icon: Store,
-      href: "/marketplace",
-      section: "dashboard"
+      href: "/c2c-store",
+      section: "marketplace"
     },
     {
-      title: "الخدمات",
+      title: "Services",
       icon: Briefcase,
       href: "/services",
-      section: "dashboard"
+      section: "marketplace"
     },
     {
-      title: "المفاوضات",
+      title: "Smart Workflows",
+      icon: Workflow,
+      href: "/workflows",
+      section: "automation"
+    },
+    {
+      title: "Negotiations",
       icon: MessageSquare,
       href: "/negotiations",
       section: "business"
     },
     {
-      title: "الموردين",
+      title: "Suppliers",
       icon: Truck,
       href: "/suppliers",
       section: "business"
     },
     {
-      title: "طلبات العروض",
+      title: "RFQ",
       icon: Package,
       href: "/rfq",
       section: "business"
     },
     {
-      title: "العقود",
+      title: "Contracts",
       icon: FileText,
       href: "/contracts",
       section: "business"
     },
     {
-      title: "التصويت",
+      title: "Voting",
       icon: Vote,
       href: "/voting",
       section: "governance"
     },
     {
-      title: "الحوكمة",
+      title: "Governance",
       icon: Shield,
       href: "/governance",
       section: "governance"
     },
     {
-      title: "التحليلات",
+      title: "Analytics",
       icon: TrendingUp,
       href: "/analytics",
       section: "tools"
     },
     {
-      title: "الاستثمار",
+      title: "Investment Portal",
       icon: TrendingUp,
       href: "/investment",
       section: "tools"
     },
     {
-      title: "تكوين الشركات",
+      title: "Company Formation",
       icon: Factory,
       href: "/company-formation",
       section: "tools"
     },
     {
-      title: "مركز الشركات",
+      title: "Company Hub",
       icon: Building2,
       href: "/company-hub",
       section: "tools"
     },
     {
-      title: "الأتمتة",
+      title: "Automation",
       icon: Zap,
       href: "/automation",
       section: "tools"
     },
     {
-      title: "إدارة المنصة",
+      title: "Platform Management",
       icon: Crown,
       href: "/platform-management",
       section: "admin"
     },
     {
-      title: "لوحة الإدارة",
+      title: "Admin Dashboard",
       icon: UserCheck,
       href: "/admin",
       section: "admin"
     },
     {
-      title: "لوحة المورد",
+      title: "Supplier Dashboard",
       icon: Truck,
       href: "/supplier-dashboard",
       section: "roles"
     },
     {
-      title: "لوحة المستقل",
+      title: "Freelancer Dashboard",
       icon: User,
       href: "/freelancer-dashboard",
       section: "roles"
     },
     {
-      title: "الملف الشخصي",
+      title: "Profile",
       icon: User,
       href: "/profile",
       section: "account"
     },
     {
-      title: "الإعدادات",
+      title: "Settings",
       icon: Settings,
       href: "/settings",
       section: "account"
@@ -216,15 +224,17 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
   ];
 
   const sections = {
-    main: "الرئيسية",
-    groups: "المجموعات",
-    dashboard: "لوحة التحكم",
-    business: "الأعمال",
-    governance: "الحوكمة",
-    tools: "الأدوات",
-    admin: "الإدارة",
-    roles: "الأدوار المتخصصة",
-    account: "الحساب"
+    main: "Main",
+    groups: "Groups",
+    dashboard: "Dashboard",
+    marketplace: "Marketplace",
+    automation: "Automation",
+    business: "Business",
+    governance: "Governance",
+    tools: "Tools",
+    admin: "Administration",
+    roles: "Specialized Roles",
+    account: "Account"
   };
 
   const isActive = (href: string) => {
@@ -248,12 +258,12 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
       
       {/* Sidebar */}
       <div className={cn(
-        "fixed top-0 right-0 z-50 h-full w-64 bg-white border-l border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0",
-        open ? "translate-x-0" : "translate-x-full"
+        "fixed top-0 left-0 z-50 h-full w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0",
+        open ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="flex flex-col h-full">
           <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-blue-700">
-            <h2 className="text-lg font-semibold text-white">🧠 GPODO</h2>
+            <h2 className="text-lg font-semibold text-white">🧠 GPO Nexus</h2>
             <p className="text-sm text-blue-100 mt-1">Smart Collaborative Platform</p>
           </div>
           
@@ -281,7 +291,7 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
                                 : "text-gray-700 hover:bg-blue-50 hover:text-blue-600"
                             )}
                           >
-                            <item.icon className="ml-2 h-4 w-4" />
+                            <item.icon className="mr-2 h-4 w-4" />
                             {item.title}
                           </Button>
                         </Link>
@@ -302,8 +312,8 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
                 className="w-full justify-start h-10 px-3 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300"
                 onClick={handleSignOut}
               >
-                <LogOut className="ml-2 h-4 w-4" />
-                تسجيل الخروج
+                <LogOut className="mr-2 h-4 w-4" />
+                Sign Out
               </Button>
             </div>
           )}
@@ -314,4 +324,3 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
 };
 
 export default Sidebar;
-
