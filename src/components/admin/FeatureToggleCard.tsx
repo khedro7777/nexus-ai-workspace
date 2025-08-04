@@ -3,112 +3,58 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Eye, 
-  EyeOff, 
-  Users, 
-  Vote, 
-  Bot, 
-  FileText, 
-  Shield,
-  Calendar,
-  Settings
-} from 'lucide-react';
-
-interface FeatureConfig {
-  id: string;
-  name: string;
-  description: string;
-  visible: boolean;
-  features: {
-    [key: string]: boolean;
-  };
-}
+import { Settings, Eye, EyeOff } from 'lucide-react';
 
 interface FeatureToggleCardProps {
-  config: FeatureConfig;
-  onToggleVisibility: (id: string, visible: boolean) => void;
-  onToggleFeature: (id: string, feature: string, enabled: boolean) => void;
+  title: string;
+  description: string;
+  enabled: boolean;
+  onToggle: (enabled: boolean) => void;
+  category?: string;
 }
 
 const FeatureToggleCard: React.FC<FeatureToggleCardProps> = ({
-  config,
-  onToggleVisibility,
-  onToggleFeature
+  title,
+  description,
+  enabled,
+  onToggle,
+  category = 'General'
 }) => {
-  const getFeatureIcon = (featureKey: string) => {
-    const iconMap: { [key: string]: React.ElementType } = {
-      create_group: Users,
-      voting: Vote,
-      mcp_assistant: Bot,
-      offer_submission: FileText,
-      ipfs_files: FileText,
-      arbitration: Shield,
-      company_builder: Settings,
-      advisor_election: Calendar
-    };
-    
-    const IconComponent = iconMap[featureKey] || Settings;
-    return <IconComponent className="w-4 h-4" />;
-  };
-
-  const getFeatureName = (featureKey: string) => {
-    const nameMap: { [key: string]: string } = {
-      create_group: 'Create Group',
-      voting: 'Voting System',
-      mcp_assistant: 'MCP Assistant',
-      offer_submission: 'Offer Submission',
-      ipfs_files: 'IPFS Files',
-      arbitration: 'Arbitration System',
-      company_builder: 'Company Builder',
-      advisor_election: 'Advisor Election'
-    };
-    
-    return nameMap[featureKey] || featureKey.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
-  };
-
   return (
-    <Card className="w-full">
-      <CardHeader>
+    <Card className={`transition-all duration-200 ${enabled ? 'border-green-200 bg-green-50' : 'border-gray-200'}`}>
+      <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {config.visible ? (
-              <Eye className="w-5 h-5 text-green-600" />
-            ) : (
-              <EyeOff className="w-5 h-5 text-red-600" />
-            )}
-            <CardTitle className="text-lg">{config.name}</CardTitle>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Settings className="w-5 h-5" />
+            {title}
+          </CardTitle>
+          <div className="flex items-center gap-2">
+            <Badge variant={enabled ? 'default' : 'secondary'}>
+              {category}
+            </Badge>
+            <Switch
+              checked={enabled}
+              onCheckedChange={onToggle}
+            />
           </div>
-          <Switch
-            checked={config.visible}
-            onCheckedChange={(checked) => onToggleVisibility(config.id, checked)}
-          />
         </div>
-        <p className="text-sm text-gray-600">{config.description}</p>
-        <Badge variant={config.visible ? 'default' : 'secondary'}>
-          {config.visible ? 'Visible' : 'Hidden'}
-        </Badge>
       </CardHeader>
-      
-      {config.visible && (
-        <CardContent>
-          <div className="space-y-3">
-            <h4 className="text-sm font-medium text-gray-700 mb-2">Portal Features</h4>
-            {Object.entries(config.features).map(([featureKey, enabled]) => (
-              <div key={featureKey} className="flex items-center justify-between p-2 border rounded-lg">
-                <div className="flex items-center gap-2">
-                  {getFeatureIcon(featureKey)}
-                  <span className="text-sm">{getFeatureName(featureKey)}</span>
-                </div>
-                <Switch
-                  checked={enabled}
-                  onCheckedChange={(checked) => onToggleFeature(config.id, featureKey, checked)}
-                />
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      )}
+      <CardContent>
+        <p className="text-gray-600 text-sm mb-3">{description}</p>
+        <div className="flex items-center gap-2 text-xs">
+          {enabled ? (
+            <>
+              <Eye className="w-3 h-3 text-green-600" />
+              <span className="text-green-600 font-medium">Active</span>
+            </>
+          ) : (
+            <>
+              <EyeOff className="w-3 h-3 text-gray-500" />
+              <span className="text-gray-500">Disabled</span>
+            </>
+          )}
+        </div>
+      </CardContent>
     </Card>
   );
 };

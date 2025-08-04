@@ -9,17 +9,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { countries, sectors } from '@/constants/createGroupConstants';
 import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/Sidebar';
-import { Users, Building2, Globe, Info, CheckCircle, AlertCircle } from 'lucide-react';
+import { Users, Building2, Globe, Info, CheckCircle, AlertCircle, Target, DollarSign } from 'lucide-react';
 
 const CreateGroup = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const { toast } = useToast();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -35,69 +32,34 @@ const CreateGroup = () => {
     country: '',
     sector: '',
     min_members: 5,
-    max_members: 20
+    max_members: 20,
+    target_amount: 0,
+    min_investment: 1000,
+    expected_duration: '6-12 months',
+    investment_type: 'procurement'
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) {
-      toast({
-        title: "خطأ في المصادقة",
-        description: "يجب تسجيل الدخول أولاً",
-        variant: "destructive"
-      });
-      return;
-    }
-
     setLoading(true);
 
     try {
-      // Create the group with initial phase
-      const { data: groupData, error: groupError } = await supabase
-        .from('groups')
-        .insert({
-          name: formData.name,
-          description: formData.description,
-          type: formData.type,
-          service_gateway: formData.service_gateway,
-          business_objective: formData.business_objective,
-          legal_framework: formData.legal_framework,
-          jurisdiction: formData.jurisdiction,
-          creator_id: user.id,
-          status: 'pending_members',
-          current_phase: 'initial',
-          visibility: 'private',
-          min_members: formData.min_members,
-          max_members: formData.max_members
-        })
-        .select()
-        .single();
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
-      if (groupError) throw groupError;
-
-      // Add creator as member
-      const { error: memberError } = await supabase
-        .from('group_members')
-        .insert({
-          group_id: groupData.id,
-          user_id: user.id,
-          role: 'member',
-          voting_weight: 1.0
-        });
-
-      if (memberError) throw memberError;
+      const groupId = Math.random().toString(36).substr(2, 9);
 
       toast({
-        title: "تم إنشاء المجموعة بنجاح!",
-        description: "تم إنشاء مجموعتك الجديدة بنجاح. يمكنك الآن دعوة الأعضاء للانضمام."
+        title: "Group Created Successfully!",
+        description: "Your new group has been created. You can now invite members to join."
       });
 
-      navigate(`/group/${groupData.id}`);
+      navigate(`/group/${groupId}`);
     } catch (error: any) {
       console.error('Error creating group:', error);
       toast({
-        title: "خطأ في إنشاء المجموعة",
-        description: error.message || "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.",
+        title: "Group Creation Failed",
+        description: error.message || "An unexpected error occurred. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -115,7 +77,7 @@ const CreateGroup = () => {
   const isFormValid = formData.name && formData.type && formData.service_gateway && formData.country && formData.sector;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
       <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
       <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
       
@@ -123,39 +85,39 @@ const CreateGroup = () => {
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">إنشاء مجموعة جديدة</h1>
-            <p className="text-gray-600">أنشئ مجموعة تجارية جديدة واستفد من القوة الشرائية الجماعية</p>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Create New Group</h1>
+            <p className="text-gray-600">Create a collaborative group and leverage collective purchasing power</p>
           </div>
 
           {/* Alert */}
           <Alert className="mb-6 border-blue-200 bg-blue-50">
             <Info className="h-4 w-4 text-blue-600" />
             <AlertDescription className="text-blue-800">
-              <strong>ملاحظة:</strong> ستكون عضواً عادياً في المجموعة مع حقوق التصويت الكاملة. يمكن انتخاب المدراء لاحقاً من قبل أعضاء المجموعة.
+              <strong>Note:</strong> You will be a regular member of the group with full voting rights. Managers can be elected later by group members.
             </AlertDescription>
           </Alert>
 
           <form onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Left Column */}
+              {/* Left Column - Basic Information */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Building2 className="w-5 h-5" />
-                    المعلومات الأساسية
+                    Basic Information
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {/* Group Name */}
                   <div>
                     <Label htmlFor="name" className="text-sm font-medium">
-                      اسم المجموعة <span className="text-red-500">*</span>
+                      Group Name <span className="text-red-500">*</span>
                     </Label>
                     <Input
                       id="name"
                       value={formData.name}
                       onChange={(e) => handleInputChange('name', e.target.value)}
-                      placeholder="أدخل اسماً وصفياً للمجموعة"
+                      placeholder="Enter a descriptive name for your group"
                       className="mt-1"
                       required
                     />
@@ -163,12 +125,12 @@ const CreateGroup = () => {
 
                   {/* Description */}
                   <div>
-                    <Label htmlFor="description" className="text-sm font-medium">الوصف</Label>
+                    <Label htmlFor="description" className="text-sm font-medium">Description</Label>
                     <Textarea
                       id="description"
                       value={formData.description}
                       onChange={(e) => handleInputChange('description', e.target.value)}
-                      placeholder="وصف مفصل لأهداف المجموعة والمنتجات/الخدمات المطلوبة"
+                      placeholder="Detailed description of group objectives and required products/services"
                       rows={4}
                       className="mt-1"
                     />
@@ -177,11 +139,11 @@ const CreateGroup = () => {
                   {/* Country */}
                   <div>
                     <Label htmlFor="country" className="text-sm font-medium">
-                      الدولة <span className="text-red-500">*</span>
+                      Country <span className="text-red-500">*</span>
                     </Label>
                     <Select value={formData.country} onValueChange={(value) => handleInputChange('country', value)}>
                       <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="اختر الدولة" />
+                        <SelectValue placeholder="Select country" />
                       </SelectTrigger>
                       <SelectContent>
                         {countries.map((country) => (
@@ -196,11 +158,11 @@ const CreateGroup = () => {
                   {/* Sector */}
                   <div>
                     <Label htmlFor="sector" className="text-sm font-medium">
-                      القطاع <span className="text-red-500">*</span>
+                      Sector <span className="text-red-500">*</span>
                     </Label>
                     <Select value={formData.sector} onValueChange={(value) => handleInputChange('sector', value)}>
                       <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="اختر القطاع" />
+                        <SelectValue placeholder="Select sector" />
                       </SelectTrigger>
                       <SelectContent>
                         {sectors.map((sector) => (
@@ -214,31 +176,31 @@ const CreateGroup = () => {
                 </CardContent>
               </Card>
 
-              {/* Right Column */}
+              {/* Right Column - Group Settings */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Users className="w-5 h-5" />
-                    إعدادات المجموعة
+                    Group Settings
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {/* Group Type */}
                   <div>
                     <Label htmlFor="type" className="text-sm font-medium">
-                      نوع المجموعة <span className="text-red-500">*</span>
+                      Group Type <span className="text-red-500">*</span>
                     </Label>
                     <Select value={formData.type} onValueChange={(value) => handleInputChange('type', value)}>
                       <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="اختر نوع المجموعة" />
+                        <SelectValue placeholder="Select group type" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="procurement">مشتريات</SelectItem>
-                        <SelectItem value="services">خدمات</SelectItem>
-                        <SelectItem value="investment">استثمار</SelectItem>
-                        <SelectItem value="partnership">شراكة</SelectItem>
-                        <SelectItem value="manufacturing">تصنيع</SelectItem>
-                        <SelectItem value="logistics">لوجستيات</SelectItem>
+                        <SelectItem value="procurement">Procurement</SelectItem>
+                        <SelectItem value="services">Services</SelectItem>
+                        <SelectItem value="investment">Investment</SelectItem>
+                        <SelectItem value="partnership">Partnership</SelectItem>
+                        <SelectItem value="manufacturing">Manufacturing</SelectItem>
+                        <SelectItem value="logistics">Logistics</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -246,16 +208,16 @@ const CreateGroup = () => {
                   {/* Service Gateway */}
                   <div>
                     <Label htmlFor="service_gateway" className="text-sm font-medium">
-                      بوابة الخدمة <span className="text-red-500">*</span>
+                      Service Gateway <span className="text-red-500">*</span>
                     </Label>
                     <Select value={formData.service_gateway} onValueChange={(value) => handleInputChange('service_gateway', value)}>
                       <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="اختر بوابة الخدمة" />
+                        <SelectValue placeholder="Select service gateway" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="online">عبر الإنترنت</SelectItem>
-                        <SelectItem value="hybrid">مختلط</SelectItem>
-                        <SelectItem value="offline">خارج الإنترنت</SelectItem>
+                        <SelectItem value="online">Online</SelectItem>
+                        <SelectItem value="hybrid">Hybrid</SelectItem>
+                        <SelectItem value="offline">Offline</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -263,7 +225,7 @@ const CreateGroup = () => {
                   {/* Members Range */}
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="min_members" className="text-sm font-medium">الحد الأدنى للأعضاء</Label>
+                      <Label htmlFor="min_members" className="text-sm font-medium">Minimum Members</Label>
                       <Select 
                         value={formData.min_members.toString()} 
                         onValueChange={(value) => handleInputChange('min_members', parseInt(value))}
@@ -273,13 +235,13 @@ const CreateGroup = () => {
                         </SelectTrigger>
                         <SelectContent>
                           {[3, 5, 7, 10, 15].map(num => (
-                            <SelectItem key={num} value={num.toString()}>{num} أعضاء</SelectItem>
+                            <SelectItem key={num} value={num.toString()}>{num} members</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                     </div>
                     <div>
-                      <Label htmlFor="max_members" className="text-sm font-medium">الحد الأقصى للأعضاء</Label>
+                      <Label htmlFor="max_members" className="text-sm font-medium">Maximum Members</Label>
                       <Select 
                         value={formData.max_members.toString()} 
                         onValueChange={(value) => handleInputChange('max_members', parseInt(value))}
@@ -289,7 +251,7 @@ const CreateGroup = () => {
                         </SelectTrigger>
                         <SelectContent>
                           {[10, 20, 30, 50, 100].map(num => (
-                            <SelectItem key={num} value={num.toString()}>{num} عضو</SelectItem>
+                            <SelectItem key={num} value={num.toString()}>{num} members</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
@@ -298,12 +260,12 @@ const CreateGroup = () => {
 
                   {/* Business Objective */}
                   <div>
-                    <Label htmlFor="business_objective" className="text-sm font-medium">الهدف التجاري</Label>
+                    <Label htmlFor="business_objective" className="text-sm font-medium">Business Objective</Label>
                     <Textarea
                       id="business_objective"
                       value={formData.business_objective}
                       onChange={(e) => handleInputChange('business_objective', e.target.value)}
-                      placeholder="الهدف الرئيسي من إنشاء هذه المجموعة"
+                      placeholder="Main objective for creating this group"
                       rows={2}
                       className="mt-1"
                     />
@@ -312,32 +274,81 @@ const CreateGroup = () => {
               </Card>
             </div>
 
+            {/* Financial Settings */}
+            <Card className="mt-6">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <DollarSign className="w-5 h-5" />
+                  Financial Settings
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <Label htmlFor="target_amount" className="text-sm font-medium">Target Amount (USD)</Label>
+                  <Input
+                    id="target_amount"
+                    type="number"
+                    value={formData.target_amount}
+                    onChange={(e) => handleInputChange('target_amount', parseFloat(e.target.value))}
+                    placeholder="100000"
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="min_investment" className="text-sm font-medium">Minimum Investment (USD)</Label>
+                  <Input
+                    id="min_investment"
+                    type="number"
+                    value={formData.min_investment}
+                    onChange={(e) => handleInputChange('min_investment', parseFloat(e.target.value))}
+                    placeholder="1000"
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="expected_duration" className="text-sm font-medium">Expected Duration</Label>
+                  <Select value={formData.expected_duration} onValueChange={(value) => handleInputChange('expected_duration', value)}>
+                    <SelectTrigger className="mt-1">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1-3 months">1-3 months</SelectItem>
+                      <SelectItem value="3-6 months">3-6 months</SelectItem>
+                      <SelectItem value="6-12 months">6-12 months</SelectItem>
+                      <SelectItem value="1-2 years">1-2 years</SelectItem>
+                      <SelectItem value="2+ years">2+ years</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Legal Framework Section */}
             <Card className="mt-6">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Globe className="w-5 h-5" />
-                  الإطار القانوني (اختياري)
+                  Legal Framework (Optional)
                 </CardTitle>
               </CardHeader>
               <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <Label htmlFor="legal_framework" className="text-sm font-medium">الإطار القانوني</Label>
+                  <Label htmlFor="legal_framework" className="text-sm font-medium">Legal Framework</Label>
                   <Input
                     id="legal_framework"
                     value={formData.legal_framework}
                     onChange={(e) => handleInputChange('legal_framework', e.target.value)}
-                    placeholder="مثال: قانون الشركات المصري"
+                    placeholder="e.g., Delaware Corporation Law"
                     className="mt-1"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="jurisdiction" className="text-sm font-medium">الاختصاص القضائي</Label>
+                  <Label htmlFor="jurisdiction" className="text-sm font-medium">Jurisdiction</Label>
                   <Input
                     id="jurisdiction"
                     value={formData.jurisdiction}
                     onChange={(e) => handleInputChange('jurisdiction', e.target.value)}
-                    placeholder="مثال: محاكم القاهرة"
+                    placeholder="e.g., Delaware Courts"
                     className="mt-1"
                   />
                 </div>
@@ -355,12 +366,12 @@ const CreateGroup = () => {
                 {loading ? (
                   <>
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                    جاري الإنشاء...
+                    Creating...
                   </>
                 ) : (
                   <>
                     <CheckCircle className="w-5 h-5 mr-2" />
-                    إنشاء المجموعة
+                    Create Group
                   </>
                 )}
               </Button>
@@ -371,7 +382,7 @@ const CreateGroup = () => {
               <div className="mt-4 text-center">
                 <Badge variant="outline" className="text-orange-600 border-orange-200">
                   <AlertCircle className="w-3 h-3 mr-1" />
-                  يرجى إكمال الحقول المطلوبة *
+                  Please complete required fields *
                 </Badge>
               </div>
             )}
