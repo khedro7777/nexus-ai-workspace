@@ -221,7 +221,7 @@ const SnapshotVoting: React.FC<SnapshotVotingProps> = ({ groupId }) => {
         type: newProposal.type,
         status: 'draft',
         author_id: user?.id || '',
-        author_name: user?.user_metadata?.full_name || 'مجهول',
+        author_name: user?.name || 'مجهول',
         created_at: new Date().toISOString(),
         start_time: new Date().toISOString(),
         end_time: new Date(Date.now() + newProposal.duration * 24 * 60 * 60 * 1000).toISOString(),
@@ -276,7 +276,7 @@ const SnapshotVoting: React.FC<SnapshotVotingProps> = ({ groupId }) => {
         id: Date.now().toString(),
         proposal_id: selectedProposal.id,
         voter_id: user?.id || '',
-        voter_name: user?.user_metadata?.full_name || 'مجهول',
+        voter_name: user?.name || 'مجهول',
         choices: selectedChoices,
         voting_power: 10, // Mock voting power
         timestamp: new Date().toISOString()
