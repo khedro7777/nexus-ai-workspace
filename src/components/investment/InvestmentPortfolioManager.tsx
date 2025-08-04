@@ -66,7 +66,7 @@ const InvestmentPortfolioManager: React.FC = () => {
       risk: 'high',
       expectedReturn: 42
     }
-  ];
+  ]);
 
   const totalInvested = investments.reduce((sum, inv) => sum + inv.investedAmount, 0);
   const totalCurrentValue = investments.reduce((sum, inv) => sum + inv.currentValue, 0);
