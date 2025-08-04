@@ -20,6 +20,7 @@ interface AuthContextType {
   sendOTP: (email: string) => Promise<{ error?: string }>;
   verifyOTP: (email: string, otp: string) => Promise<{ error?: string }>;
   logout: () => void;
+  signOut: () => void;
   resendOTP: (email: string) => Promise<{ error?: string }>;
 }
 
@@ -278,6 +279,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   };
 
+  // Alias for signOut
+  const signOut = logout;
+
   const value: AuthContextType = {
     user,
     loading,
@@ -285,6 +289,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     sendOTP,
     verifyOTP,
     logout,
+    signOut,
     resendOTP
   };
 
@@ -302,4 +307,3 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
-

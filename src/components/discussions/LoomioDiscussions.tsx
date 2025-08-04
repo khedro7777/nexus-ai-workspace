@@ -151,7 +151,7 @@ const LoomioDiscussions: React.FC<LoomioDiscussionsProps> = ({ groupId }) => {
         id: Date.now().toString(),
         ...newDiscussion,
         author_id: user?.id || '',
-        author_name: user?.user_metadata?.full_name || 'مجهول',
+        author_name: user?.name || 'مجهول', // Use name instead of user_metadata.full_name
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         replies_count: 0,
@@ -196,7 +196,7 @@ const LoomioDiscussions: React.FC<LoomioDiscussionsProps> = ({ groupId }) => {
         discussion_id: selectedDiscussion.id,
         content: newReply.content,
         author_id: user?.id || '',
-        author_name: user?.user_metadata?.full_name || 'مجهول',
+        author_name: user?.name || 'مجهول', // Use name instead of user_metadata.full_name
         created_at: new Date().toISOString(),
         position: newReply.position,
         likes: 0,
