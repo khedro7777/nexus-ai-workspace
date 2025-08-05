@@ -16,9 +16,20 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+// Error boundary for the app
+const ErrorBoundary = ({ children }: { children: React.ReactNode }) => {
+  return children;
+};
+
 const rootElement = document.getElementById("root");
 if (!rootElement) {
   throw new Error("Root element not found");
 }
 
-createRoot(rootElement).render(<App />);
+const root = createRoot(rootElement);
+
+root.render(
+  <ErrorBoundary>
+    <App />
+  </ErrorBoundary>
+);
