@@ -72,19 +72,25 @@ const Index = () => {
     const mockResults = [
       {
         id: '1',
-        title: 'Tech Startups Group',
+        name: 'Tech Startups Group',
         description: 'Group for technology startups to share resources and collaborate',
         memberCount: 45,
         category: 'Technology',
-        status: 'Active'
+        status: 'Active',
+        phase: 'Active',
+        rating: 4.5,
+        maxMembers: 50
       },
       {
         id: '2',
-        title: 'Green Energy Initiative',
+        name: 'Green Energy Initiative',
         description: 'Collaborative group focusing on renewable energy solutions',
         memberCount: 32,
         category: 'Environment',
-        status: 'Active'
+        status: 'Active',
+        phase: 'Forming',
+        rating: 4.2,
+        maxMembers: 40
       }
     ];
     
@@ -95,6 +101,12 @@ const Index = () => {
   const handleGroupClick = (group) => {
     setSelectedGroup(group);
     setShowGroupProfile(true);
+  };
+
+  const handleJoinGroup = (group) => {
+    console.log('Joining group:', group);
+    // Handle group joining logic here
+    setShowGroupProfile(false);
   };
 
   return (
@@ -110,14 +122,14 @@ const Index = () => {
               <h2 className="text-3xl font-bold text-gray-900 mb-4">Find Your Perfect Group</h2>
               <p className="text-xl text-gray-600">Search and filter groups based on your interests and needs</p>
             </div>
-            <HomepageFilters onSubmit={handleFilterSubmit} />
+            <HomepageFilters onFiltersSubmit={handleFilterSubmit} />
           </section>
 
           {/* Search Results */}
           {showResults && (
             <section className="mb-16">
               <FilteredGroupsResults 
-                results={filterResults} 
+                groups={filterResults} 
                 onGroupClick={handleGroupClick}
               />
             </section>
@@ -225,6 +237,7 @@ const Index = () => {
             group={selectedGroup}
             isOpen={showGroupProfile}
             onClose={() => setShowGroupProfile(false)}
+            onJoinGroup={handleJoinGroup}
           />
         )}
       </div>
