@@ -1,65 +1,193 @@
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import Header from '@/components/layout/Header';
+import Sidebar from '@/components/layout/Sidebar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
-import { countries, sectors } from '@/constants/createGroupConstants';
-import Header from '@/components/layout/Header';
-import Sidebar from '@/components/layout/Sidebar';
-import { Users, Building2, Globe, Info, CheckCircle, AlertCircle, Target, DollarSign } from 'lucide-react';
+import { 
+  Users, 
+  Building2, 
+  Target,
+  Calendar,
+  DollarSign,
+  Globe,
+  Shield,
+  CheckCircle,
+  ArrowRight,
+  ArrowLeft,
+  Info,
+  Lightbulb
+} from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+
+interface FormData {
+  // Basic Information
+  groupName: string;
+  description: string;
+  category: string;
+  contractType: 'group' | 'individual';
+  
+  // Group Settings
+  maxMembers: number;
+  minMembers: number;
+  joiningFee: number;
+  
+  // Location & Scope
+  country: string;
+  region: string;
+  globalAccess: boolean;
+  
+  // Business Details
+  businessObjective: string;
+  targetBudget: number;
+  negotiationRounds: number;
+  
+  // Legal & Compliance
+  legalFramework: string;
+  jurisdiction: string;
+  complianceRequirements: string[];
+  
+  // Timeline
+  formationDeadline: string;
+  firstNegotiationDate: string;
+  
+  // Privacy & Access
+  visibility: 'public' | 'private' | 'invitation-only';
+  requireApproval: boolean;
+  
+  // Additional Features
+  features: string[];
+}
 
 const CreateGroup = () => {
-  const navigate = useNavigate();
-  const { toast } = useToast();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
-    name: '',
+  const totalSteps = 5;
+  const progress = (currentStep / totalSteps) * 100;
+
+  const [formData, setFormData] = useState<FormData>({
+    groupName: '',
     description: '',
-    type: '',
-    service_gateway: '',
-    business_objective: '',
-    legal_framework: '',
-    jurisdiction: '',
+    category: '',
+    contractType: 'group',
+    maxMembers: 50,
+    minMembers: 5,
+    joiningFee: 0,
     country: '',
-    sector: '',
-    min_members: 5,
-    max_members: 20,
-    target_amount: 0,
-    min_investment: 1000,
-    expected_duration: '6-12 months',
-    investment_type: 'procurement'
+    region: '',
+    globalAccess: false,
+    businessObjective: '',
+    targetBudget: 0,
+    negotiationRounds: 3,
+    legalFramework: '',
+    jurisdiction: '',
+    complianceRequirements: [],
+    formationDeadline: '',
+    firstNegotiationDate: '',
+    visibility: 'public',
+    requireApproval: false,
+    features: []
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+  const categories = [
+    'Technology & Software',
+    'Manufacturing & Equipment',
+    'Office Supplies',
+    'Healthcare & Medical',
+    'Energy & Utilities',
+    'Construction & Materials',
+    'Professional Services',
+    'Transportation & Logistics',
+    'Food & Beverage',
+    'Marketing & Advertising'
+  ];
 
+  const countries = [
+    'United States',
+    'United Kingdom',
+    'Canada',
+    'Germany',
+    'France',
+    'Australia',
+    'Japan',
+    'Singapore',
+    'UAE',
+    'Saudi Arabia'
+  ];
+
+  const legalFrameworks = [
+    'Common Law',
+    'Civil Law',
+    'Sharia Law',
+    'Hybrid System',
+    'Custom Agreement'
+  ];
+
+  const availableFeatures = [
+    { id: 'smart-contracts', name: 'Smart Contracts', description: 'Automated contract execution' },
+    { id: 'ai-assistant', name: 'AI Assistant', description: 'Intelligent recommendations' },
+    { id: 'voting-system', name: 'Voting System', description: 'Democratic decision making' },
+    { id: 'arbitration', name: 'Arbitration Support', description: 'Dispute resolution' },
+    { id: 'analytics', name: 'Advanced Analytics', description: 'Performance insights' },
+    { id: 'multi-currency', name: 'Multi-Currency', description: 'International payments' }
+  ];
+
+  const complianceOptions = [
+    'GDPR Compliance',
+    'CCPA Compliance',
+    'SOX Compliance',
+    'ISO 27001',
+    'PCI DSS',
+    'HIPAA',
+    'Custom Requirements'
+  ];
+
+  const updateFormData = (updates: Partial<FormData>) => {
+    setFormData(prev => ({ ...prev, ...updates }));
+  };
+
+  const handleNext = () => {
+    if (currentStep < totalSteps) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000));
-
-      const groupId = Math.random().toString(36).substr(2, 9);
-
+      
       toast({
         title: "Group Created Successfully!",
-        description: "Your new group has been created. You can now invite members to join."
+        description: `"${formData.groupName}" has been created and is now accepting members.`
       });
-
-      navigate(`/group/${groupId}`);
-    } catch (error: any) {
-      console.error('Error creating group:', error);
+      
+      navigate('/my-groups');
+    } catch (error) {
       toast({
-        title: "Group Creation Failed",
-        description: error.message || "An unexpected error occurred. Please try again.",
+        title: "Creation Failed",
+        description: "There was an error creating your group. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -67,326 +195,470 @@ const CreateGroup = () => {
     }
   };
 
-  const handleInputChange = (field: string, value: string | number) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Basic Information</h3>
+              
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="groupName">Group Name *</Label>
+                  <Input
+                    id="groupName"
+                    value={formData.groupName}
+                    onChange={(e) => updateFormData({ groupName: e.target.value })}
+                    placeholder="Enter a descriptive name for your group"
+                    className="mt-1"
+                  />
+                </div>
 
-  const isFormValid = formData.name && formData.type && formData.service_gateway && formData.country && formData.sector;
+                <div>
+                  <Label htmlFor="description">Description *</Label>
+                  <Textarea
+                    id="description"
+                    value={formData.description}
+                    onChange={(e) => updateFormData({ description: e.target.value })}
+                    placeholder="Describe the purpose and goals of your group"
+                    rows={4}
+                    className="mt-1"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="category">Category *</Label>
+                  <Select value={formData.category} onValueChange={(value) => updateFormData({ category: value })}>
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Select a category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label className="text-base font-medium">Contract Type</Label>
+                  <RadioGroup 
+                    value={formData.contractType} 
+                    onValueChange={(value: 'group' | 'individual') => updateFormData({ contractType: value })}
+                    className="mt-2"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="group" id="group" />
+                      <Label htmlFor="group">Group Contract - Collective purchasing with shared terms</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="individual" id="individual" />
+                      <Label htmlFor="individual">Individual Contracts - Separate agreements for each member</Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 2:
+        return (
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Group Settings</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="minMembers">Minimum Members</Label>
+                  <Input
+                    id="minMembers"
+                    type="number"
+                    min="2"
+                    max="100"
+                    value={formData.minMembers}
+                    onChange={(e) => updateFormData({ minMembers: parseInt(e.target.value) })}
+                    className="mt-1"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="maxMembers">Maximum Members</Label>
+                  <Input
+                    id="maxMembers"
+                    type="number"
+                    min="5"
+                    max="1000"
+                    value={formData.maxMembers}
+                    onChange={(e) => updateFormData({ maxMembers: parseInt(e.target.value) })}
+                    className="mt-1"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="joiningFee">Joining Fee (USD)</Label>
+                  <Input
+                    id="joiningFee"
+                    type="number"
+                    min="0"
+                    value={formData.joiningFee}
+                    onChange={(e) => updateFormData({ joiningFee: parseInt(e.target.value) })}
+                    className="mt-1"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="targetBudget">Target Budget (USD)</Label>
+                  <Input
+                    id="targetBudget"
+                    type="number"
+                    min="0"
+                    value={formData.targetBudget}
+                    onChange={(e) => updateFormData({ targetBudget: parseInt(e.target.value) })}
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-6">
+                <Label>Privacy Settings</Label>
+                <RadioGroup 
+                  value={formData.visibility} 
+                  onValueChange={(value: 'public' | 'private' | 'invitation-only') => updateFormData({ visibility: value })}
+                  className="mt-2"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="public" id="public" />
+                    <Label htmlFor="public">Public - Anyone can find and join</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="private" id="private" />
+                    <Label htmlFor="private">Private - Requires approval to join</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="invitation-only" id="invitation" />
+                    <Label htmlFor="invitation">Invitation Only - Members can only be invited</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 3:
+        return (
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Location & Business Details</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="country">Primary Country</Label>
+                  <Select value={formData.country} onValueChange={(value) => updateFormData({ country: value })}>
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Select country" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {countries.map((country) => (
+                        <SelectItem key={country} value={country}>
+                          {country}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="region">Region/State</Label>
+                  <Input
+                    id="region"
+                    value={formData.region}
+                    onChange={(e) => updateFormData({ region: e.target.value })}
+                    placeholder="Enter region or state"
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-2 mt-4">
+                <Checkbox 
+                  id="globalAccess" 
+                  checked={formData.globalAccess}
+                  onCheckedChange={(checked) => updateFormData({ globalAccess: checked as boolean })}
+                />
+                <Label htmlFor="globalAccess">Allow global membership</Label>
+              </div>
+
+              <div className="mt-6">
+                <Label htmlFor="businessObjective">Business Objective</Label>
+                <Textarea
+                  id="businessObjective"
+                  value={formData.businessObjective}
+                  onChange={(e) => updateFormData({ businessObjective: e.target.value })}
+                  placeholder="Describe what your group aims to achieve"
+                  rows={3}
+                  className="mt-1"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="negotiationRounds">Planned Negotiation Rounds</Label>
+                <Select 
+                  value={formData.negotiationRounds.toString()} 
+                  onValueChange={(value) => updateFormData({ negotiationRounds: parseInt(value) })}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">1 Round</SelectItem>
+                    <SelectItem value="2">2 Rounds</SelectItem>
+                    <SelectItem value="3">3 Rounds</SelectItem>
+                    <SelectItem value="4">4 Rounds</SelectItem>
+                    <SelectItem value="5">5+ Rounds</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 4:
+        return (
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Legal Framework & Timeline</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="legalFramework">Legal Framework</Label>
+                  <Select value={formData.legalFramework} onValueChange={(value) => updateFormData({ legalFramework: value })}>
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Select framework" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {legalFrameworks.map((framework) => (
+                        <SelectItem key={framework} value={framework}>
+                          {framework}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="jurisdiction">Jurisdiction</Label>
+                  <Input
+                    id="jurisdiction"
+                    value={formData.jurisdiction}
+                    onChange={(e) => updateFormData({ jurisdiction: e.target.value })}
+                    placeholder="e.g., Delaware, UK, Singapore"
+                    className="mt-1"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="formationDeadline">Formation Deadline</Label>
+                  <Input
+                    id="formationDeadline"
+                    type="date"
+                    value={formData.formationDeadline}
+                    onChange={(e) => updateFormData({ formationDeadline: e.target.value })}
+                    className="mt-1"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="firstNegotiation">First Negotiation Date</Label>
+                  <Input
+                    id="firstNegotiation"
+                    type="date"
+                    value={formData.firstNegotiationDate}
+                    onChange={(e) => updateFormData({ firstNegotiationDate: e.target.value })}
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-6">
+                <Label className="text-base font-medium mb-3 block">Compliance Requirements</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  {complianceOptions.map((option) => (
+                    <div key={option} className="flex items-center space-x-2">
+                      <Checkbox 
+                        id={option}
+                        checked={formData.complianceRequirements.includes(option)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            updateFormData({ 
+                              complianceRequirements: [...formData.complianceRequirements, option]
+                            });
+                          } else {
+                            updateFormData({ 
+                              complianceRequirements: formData.complianceRequirements.filter(req => req !== option)
+                            });
+                          }
+                        }}
+                      />
+                      <Label htmlFor={option} className="text-sm">{option}</Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 5:
+        return (
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Features & Review</h3>
+              
+              <div className="mb-6">
+                <Label className="text-base font-medium mb-3 block">Select Additional Features</Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {availableFeatures.map((feature) => (
+                    <div key={feature.id} className="border rounded-lg p-4">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <Checkbox 
+                          id={feature.id}
+                          checked={formData.features.includes(feature.id)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              updateFormData({ 
+                                features: [...formData.features, feature.id]
+                              });
+                            } else {
+                              updateFormData({ 
+                                features: formData.features.filter(f => f !== feature.id)
+                              });
+                            }
+                          }}
+                        />
+                        <Label htmlFor={feature.id} className="font-medium">{feature.name}</Label>
+                      </div>
+                      <p className="text-sm text-gray-600 ml-6">{feature.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Review Summary */}
+              <div className="bg-gray-50 rounded-lg p-6">
+                <h4 className="font-semibold mb-4">Review Your Group</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <strong>Group Name:</strong> {formData.groupName}
+                  </div>
+                  <div>
+                    <strong>Category:</strong> {formData.category}
+                  </div>
+                  <div>
+                    <strong>Members:</strong> {formData.minMembers}-{formData.maxMembers}
+                  </div>
+                  <div>
+                    <strong>Visibility:</strong> {formData.visibility}
+                  </div>
+                  <div>
+                    <strong>Country:</strong> {formData.country}
+                  </div>
+                  <div>
+                    <strong>Budget:</strong> ${formData.targetBudget.toLocaleString()}
+                  </div>
+                </div>
+                
+                {formData.features.length > 0 && (
+                  <div className="mt-4">
+                    <strong>Features:</strong>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {formData.features.map((featureId) => {
+                        const feature = availableFeatures.find(f => f.id === featureId);
+                        return feature ? (
+                          <Badge key={featureId} variant="outline">
+                            {feature.name}
+                          </Badge>
+                        ) : null;
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
       <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
       <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
-      
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Create New Group</h1>
-            <p className="text-gray-600">Create a collaborative group and leverage collective purchasing power</p>
+
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Create New Group</h1>
+          <p className="text-gray-600">Set up your collaborative purchasing group</p>
+        </div>
+
+        {/* Progress Bar */}
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-sm font-medium">Step {currentStep} of {totalSteps}</span>
+            <span className="text-sm text-gray-600">{Math.round(progress)}% Complete</span>
           </div>
+          <Progress value={progress} className="h-2" />
+        </div>
 
-          {/* Alert */}
-          <Alert className="mb-6 border-blue-200 bg-blue-50">
-            <Info className="h-4 w-4 text-blue-600" />
-            <AlertDescription className="text-blue-800">
-              <strong>Note:</strong> You will be a regular member of the group with full voting rights. Managers can be elected later by group members.
-            </AlertDescription>
-          </Alert>
+        {/* Form Content */}
+        <Card>
+          <CardContent className="p-8">
+            {renderStepContent()}
+          </CardContent>
+        </Card>
 
-          <form onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Left Column - Basic Information */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Building2 className="w-5 h-5" />
-                    Basic Information
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {/* Group Name */}
-                  <div>
-                    <Label htmlFor="name" className="text-sm font-medium">
-                      Group Name <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      id="name"
-                      value={formData.name}
-                      onChange={(e) => handleInputChange('name', e.target.value)}
-                      placeholder="Enter a descriptive name for your group"
-                      className="mt-1"
-                      required
-                    />
-                  </div>
+        {/* Navigation */}
+        <div className="flex justify-between mt-6">
+          <Button 
+            variant="outline" 
+            onClick={handlePrevious}
+            disabled={currentStep === 1}
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Previous
+          </Button>
 
-                  {/* Description */}
-                  <div>
-                    <Label htmlFor="description" className="text-sm font-medium">Description</Label>
-                    <Textarea
-                      id="description"
-                      value={formData.description}
-                      onChange={(e) => handleInputChange('description', e.target.value)}
-                      placeholder="Detailed description of group objectives and required products/services"
-                      rows={4}
-                      className="mt-1"
-                    />
-                  </div>
-
-                  {/* Country */}
-                  <div>
-                    <Label htmlFor="country" className="text-sm font-medium">
-                      Country <span className="text-red-500">*</span>
-                    </Label>
-                    <Select value={formData.country} onValueChange={(value) => handleInputChange('country', value)}>
-                      <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="Select country" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {countries.map((country) => (
-                          <SelectItem key={country.value} value={country.value}>
-                            {country.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Sector */}
-                  <div>
-                    <Label htmlFor="sector" className="text-sm font-medium">
-                      Sector <span className="text-red-500">*</span>
-                    </Label>
-                    <Select value={formData.sector} onValueChange={(value) => handleInputChange('sector', value)}>
-                      <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="Select sector" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {sectors.map((sector) => (
-                          <SelectItem key={sector} value={sector}>
-                            {sector}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Right Column - Group Settings */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Users className="w-5 h-5" />
-                    Group Settings
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {/* Group Type */}
-                  <div>
-                    <Label htmlFor="type" className="text-sm font-medium">
-                      Group Type <span className="text-red-500">*</span>
-                    </Label>
-                    <Select value={formData.type} onValueChange={(value) => handleInputChange('type', value)}>
-                      <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="Select group type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="procurement">Procurement</SelectItem>
-                        <SelectItem value="services">Services</SelectItem>
-                        <SelectItem value="investment">Investment</SelectItem>
-                        <SelectItem value="partnership">Partnership</SelectItem>
-                        <SelectItem value="manufacturing">Manufacturing</SelectItem>
-                        <SelectItem value="logistics">Logistics</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Service Gateway */}
-                  <div>
-                    <Label htmlFor="service_gateway" className="text-sm font-medium">
-                      Service Gateway <span className="text-red-500">*</span>
-                    </Label>
-                    <Select value={formData.service_gateway} onValueChange={(value) => handleInputChange('service_gateway', value)}>
-                      <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="Select service gateway" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="online">Online</SelectItem>
-                        <SelectItem value="hybrid">Hybrid</SelectItem>
-                        <SelectItem value="offline">Offline</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Members Range */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="min_members" className="text-sm font-medium">Minimum Members</Label>
-                      <Select 
-                        value={formData.min_members.toString()} 
-                        onValueChange={(value) => handleInputChange('min_members', parseInt(value))}
-                      >
-                        <SelectTrigger className="mt-1">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {[3, 5, 7, 10, 15].map(num => (
-                            <SelectItem key={num} value={num.toString()}>{num} members</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label htmlFor="max_members" className="text-sm font-medium">Maximum Members</Label>
-                      <Select 
-                        value={formData.max_members.toString()} 
-                        onValueChange={(value) => handleInputChange('max_members', parseInt(value))}
-                      >
-                        <SelectTrigger className="mt-1">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {[10, 20, 30, 50, 100].map(num => (
-                            <SelectItem key={num} value={num.toString()}>{num} members</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  {/* Business Objective */}
-                  <div>
-                    <Label htmlFor="business_objective" className="text-sm font-medium">Business Objective</Label>
-                    <Textarea
-                      id="business_objective"
-                      value={formData.business_objective}
-                      onChange={(e) => handleInputChange('business_objective', e.target.value)}
-                      placeholder="Main objective for creating this group"
-                      rows={2}
-                      className="mt-1"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Financial Settings */}
-            <Card className="mt-6">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <DollarSign className="w-5 h-5" />
-                  Financial Settings
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                  <Label htmlFor="target_amount" className="text-sm font-medium">Target Amount (USD)</Label>
-                  <Input
-                    id="target_amount"
-                    type="number"
-                    value={formData.target_amount}
-                    onChange={(e) => handleInputChange('target_amount', parseFloat(e.target.value))}
-                    placeholder="100000"
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="min_investment" className="text-sm font-medium">Minimum Investment (USD)</Label>
-                  <Input
-                    id="min_investment"
-                    type="number"
-                    value={formData.min_investment}
-                    onChange={(e) => handleInputChange('min_investment', parseFloat(e.target.value))}
-                    placeholder="1000"
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="expected_duration" className="text-sm font-medium">Expected Duration</Label>
-                  <Select value={formData.expected_duration} onValueChange={(value) => handleInputChange('expected_duration', value)}>
-                    <SelectTrigger className="mt-1">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1-3 months">1-3 months</SelectItem>
-                      <SelectItem value="3-6 months">3-6 months</SelectItem>
-                      <SelectItem value="6-12 months">6-12 months</SelectItem>
-                      <SelectItem value="1-2 years">1-2 years</SelectItem>
-                      <SelectItem value="2+ years">2+ years</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Legal Framework Section */}
-            <Card className="mt-6">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Globe className="w-5 h-5" />
-                  Legal Framework (Optional)
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <Label htmlFor="legal_framework" className="text-sm font-medium">Legal Framework</Label>
-                  <Input
-                    id="legal_framework"
-                    value={formData.legal_framework}
-                    onChange={(e) => handleInputChange('legal_framework', e.target.value)}
-                    placeholder="e.g., Delaware Corporation Law"
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="jurisdiction" className="text-sm font-medium">Jurisdiction</Label>
-                  <Input
-                    id="jurisdiction"
-                    value={formData.jurisdiction}
-                    onChange={(e) => handleInputChange('jurisdiction', e.target.value)}
-                    placeholder="e.g., Delaware Courts"
-                    className="mt-1"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Submit Button */}
-            <div className="mt-8 flex justify-center">
-              <Button 
-                type="submit" 
-                size="lg"
-                className="px-12 py-3 text-lg"
-                disabled={loading || !isFormValid}
-              >
-                {loading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                    Creating...
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle className="w-5 h-5 mr-2" />
-                    Create Group
-                  </>
-                )}
-              </Button>
-            </div>
-
-            {/* Form Status */}
-            {!isFormValid && (
-              <div className="mt-4 text-center">
-                <Badge variant="outline" className="text-orange-600 border-orange-200">
-                  <AlertCircle className="w-3 h-3 mr-1" />
-                  Please complete required fields *
-                </Badge>
-              </div>
-            )}
-          </form>
+          {currentStep === totalSteps ? (
+            <Button 
+              onClick={handleSubmit}
+              disabled={loading}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  Create Group
+                </>
+              )}
+            </Button>
+          ) : (
+            <Button onClick={handleNext}>
+              Next
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          )}
         </div>
       </div>
     </div>
