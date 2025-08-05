@@ -1,17 +1,13 @@
-
 import React, { useState } from 'react';
 import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/Sidebar';
 import InvestmentPortfolioManager from '@/components/investment/InvestmentPortfolioManager';
 import InvestmentStats from '@/components/investment/InvestmentStats';
+import InvestmentOpportunityCard from '@/components/investment/InvestmentOpportunityCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { 
   TrendingUp, 
-  Building2, 
-  Users, 
   DollarSign,
   Plus,
   Search,
@@ -105,6 +101,16 @@ const InvestmentPortal = () => {
     }
   ]);
 
+  // Mock investment stats data
+  const investmentStats = {
+    totalInvested: 450000,
+    currentValue: 587500,
+    totalReturn: 137500,
+    returnPercentage: 30.6,
+    activeInvestments: 8,
+    companies: 12
+  };
+
   const getRiskColor = (risk: string) => {
     switch (risk) {
       case 'low': return 'bg-green-100 text-green-800';
@@ -131,6 +137,16 @@ const InvestmentPortal = () => {
       case 'group-venture': return Users;
       default: return DollarSign;
     }
+  };
+
+  const handleInvest = (id: string) => {
+    console.log('Investing in opportunity:', id);
+    // Handle investment logic
+  };
+
+  const handleViewDetails = (id: string) => {
+    console.log('Viewing details for opportunity:', id);
+    // Handle view details logic
   };
 
   return (
@@ -183,95 +199,14 @@ const InvestmentPortal = () => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {opportunities.map(opportunity => {
-                const TypeIcon = getTypeIcon(opportunity.type);
-                const progressPercent = (opportunity.raisedAmount / opportunity.targetAmount) * 100;
-                
-                return (
-                  <Card key={opportunity.id} className="hover:shadow-lg transition-shadow duration-300">
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-start gap-3">
-                          <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center">
-                            <TypeIcon className="w-6 h-6 text-blue-600" />
-                          </div>
-                          <div>
-                            <CardTitle className="text-lg">{opportunity.title}</CardTitle>
-                            <p className="text-sm text-gray-600 capitalize">{opportunity.type.replace('-', ' ')}</p>
-                          </div>
-                        </div>
-                        
-                        <div className="flex gap-2">
-                          <Badge className={getStatusColor(opportunity.status)}>
-                            {opportunity.status}
-                          </Badge>
-                          <Badge className={getRiskColor(opportunity.riskLevel)}>
-                            {opportunity.riskLevel} risk
-                          </Badge>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    
-                    <CardContent className="space-y-4">
-                      <p className="text-gray-700">{opportunity.description}</p>
-                      
-                      {/* Progress Bar */}
-                      <div>
-                        <div className="flex justify-between items-center mb-2">
-                          <span className="text-sm text-gray-600">Funding Progress</span>
-                          <span className="text-sm font-medium">{progressPercent.toFixed(1)}%</span>
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                            style={{ width: `${Math.min(progressPercent, 100)}%` }}
-                          />
-                        </div>
-                        <div className="flex justify-between text-xs text-gray-500 mt-1">
-                          <span>${opportunity.raisedAmount.toLocaleString()} raised</span>
-                          <span>${opportunity.targetAmount.toLocaleString()} target</span>
-                        </div>
-                      </div>
-
-                      {/* Investment Details */}
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-xs text-gray-500">Min Investment</p>
-                          <p className="font-semibold">${opportunity.minInvestment.toLocaleString()}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-500">Expected Return</p>
-                          <p className="font-semibold text-green-600">{opportunity.expectedReturn}%</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-500">Duration</p>
-                          <p className="font-semibold">{opportunity.duration}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-500">Members</p>
-                          <p className="font-semibold">{opportunity.membersJoined}/{opportunity.maxMembers}</p>
-                        </div>
-                      </div>
-
-                      <div className="flex justify-between items-center pt-2">
-                        <div>
-                          <p className="text-xs text-gray-500">Deadline</p>
-                          <p className="text-sm font-medium">{new Date(opportunity.deadline).toLocaleDateString()}</p>
-                        </div>
-                        
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm">
-                            View Details
-                          </Button>
-                          <Button size="sm" disabled={opportunity.status === 'closed'}>
-                            {opportunity.status === 'closed' ? 'Closed' : 'Invest Now'}
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
+              {opportunities.map(opportunity => (
+                <InvestmentOpportunityCard
+                  key={opportunity.id}
+                  {...opportunity}
+                  onInvest={handleInvest}
+                  onViewDetails={handleViewDetails}
+                />
+              ))}
             </div>
           </TabsContent>
 
@@ -282,7 +217,14 @@ const InvestmentPortal = () => {
 
           {/* Analytics */}
           <TabsContent value="analytics">
-            <InvestmentStats />
+            <InvestmentStats
+              totalInvested={investmentStats.totalInvested}
+              currentValue={investmentStats.currentValue}
+              totalReturn={investmentStats.totalReturn}
+              returnPercentage={investmentStats.returnPercentage}
+              activeInvestments={investmentStats.activeInvestments}
+              companies={investmentStats.companies}
+            />
           </TabsContent>
         </Tabs>
       </div>
