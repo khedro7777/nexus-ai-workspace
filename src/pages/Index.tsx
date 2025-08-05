@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -21,10 +20,160 @@ import {
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/Sidebar';
+import HomepageFilters, { FilterState } from '@/components/filters/HomepageFilters';
+import FilteredGroupsResults from '@/components/home/FilteredGroupsResults';
+import GroupProfileModal from '@/components/home/GroupProfileModal';
+import PortalsGrid from '@/components/home/PortalsGrid';
+
+interface Group {
+  id: string;
+  name: string;
+  description: string;
+  phase: string;
+  memberCount: number;
+  maxMembers?: number;
+  status: string;
+  rating: number;
+  category: string;
+  country?: string;
+  portalType?: string;
+}
 
 const Index = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [filteredGroups, setFilteredGroups] = useState<Group[]>([]);
+  const [showResults, setShowResults] = useState(false);
+  const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
+  const [showGroupProfile, setShowGroupProfile] = useState(false);
   const navigate = useNavigate();
+
+  // Mock data for all available groups
+  const allGroups: Group[] = [
+    {
+      id: '1',
+      name: 'Electronic Devices Purchasing Group',
+      description: 'Looking for suppliers of electronic devices at wholesale prices',
+      phase: 'Forming',
+      memberCount: 12,
+      maxMembers: 50,
+      status: 'Looking for members',
+      rating: 4.5,
+      category: 'Electronics',
+      country: 'United States',
+      portalType: 'group-buying'
+    },
+    {
+      id: '2',
+      name: 'Raw Materials Purchasing Group',
+      description: 'Bulk purchasing of raw materials for small industries',
+      phase: 'Active',
+      memberCount: 25,
+      maxMembers: 30,
+      status: 'Active',
+      rating: 4.2,
+      category: 'Raw Materials',
+      country: 'Germany',
+      portalType: 'group-buying'
+    },
+    {
+      id: '3',
+      name: 'Local Products Marketing Campaign',
+      description: 'Joint marketing campaign for local products',
+      phase: 'Negotiating',
+      memberCount: 8,
+      status: 'Under negotiation',
+      rating: 4.7,
+      category: 'Marketing',
+      country: 'United Kingdom',
+      portalType: 'marketing'
+    },
+    {
+      id: '4',
+      name: 'Technology Company Formation',
+      description: 'Establishing a technology company with partners',
+      phase: 'Forming',
+      memberCount: 3,
+      maxMembers: 5,
+      status: 'Looking for members',
+      rating: 4.3,
+      category: 'Technology',
+      country: 'United States',
+      portalType: 'company-formation'
+    },
+    {
+      id: '5',
+      name: 'Real Estate Investment Group',
+      description: 'Collective investment in real estate projects',
+      phase: 'Active',
+      memberCount: 15,
+      status: 'Active',
+      rating: 4.6,
+      category: 'Real Estate',
+      country: 'UAE',
+      portalType: 'investment'
+    },
+    {
+      id: '6',
+      name: 'AI Investment Group',
+      description: 'Investment in emerging AI startups',
+      phase: 'Forming',
+      memberCount: 7,
+      maxMembers: 20,
+      status: 'Looking for members',
+      rating: 4.8,
+      category: 'Technology',
+      country: 'United States',
+      portalType: 'investment'
+    }
+  ];
+
+  const handleFiltersChange = (filters: FilterState) => {
+    console.log('Filters changed:', filters);
+  };
+
+  const handleFiltersSubmit = (filters: FilterState) => {
+    console.log('Submitting filters:', filters);
+    
+    // Filter groups based on the applied filters
+    let filtered = allGroups;
+    
+    if (filters.portalType) {
+      filtered = filtered.filter(group => group.portalType === filters.portalType);
+    }
+    
+    if (filters.country) {
+      filtered = filtered.filter(group => 
+        group.country?.toLowerCase().includes(filters.country.toLowerCase())
+      );
+    }
+    
+    if (filters.status) {
+      filtered = filtered.filter(group => 
+        group.status.toLowerCase().includes(filters.status.toLowerCase())
+      );
+    }
+    
+    if (filters.role) {
+      // Mock filtering by role - in real app this would check user's role in groups
+      filtered = filtered.filter(group => group.memberCount > 0);
+    }
+    
+    setFilteredGroups(filtered);
+    setShowResults(true);
+  };
+
+  const handleGroupClick = (group: Group) => {
+    setSelectedGroup(group);
+    setShowGroupProfile(true);
+  };
+
+  const handleJoinGroup = (group: Group) => {
+    console.log('Joining group:', group.name);
+    // In real app, this would handle the join group logic
+    setShowGroupProfile(false);
+    // Could redirect to group details page
+    navigate(`/group/${group.id}`);
+  };
 
   const features = [
     {
@@ -98,56 +247,84 @@ const Index = () => {
       <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
       <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
 
-      {/* Hero Section */}
-      <section className="container mx-auto px-4 py-16">
-        <div className="text-center max-w-4xl mx-auto">
-          <Badge className="mb-4 bg-blue-100 text-blue-800 hover:bg-blue-200">
-            🚀 Revolutionary Group Purchasing Platform
-          </Badge>
-          <h1 className="text-5xl font-bold text-gray-900 mb-6 leading-tight">
-            Welcome to <span className="text-blue-600">GPO Nexus</span>
-          </h1>
-          <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-            Your AI-powered unified workspace for collaborative purchasing, company formation, 
-            and smart business solutions. Join thousands of businesses saving money and growing together.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button 
-              size="lg" 
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3"
-              onClick={() => navigate('/create-group')}
-            >
-              Start Your Journey
-              <ArrowRight className="ml-2 w-5 h-5" />
-            </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
-              className="border-blue-600 text-blue-600 hover:bg-blue-50 px-8 py-3"
-              onClick={() => navigate('/dashboard')}
-            >
-              Explore Platform
-            </Button>
-          </div>
-        </div>
-      </section>
+      <div className="container mx-auto px-4 py-8">
+        {/* Smart Filters */}
+        <HomepageFilters 
+          onFiltersChange={handleFiltersChange}
+          onFiltersSubmit={handleFiltersSubmit}
+        />
 
-      {/* Stats Section */}
-      <section className="bg-white py-16">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <stat.icon className="w-6 h-6 text-blue-600" />
-                </div>
-                <div className="text-3xl font-bold text-gray-900 mb-2">{stat.value}</div>
-                <div className="text-gray-600">{stat.label}</div>
+        {/* Filtered Results */}
+        {showResults && (
+          <FilteredGroupsResults 
+            groups={filteredGroups}
+            onGroupClick={handleGroupClick}
+          />
+        )}
+
+        {/* Main Portals Grid */}
+        {!showResults && (
+          <>
+            {/* Hero Section */}
+            <section className="text-center max-w-4xl mx-auto mb-16">
+              <Badge className="mb-4 bg-blue-100 text-blue-800 hover:bg-blue-200">
+                🚀 Revolutionary Group Purchasing Platform
+              </Badge>
+              <h1 className="text-5xl font-bold text-gray-900 mb-6 leading-tight">
+                Welcome to <span className="text-blue-600">GPO Nexus</span>
+              </h1>
+              <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+                Your AI-powered unified workspace for collaborative purchasing, company formation, 
+                and smart business solutions. Join thousands of businesses saving money and growing together.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button 
+                  size="lg" 
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3"
+                  onClick={() => navigate('/create-group')}
+                >
+                  Start Your Journey
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  className="border-blue-600 text-blue-600 hover:bg-blue-50 px-8 py-3"
+                  onClick={() => navigate('/dashboard')}
+                >
+                  Explore Platform
+                </Button>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
+            </section>
+
+            {/* Stats Section */}
+            <section className="bg-white py-16 mb-16 rounded-lg">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                {stats.map((stat, index) => (
+                  <div key={index} className="text-center">
+                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                      <stat.icon className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <div className="text-3xl font-bold text-gray-900 mb-2">{stat.value}</div>
+                    <div className="text-gray-600">{stat.label}</div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Main Portals */}
+            <PortalsGrid />
+          </>
+        )}
+      </div>
+
+      {/* Group Profile Modal */}
+      <GroupProfileModal 
+        group={selectedGroup}
+        isOpen={showGroupProfile}
+        onClose={() => setShowGroupProfile(false)}
+        onJoinGroup={handleJoinGroup}
+      />
 
       {/* Features Section */}
       <section className="py-16">

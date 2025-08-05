@@ -1,13 +1,13 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Filter, Globe, Users, UserCheck } from 'lucide-react';
+import { Filter, Globe, Users, UserCheck, Search } from 'lucide-react';
 
 export interface HomepageFiltersProps {
   onFiltersChange?: (filters: FilterState) => void;
+  onFiltersSubmit?: (filters: FilterState) => void;
 }
 
 export interface FilterState {
@@ -17,7 +17,7 @@ export interface FilterState {
   role: string;
 }
 
-const HomepageFilters: React.FC<HomepageFiltersProps> = ({ onFiltersChange }) => {
+const HomepageFilters: React.FC<HomepageFiltersProps> = ({ onFiltersChange, onFiltersSubmit }) => {
   const [filters, setFilters] = useState<FilterState>({
     portalType: '',
     country: '',
@@ -36,6 +36,12 @@ const HomepageFilters: React.FC<HomepageFiltersProps> = ({ onFiltersChange }) =>
     setFilters(clearedFilters);
     onFiltersChange?.(clearedFilters);
   };
+
+  const handleSubmit = () => {
+    onFiltersSubmit?.(filters);
+  };
+
+  const hasFilters = Object.values(filters).some(value => value !== '');
 
   return (
     <Card className="mb-8 shadow-lg border-0 bg-white/80 backdrop-blur-sm">
@@ -126,9 +132,19 @@ const HomepageFilters: React.FC<HomepageFiltersProps> = ({ onFiltersChange }) =>
             )}
           </div>
           
-          <Button variant="outline" size="sm" onClick={clearFilters}>
-            Clear All
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              onClick={handleSubmit}
+              disabled={!hasFilters}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              <Search className="w-4 h-4 mr-2" />
+              Search Groups
+            </Button>
+            <Button variant="outline" size="sm" onClick={clearFilters}>
+              Clear All
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>
