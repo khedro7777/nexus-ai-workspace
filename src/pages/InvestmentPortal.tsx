@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/Sidebar';
@@ -11,7 +12,9 @@ import {
   DollarSign,
   Plus,
   Search,
-  Filter
+  Filter,
+  Building2,
+  Users
 } from 'lucide-react';
 
 interface InvestmentOpportunity {
